@@ -13,6 +13,7 @@ import TimeAgo from "react-timeago";
 import CustomPageLoader, { ButtonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
 import CommunityDiscussionAdminView from './CommunityDiscussionAdminView';
+import { useNavigate } from 'react-router';
 
 type Props = {
   loggedInUser: any;
@@ -25,6 +26,7 @@ const CommunityDiscussionMessageRoom = ({
   communityId,
   communityDiscussionId
 }: Props) => {
+  const navigate = useNavigate();
 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [loadingMessages, setLoadingMessages] = useState<boolean>(true);
@@ -157,6 +159,7 @@ const CommunityDiscussionMessageRoom = ({
         <button
           type='button'
           className="text-white rounded-full p-2 focus:outline-none h-10 w-10"
+          onClick={() => navigate(-1)}
         >
           <ArrowLeftIcon />
         </button>

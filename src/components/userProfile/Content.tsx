@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { faker } from "@faker-js/faker";
 import { shuffle } from "lodash";
 
-
 const years = [
   "2011",
   "2010",
