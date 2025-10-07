@@ -1,8 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
-import React, {
+import {
     useCallback,
-    useMemo,
     useState,
 } from "react";
 
@@ -83,8 +82,6 @@ function UserInviteItemComponent({
     }, [filterKey, userItemToDisplay.user])
 
     const navigateToUser = () => navigate(`users/${userItemInfo.username}`);
-    // const denyId = useMemo(() => `${userItemToDisplay.user.id}_deny`, [])
-    // const acceptId = useMemo(() => `${userItemToDisplay.user.id}_accept`, [])
     
     return (
         <>

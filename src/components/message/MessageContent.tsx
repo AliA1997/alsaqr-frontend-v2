@@ -1,6 +1,5 @@
-import { MessagesImagePreview } from "@common/Containers";
 import CustomPageLoader from "@common/CustomLoader";
-import { MessageToDisplay, User } from "typings";
+import { MessageToDisplay } from "typings";
 import MessageItem from "./MessageItem";
 import { NoRecordsTitle } from "@common/Titles";
 

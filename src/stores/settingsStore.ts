@@ -1,6 +1,5 @@
 import agent from '@utils/common';
-import { DEFAULT_USER_REGISTRATION_FORM } from '@utils/constants';
-import { makeAutoObservable, action, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import { UpdateUserForm, UpdateUserFormDto } from '@models/users';
 import { store } from '.';
 import { SettingsTabs } from '@models/enums';

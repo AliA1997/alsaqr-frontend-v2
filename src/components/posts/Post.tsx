@@ -2,7 +2,7 @@
 import { PlusCircleIcon, UploadIcon, XIcon } from "@heroicons/react/outline";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import React, {
+import {
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -127,7 +127,7 @@ function PostComponent({
   }, [postToDisplay, addComment, commentBoxOpen]);
 
   const postInfo = postToDisplay.post;
-  const { toPDF, targetRef } = usePDF({ filename: `${postInfo.id}.pdf` })
+  const { targetRef } = usePDF({ filename: `${postInfo.id}.pdf` })
 
   const checkUserIsLoggedInBeforeUpdatingTweet = async (
     callback: () => Promise<void>

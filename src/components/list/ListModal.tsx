@@ -4,7 +4,6 @@ import { Select } from "@common/Select";
 import PostComponent from "@components/posts/Post";
 import UserItemComponent from "@components/users/UserItem";
 import { FilterKeys, useStore } from "@stores/index";
-import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { Formik, FormikErrors } from "formik";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
@@ -23,7 +22,6 @@ export const SaveToListModal = observer(({
     relatedEntityType,
     info,
     onClose,
-    listInfo
 }: SaveToListModalProps) => {
     const { authStore, listFeedStore, modalStore } = useStore();
     const { currentSessionUser } = authStore;
@@ -101,10 +99,9 @@ export const SaveToListModal = observer(({
                         viewport={{ once: true }}
                         className="flex space-x-2 p-5"
                     >
-                        {/* <div className="flex flex-1 item-center pl-2"> */}
                         <Formik
                             initialValues={{ listToSaveTo: undefined }}
-                            validate={values => {
+                            validate={_ => {
                                 const errors: FormikErrors<any> = {};
 
                                 return errors;
@@ -117,9 +114,7 @@ export const SaveToListModal = observer(({
                         >
                             {({
                                 values,
-                                errors,
                                 handleSubmit,
-                                /* and other goodies */
                             }) => (
                                 <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                                     <Select

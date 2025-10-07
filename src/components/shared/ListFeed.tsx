@@ -1,5 +1,4 @@
-
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { 
   CommonUpsertBoxTypes,
 } from '@models/enums';
@@ -9,7 +8,7 @@ import type {
 import { convertQueryStringToObject } from "@utils/index";
 
 import { observer } from "mobx-react-lite";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
 import { NoRecordsTitle, PageTitle } from '@common/Titles';
 import { ContentContainerWithRef } from "@common/Containers";
@@ -78,7 +77,7 @@ const ListFeed = observer(({}: Props) => {
     }
   }, [currentSessionUser?.id]);
 
-  // 1. Add this loader component at the end of your posts list
+
   const LoadMoreTrigger = () => {
     return (
       <div ref={loaderRef} style={{ height: '20px' }}>

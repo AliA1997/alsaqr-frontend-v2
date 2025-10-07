@@ -24,11 +24,10 @@ export default observer(() => {
         cryptoCoinNews,
         loadCryptoCoinNews,
         hackerNews,
-        loadHackerNews,
         sabqNews,
         loadSabqNews
     } = exploreStore;
-    const [currentTab, setCurrentTab] = useState<ExploreTabs>(ExploreTabs.Popular)
+    const [currentTab, _] = useState<ExploreTabs>(ExploreTabs.Popular)
 
     useEffect(() => {
         if (!exploreNews.length)

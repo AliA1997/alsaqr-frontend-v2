@@ -25,7 +25,7 @@ const DeleteYourAccount = observer(() => {
                         }
                         return errors;
                     }}
-                    onSubmit={async (values, { setSubmitting }) => {
+                    onSubmit={async (values) => {
                         showModal(
                             <ConfirmModal
                                 title="Are you sure?"
@@ -45,12 +45,7 @@ const DeleteYourAccount = observer(() => {
                     }}
                 >
                     {({
-                        values,
-                        errors,
                         handleSubmit,
-                        setFieldValue,
-                        isSubmitting,
-                        /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                             <div>

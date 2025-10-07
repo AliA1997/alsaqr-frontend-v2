@@ -1,6 +1,4 @@
-
-import React, { useEffect, useRef, useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import CustomPageLoader from "@common/CustomLoader";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
@@ -14,7 +12,7 @@ interface Props {
 }
 
 
-const SavedListItemsFeed = observer(({  listId }: Props) => {
+const SavedListItemsFeed = observer(({ listId }: Props) => {
   const [_, setLoading] = useState(false);
   const { authStore, listFeedStore } = useStore();
   const {
@@ -30,14 +28,14 @@ const SavedListItemsFeed = observer(({  listId }: Props) => {
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
 
-    async function getListItems() {
-      setLoading(true);
-      try {
+  async function getListItems() {
+    setLoading(true);
+    try {
 
-        await loadSavedListItems(currentSessionUser?.id ?? '', listId);
-      } finally {
-        setLoading(false);
-      }
+      await loadSavedListItems(currentSessionUser?.id ?? '', listId);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const fetchMoreItems = async (pageNum: number) => {
@@ -46,11 +44,10 @@ const SavedListItemsFeed = observer(({  listId }: Props) => {
   };
 
   useEffect(() => {
-    if(currentSessionUser?.id)
+    if (currentSessionUser?.id)
       getListItems();
   }, [currentSessionUser])
 
-  // 1. Add this loader component at the end of your posts list
   const LoadMoreTrigger = () => {
     return (
       <div ref={loaderRef} style={{ height: '20px' }}>
@@ -59,7 +56,6 @@ const SavedListItemsFeed = observer(({  listId }: Props) => {
     );
   };
 
-  // 2. Fix your Intersection Observer useEffect
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -94,7 +90,6 @@ const SavedListItemsFeed = observer(({  listId }: Props) => {
     };
   }, [fetchMoreItems]);
 
-  // alert(savedListItems.length)
   return (
     <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-7 dark:border-gray-800">
       <PageTitle>{listInfoForSavedListItems?.name ?? ""}</PageTitle>
@@ -103,12 +98,12 @@ const SavedListItemsFeed = observer(({  listId }: Props) => {
           <CustomPageLoader title="Loading" />
         ) : (
           <>
-            {savedListItems && savedListItems.length 
-                ?
-                savedListItems.map((savedListItem, savedListItemKey: number) => (
-                  <SavedListItem key={savedListItem.listItem.id} savedListItemToDisplay={savedListItem} />
-                ))
-                : <NoRecordsTitle>No saved items for this list.</NoRecordsTitle>}
+            {savedListItems && savedListItems.length
+              ?
+              savedListItems.map((savedListItem) => (
+                <SavedListItem key={savedListItem.listItem.id} savedListItemToDisplay={savedListItem} />
+              ))
+              : <NoRecordsTitle>No saved items for this list.</NoRecordsTitle>}
             <LoadMoreTrigger />
           </>
         )}

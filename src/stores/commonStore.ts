@@ -1,4 +1,4 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable, reaction } from "mobx";
 import Auth from "../utils/auth";
 import { ServerError } from "typings";
 

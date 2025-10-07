@@ -1,11 +1,9 @@
-;
 import { NoRecordsTitle } from '@common/Titles';
 import { convertDateToDisplay } from '@utils/index';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import TimeAgo from "react-timeago";
 import CustomPageLoader from '@common/CustomLoader';
 import toast from 'react-hot-toast';
- import { useNavigate } from "react-router-dom";
 import { MessageFormDto, MessageType, User } from 'typings.d';
 import { ModalBody, ModalPortal } from './Modal';
 import { observer } from 'mobx-react-lite';
@@ -22,19 +20,16 @@ const MessageModal = ({
     loggedInUser,
     usersInMessageModal,
 }: Props) => {
-    const navigate = useNavigate();
     const { messageStore, modalStore } = useStore();
     const { closeModal } = modalStore;
     const {
         loadingUpsert,
         loadingInitial, 
-        setPagingParams,
         loadDirectMessages, 
         sendDirectMessage ,
         directMessages
     } = messageStore;
     const [submitting, setSubmitting] = useState<boolean>(false);
-    const userId = useMemo(() => loggedInUser?.id, [loggedInUser]);
     const sender = useMemo(() => usersInMessageModal[0], [usersInMessageModal]);
     const receiver = useMemo(() => usersInMessageModal[1], [usersInMessageModal]);
 
@@ -42,7 +37,6 @@ const MessageModal = ({
     const [image, setImage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Auto-scroll to bottom when messages change
     useEffect(() => {
         scrollToBottom();
     }, [directMessages]);

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { axiosRequests, axiosResponseBody } from "./common";
-import { CommentForm, PostRecord } from "typings";
+import { CommentForm } from "typings";
 import { LikedCommentParams, RePostCommentParams } from "@models/posts";
 
 export const commentApiClient = {

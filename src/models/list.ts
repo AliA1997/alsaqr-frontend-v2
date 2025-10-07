@@ -1,5 +1,3 @@
-import { CommunityRecordToDisplay, CommunityToDisplay, ListToDisplay, PostRecord, PostToDisplay, SavedPostItem, UserItemToDisplay } from "typings";
-import { CommunityDiscussionMessageToDisplay, CommunityDiscussionToDisplay } from "./community";
 
 export enum ListItemType {
     Post = 'post',

@@ -77,32 +77,28 @@ axios.interceptors.response.use(
           }
           throw modalStateErrors.flat();
         } else {
-
+          console.log("Not found, alot of problems.")
         }
+        break;
       case 401:
 
         if (myResponse.data === "invalid_token") {
-
+          console.log("Invalid Token");
         } else {
-
+          console.log("Authorization Error");
         }
         break;
       case 403:
-
+        console.log("Oops their is a problem");
         break;
       case 404:
-
-        break;
-      case 413:
-
-      case 418:  //I am a teapot!
-
+        console.log("Not found");
         break;
       case 500:
-
+        console.log("Server error")
         break;
       default:
-
+        console.log("A unique issue.")
         break;
     }
 

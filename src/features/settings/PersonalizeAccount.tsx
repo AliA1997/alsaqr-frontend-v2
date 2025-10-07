@@ -1,4 +1,3 @@
-import { InfoCardContainer } from "@common/Containers";
 import { MultiSelect } from "@common/MultiSelect";
 import { RadioCard } from "@common/RadioBoxes";
 import { Select } from "@common/Select";
@@ -69,7 +68,7 @@ const PersonalizeAccount = observer(() => {
 
                         return errors;
                     }}
-                    onSubmit={async (values, { setSubmitting }) => {
+                    onSubmit={async (values) => {
                         await upsert(values);
                     }}
                 
@@ -78,9 +77,6 @@ const PersonalizeAccount = observer(() => {
                         values,
                         errors,
                         handleSubmit,
-                        setFieldValue,
-                        isSubmitting,
-                        /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
   

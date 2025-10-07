@@ -1,5 +1,4 @@
-;
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
   BellIcon,
   HashtagIcon,
@@ -12,12 +11,12 @@ import {
   LogoutIcon,
   CogIcon,
 } from "@heroicons/react/outline";
-import { getEmailUsername, stopPropagationOnClick } from "@utils/index";
+import { getEmailUsername } from "@utils/index";
 import { useStore } from "@stores/index";
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { observer } from "mobx-react-lite";
-import { LoginModal, RegisterModal } from "@common/AuthModals";
+import { LoginModal } from "@common/AuthModals";
 
 import { ROUTE_TO_SHOW_SETTINGS_SIDEBAR, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { SettingsTabs } from "@models/enums";

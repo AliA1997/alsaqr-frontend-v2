@@ -1,5 +1,4 @@
-
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { 
   CommonUpsertBoxTypes,
 } from '@models/enums';
@@ -34,7 +33,6 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
     predicate,
     loadingInitial,
     pagination,
-    setPagination,
     loadCommunityDiscussions
   } = communityDiscussionFeedStore;
 
@@ -83,8 +81,6 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
 
   }, [loadingInitial]);
 
-
-  // 1. Add this loader component at the end of your posts list
   const LoadMoreTrigger = () => {
     return (
       <div ref={loaderRef} style={{ height: '20px' }}>

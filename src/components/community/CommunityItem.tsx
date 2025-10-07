@@ -1,10 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
-import React, {
-  Suspense,
-  useLayoutEffect,
+import {
   useMemo,
-  useRef,
   useState,
 } from "react";
 import TimeAgo from "react-timeago";
@@ -29,24 +26,17 @@ function CommunityItemComponent({
   community
 }: Props) {
   const navigate = useNavigate();
-  const { authStore, communityFeedStore } = useStore();
-  const { currentSessionUser } = authStore;
+  const { communityFeedStore } = useStore();
+
   const {
     setNavigateCommunity,
-    loadingJoinCommunity,
     joinPublicCommunity,
     unjoinPublicCommunity,
     requestToJoinPrivateCommunity,
   } = communityFeedStore;
 
-  const initiallyBooleanValues = useRef<{
-    joined: boolean;
-  }>({
-    joined: false,
-  });
 
   const communityInfo = community.community;
-  const userId = useMemo(() => currentSessionUser?.id ?? '', [currentSessionUser]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(community.relationshipType)
   const [joined, setJoined] = useState<boolean>(false);

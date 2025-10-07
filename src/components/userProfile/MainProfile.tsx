@@ -1,5 +1,4 @@
-
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import type {
   DashboardPostToDisplay,
 } from "@typings";
@@ -51,8 +50,6 @@ const MainProfile = () => {
     getProfileInfo();
   }, []);
 
-  // const [user] = useAuthState(auth);
-  // const navigate = useNavigate();
   const renderer = useCallback(
     (postToDisplay: DashboardPostToDisplay) => (
       <PostComponent

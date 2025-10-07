@@ -1,7 +1,7 @@
 import { FilterKeys, useStore } from "@stores/index";
 import { ModalBody, ModalPortal } from "./Modal";
 import { User, UserItemToDisplay } from "@typings";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { ContentContainerWithRef } from "@common/Containers";
 import { PageTitle } from "@common/Titles";
 import UserInviteItemComponent from "@components/users/UserInviteItem";
@@ -22,10 +22,9 @@ function RequestedInvitesModal({
     entityInvitedToId,
     childEntityInviteToId
  }: Props) {
-    const { modalStore, authStore } = useStore();
+    const { modalStore } = useStore();
     const { closeModal } = modalStore;
     const containerRef = useRef<any>(null);
-    const loaderRef = useRef<any>(null);
 
     return (
         <ModalPortal>
@@ -45,9 +44,6 @@ function RequestedInvitesModal({
                 `}
                 innerRef={containerRef} 
                 >
-                    {/* {loading ? (
-                    <ModalLoader />
-                    ) : ( */}
                     <>
                         {(invitedUsers ?? []).map((invitedUser: User, invitedUserKey) => (
                             <UserInviteItemComponent
@@ -59,7 +55,6 @@ function RequestedInvitesModal({
                             />
                         ))}
                     </>
-                    {/* )} */}
                 </ContentContainerWithRef>
             </div>
 

@@ -15,7 +15,7 @@ export const RadioCard = ({
   icon,
   ...props
 }: RadioCardProps) => {
-  const [field, meta] = useField<string>(props.name);
+  const [field, _] = useField<string>(props.name);
 
   return (
     <label
@@ -30,7 +30,7 @@ export const RadioCard = ({
         {...field}
         value={value}
         checked={field.value === value}
-        className="sr-only" // Hide the default radio button
+        className="sr-only"
         aria-labelledby={`${props.name}-${value}-label`}
       />
       
@@ -62,8 +62,7 @@ export const RadioCard = ({
           )}
         </div>
       </div>
-      
-      {/* Custom radio indicator */}
+  
       <div
         className={`absolute -top-2 -right-2 h-5 w-5 rounded-full border flex items-center justify-center ${
           field.value === value

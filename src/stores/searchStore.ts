@@ -1,10 +1,7 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import Auth from "../utils/auth"
-import { Comment, CommentToDisplay, PostRecord, PostToDisplay, User, UserInfo, UserItemToDisplay } from "@typings";
+import { PostToDisplay,UserItemToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-// import { fetchTweets } from "@utils/tweets/fetchTweets";
 import agent from "@utils/common";
-import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
 
 export default class SearchStore {
 

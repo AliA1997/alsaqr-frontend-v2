@@ -1,11 +1,9 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { CreateListOrCommunityForm, CreateListOrCommunityFormDto, ListRecord, ListToDisplay, PostRecord } from "@typings";
+import { CreateListOrCommunityForm, CreateListOrCommunityFormDto, ListToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-// import { fetchLists } from "@utils/lists/fetchLists";
 import agent from "@utils/common";
 import { ListItemToDisplay } from "@models/list";
 import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
-import { store } from ".";
 
 export default class ListFeedStore {
     

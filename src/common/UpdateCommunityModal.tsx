@@ -1,4 +1,3 @@
-;
 import { ModalBody, ModalPortal } from "@common/Modal";
 import { useStore } from "@stores/index";
 import { Formik, FormikErrors } from "formik";
@@ -13,7 +12,6 @@ import { ReviewForm, ReviewUpsertListOrCommunity } from "./ReviewForm";
 import { UpdateCommunityForm } from "@models/community";
 
 interface Props {
-    // type: CommonUpsertBoxTypes;
     loggedInUserId: string;
     communityAdminInfo: CommunityAdminInfo;
     refreshCommunityAdminInfo: (communityId: string) => Promise<void>;
@@ -108,7 +106,7 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
 
                             return errors;
                         }}
-                        onSubmit={async (values, { setSubmitting }) => {
+                        onSubmit={async (values) => {
                             await putRecord(values);
                         }}
                     >
@@ -116,9 +114,6 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
                             values,
                             errors,
                             handleSubmit,
-                            setFieldValue,
-                            isSubmitting,
-                            /* and other goodies */
                         }) => (
                             <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                                 <img

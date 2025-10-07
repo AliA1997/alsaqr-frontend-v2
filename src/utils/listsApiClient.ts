@@ -1,10 +1,6 @@
 import axios from "axios";
-// import { PaginatedResult } from "../models/common";
 import { axiosRequests, axiosResponseBody } from "./common";
-// import { APIResult, PaginatedResult } from "../models/common";
-// import { QueriedAutocompleteOption, WikiPageSearchResult } from "../models/search";
-import { CreateListOrCommunityFormDto, PostRecord, User } from "typings";
-import { values } from "lodash";
+import { CreateListOrCommunityFormDto } from "typings";
 
 export const listApiClient = {
     addList: (values: CreateListOrCommunityFormDto, userId: string) =>

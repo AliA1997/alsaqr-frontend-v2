@@ -1,4 +1,3 @@
-import { ContentContainer, ContentContainerWithRef, InfoCardContainer } from "@common/Containers";
 import { PersonalInfoFormInputs } from "@common/RegisterForm";
 import { Select } from "@common/Select";
 import { useStore } from "@stores/index";
@@ -78,17 +77,13 @@ const PersonalInfo = observer(() => {
 
                         return errors;
                     }}
-                    onSubmit={async (values, { setSubmitting }) => {
+                    onSubmit={async (values) => {
                         await upsert(values);
                     }}
                 >
                     {({
-                        values,
                         errors,
                         handleSubmit,
-                        setFieldValue,
-                        isSubmitting,
-                        /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                             <PersonalInfoFormInputs />

@@ -1,8 +1,6 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import Auth from "../utils/auth"
-import { Comment, CommentToDisplay, PostRecord, PostToDisplay } from "@typings";
+import { Comment, CommentToDisplay, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-// import { fetchTweets } from "@utils/tweets/fetchTweets";
 import agent from "@utils/common";
 import { BookmarkParams } from "@models/posts";
 

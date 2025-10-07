@@ -12,7 +12,6 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import TimeAgo from "react-timeago";
 import CustomPageLoader, { ButtonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
- import { useNavigate } from "react-router-dom";
 import CommunityDiscussionAdminView from './CommunityDiscussionAdminView';
 
 type Props = {
@@ -26,11 +25,11 @@ const CommunityDiscussionMessageRoom = ({
   communityId,
   communityDiscussionId
 }: Props) => {
-    const navigate = useNavigate();
 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [loadingMessages, setLoadingMessages] = useState<boolean>(true);
   const [loadingAdminInfo, setLoadingAdminInfo] = useState<boolean>(false);
+  console.log('Loading Admin Info....', loadingAdminInfo);
   const [commmityDiscussionInfo, setCommunityDiscussionInfo] = useState<CommunityDiscussionInfoForMessageRoom | undefined>(undefined);
   const [adminCommunityDiscussionInfo, setAdminCommunityDiscussionInfo] = useState<CommunityDiscussionAdminInfo | undefined>(undefined);
   const userId = useMemo(() => loggedInUser?.id, [loggedInUser]);
@@ -66,7 +65,7 @@ const CommunityDiscussionMessageRoom = ({
   ])
 
   const [messages, setMessages] = useState<CommunityDiscussionMessageToDisplay[]>();
-  const [pagination, setPagination] = useState<Pagination | undefined>(undefined);
+  const [_, setPagination] = useState<Pagination | undefined>(undefined);
   const [input, setInput] = useState('');
   const [image, setImage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -151,7 +150,6 @@ const CommunityDiscussionMessageRoom = ({
     return Array.from(new Set([...jUsers, ...iUsers]).values())
   }, [commmityDiscussionInfo])
 
-  // console.log("JSON.stringiy:", JSON.stringify(adminCommunityDiscussionInfo))
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-[#0e1517]">
       {/* Header */}
@@ -159,7 +157,6 @@ const CommunityDiscussionMessageRoom = ({
         <button
           type='button'
           className="text-white rounded-full p-2 focus:outline-none h-10 w-10"
-          // onClick={() => back}
         >
           <ArrowLeftIcon />
         </button>
@@ -177,7 +174,6 @@ const CommunityDiscussionMessageRoom = ({
         <div className="ml-3">
           <h2 className="font-semibold text-gray-800 dark:text-gray-50">{commmityDiscussionInfo?.communityDiscussion.name}</h2>
           <p className="text-xs text-gray-500">
-            {/* {users.filter(user => user.isOnline).length} online  - V2 feature possibly */}
           </p>
         </div>
       </div>

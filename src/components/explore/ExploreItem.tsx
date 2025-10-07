@@ -1,6 +1,3 @@
-
-import { useNavigate } from "react-router-dom";
-import React from "react";
 import { ExploreToDisplay } from "typings";
 import { OptimizedNewsImage } from "@common/Image";
 import { stopPropagationOnClick } from "@utils/index";

@@ -4,20 +4,19 @@ import { Formik, FormikErrors } from "formik";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo } from "react";
-import { CommonUpsertBoxTypes, User, UserItemToDisplay, UserRegisterForm } from "@typings";
+import { CommonUpsertBoxTypes, UserItemToDisplay, UserRegisterForm } from "@typings";
 import { HobbiesAndOptionalInfoFormInputs, PersonalInfoFormInputs } from "./RegisterForm";
 import UsersFeed from "@components/users/UsersFeed";
 import { ReviewForm, ReviewUserHobbiesAndOtherInfo, ReviewUserPersonalInfo, ReviewUsersAdded } from "./ReviewForm";
 import { ProfileImagePreview } from "./Containers";
-import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { supabase } from "@utils/supabase";
 
 
 export const LoginModal = observer(() => {
-  // const pathname = usePathname();
   const { authStore, modalStore } = useStore();
   const { currentSessionUser } = authStore;
   const { closeModal } = modalStore;
+
   const handleDiscordSignIn = () => supabase.auth.signInWithOAuth({
     provider: "discord",
   });
@@ -31,8 +30,6 @@ export const LoginModal = observer(() => {
   return (
     <ModalPortal>
       <ModalBody onClose={() => {
-        // const canCloseLoginModal = !(ROUTES_USER_CANT_ACCESS.some(r => pathname.includes(r)));
-
         if (currentSessionUser)
           closeModal();
 
@@ -125,7 +122,7 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
   const currentStep = useMemo(() => currentStepInUserRegistration ?? 0, [currentStepInUserRegistration]);
   const lastStepBeforeReview = useMemo(() => currentStepInUserRegistration === 2, [currentStepInUserRegistration]);
   const showReviewForm = useMemo(() => currentStepInUserRegistration === 3, [currentStepInUserRegistration]);
-  // alert(currentStepInUserRegistration)
+
   return (
     <ModalPortal className='h-15'>
       <ModalBody onClose={() => {
@@ -137,7 +134,6 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
           viewport={{ once: true }}
           className="flex space-x-2 p-5"
         >
-          {/* <div className="flex flex-1 item-center pl-2"> */}
           <Formik
             initialValues={{
               avatar: currentRegistrationForm.avatar ? currentRegistrationForm.avatar : userInfo?.avatar ?? '',
@@ -154,7 +150,7 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
               religion: currentRegistrationForm.religion ? currentRegistrationForm.religion : userInfo?.religion ??  "Prefer Not To Disclose",
               followingUsers: currentRegistrationForm.followingUsers ? currentRegistrationForm.followingUsers : []
             } as UserRegisterForm}
-            validate={values => {
+            validate={_ => {
               const errors: FormikErrors<any> = {};
 
 
@@ -171,8 +167,6 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
               errors,
               handleSubmit,
               setFieldValue,
-              isSubmitting,
-              /* and other goodies */
             }) => (
               <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                   {showReviewForm && <h3 className="font-medium text-lg p-4">Review Registration</h3>}

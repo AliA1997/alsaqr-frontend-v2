@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { 
   CommonUpsertBoxTypes,
 } from '@models/enums';
@@ -77,7 +77,6 @@ const CommunityFeed = observer(({ }: Props) => {
     }
   }, [currentSessionUser?.id]);
 
-  // 1. Add this loader component at the end of your posts list
   const LoadMoreTrigger = () => {
     return (
       <div ref={loaderRef} style={{ height: '20px' }}>

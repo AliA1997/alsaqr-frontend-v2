@@ -1,8 +1,6 @@
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-
+import React, { useCallback, useMemo } from "react";
 import { faker } from "@faker-js/faker";
-import { shuffle } from "lodash";
 import { useNavigate } from "react-router-dom";
 import { ProfileUser } from "typings";
 import TimeAgo from "react-timeago";
@@ -41,11 +39,10 @@ const UserHeader: React.FC<UserHeaderProps> = ({
   const navigate = useNavigate();
   const { authStore, userStore, messageStore, modalStore } = useStore();
   const { followUser, unFollowUser, loadingFollow } = userStore;
-  const { currentProfileToMessage, setCurrentProfileToMessage } = messageStore;
+  const { setCurrentProfileToMessage } = messageStore;
   const { currentSessionUser } = authStore;
   const { showModal, closeModal } = modalStore;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
-  // console.log('profileInfo:', profileInfo)
 
   const profileIsLoggedInUser = useMemo(() => profileInfo.user.username === (currentSession?.user?.username ?? ""), [currentSession, profileInfo]);
   const isFollowingUser = useMemo(() => currentSession?.user?.followingUsers?.some((fU: any) => fU.id === profileInfo.user.id) ?? false, [profileInfo, currentSession]);
@@ -126,13 +123,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({
                 </div>
               </div>
             </div>
-            {/* {userPName === user?.displayName && (
-              <div className="flex flex-col text-right">
-                <button className="justify-center max-h-max whitespace-nowrap focus:outline-none focus:ring  max-w-max border bg-transparent border-blue-500 text-blue-500 hover:border-blue-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto">
-                  Edit Profile
-                </button>
-              </div>
-            )} */}
+
             <div className="absolute w-full flex justify-end top-0 right-0">
               {
                 profileIsLoggedInUser

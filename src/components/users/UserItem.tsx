@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import React, {
+import {
     useLayoutEffect,
     useRef,
     useState,
@@ -35,11 +35,9 @@ function UserItemComponent({
     onAddOrFollow,
     canAddOrFollow,
     loggedInUserId,
-    justDisplay
 }: Props) {
     const navigate = useNavigate();
-    const { authStore, modalStore } = useStore();
-    const { currentSessionUser } = authStore;
+    const { modalStore } = useStore();
     const { showModal, closeModal } = modalStore;
 
     const userItemInfo = userItemToDisplay.user;
@@ -55,10 +53,6 @@ function UserItemComponent({
         added: false
     });
 
-    // const refreshComments = async () => {
-    //   const comments: Comment[] = await fetchComments(communityInfo.id);
-    //   setCurrentComments(comments);
-    // };
     const checkUserIsLoggedInBeforeUpdatingUserItem = async (
         callback: () => Promise<void>
     ) => {

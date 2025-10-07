@@ -1,24 +1,12 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { MessageFormDto, MessageHistoryToDisplay, MessageToDisplay, NotificationToDisplay, ProfileUser } from "@typings";
+import { MessageFormDto, MessageHistoryToDisplay, MessageToDisplay, ProfileUser } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-// import { fetchTweets } from "@utils/tweets/fetchTweets";
 import agent from "@utils/common";
 
 export default class MessageStore {
-
     constructor() {
         makeAutoObservable(this);
-
-        // reaction(
-        //     () => this.predicate.keys(),
-        //     () => {
-        //         // this.predicate.clear();
-        //         // this.loadPosts();
-        //     }
-        // );
     }
-
-
     loadingInitial = false;
     loadingUpsert = false;
     loadingHistory = false;

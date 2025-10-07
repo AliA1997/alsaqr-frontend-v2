@@ -1,5 +1,4 @@
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer';
-import { convertDateToDisplay, formatTimeAgo } from '@utils/index';
 import { PostToDisplay } from 'typings';
 
 type PdfProps = {
@@ -21,9 +20,8 @@ const styles = StyleSheet.create({
   tagLabel: {
     position: 'absolute',
     backgroundImage: 'linear-gradient(to right, #e0e7ff, #f3e8ff, #fce7f3)',
-    // Fallback solid color if gradients aren't supported
-    backgroundColor: '#f3e8ff', // purple-100 as fallback
-    color: '#3730a3', // corresponds to text-indigo-800
+    backgroundColor: '#f3e8ff', 
+    color: '#3730a3',
     top: 0,
     right: 0,
     fontSize: 10,
@@ -43,7 +41,7 @@ const styles = StyleSheet.create({
   username: {
     fontWeight: 'bold',
     marginRight: 4,
-    fontSize: 12, // Slightly smaller text
+    fontSize: 12,
   },
   userInfo: {
     flexDirection: 'row',

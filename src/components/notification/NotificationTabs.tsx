@@ -1,8 +1,6 @@
-
-import { useCallback, useState } from "react";
-import Tabs from "@common/Tabs";
-import { PostToDisplay } from "typings";
-import TweetComponent from "../posts/Post";
+// import { useCallback } from "react";
+// import { PostToDisplay } from "typings";
+// import TweetComponent from "../posts/Post";
 
 export enum NotificationTabs {
   All = "All",
@@ -11,15 +9,15 @@ export enum NotificationTabs {
 }
 
 const NotificationTabsComponent = () => {
-  const renderer = useCallback(
-    (twt: PostToDisplay) => (
-      <TweetComponent
-        key={twt.post.id}
-        postToDisplay={twt}
-      />
-    ),
-    []
-  );
+  // const renderer = useCallback(
+  //   (twt: PostToDisplay) => (
+  //     <TweetComponent
+  //       key={twt.post.id}
+  //       postToDisplay={twt}
+  //     />
+  //   ),
+  //   []
+  // );
 
   return (
     <div />

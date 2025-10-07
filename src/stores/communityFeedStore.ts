@@ -1,9 +1,8 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { CommunityRecord, CommunityToDisplay, CreateListOrCommunityForm, CreateListOrCommunityFormDto, RelationshipType } from "@typings";
+import { CommunityToDisplay, CreateListOrCommunityForm, CreateListOrCommunityFormDto, RelationshipType } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/common";
 import {DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
-import ModalStore from "./modalStore";
 import { store } from ".";
 import { AcceptOrDenyCommunityInviteConfirmationDto, UpdateCommunityForm, UpdateCommunityFormDto } from "@models/community";
 

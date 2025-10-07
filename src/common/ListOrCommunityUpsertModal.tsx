@@ -1,8 +1,7 @@
 ;
 import { ModalBody, ModalPortal } from "@common/Modal";
-import { faker } from "@faker-js/faker";
 import { FilterKeys, useStore } from "@stores/index";
-import { FieldHelperProps, Formik, FormikErrors } from "formik";
+import { Formik, FormikErrors } from "formik";
 import { motion } from "framer-motion";
 import { PagingParams } from "@models/common";
 import { useCallback, useMemo } from "react";
@@ -30,7 +29,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                             [type]
                         );
 
-    const { modalStore, communityFeedStore, communityDiscussionFeedStore, listFeedStore, searchStore } = useStore();
+    const { modalStore, communityFeedStore, communityDiscussionFeedStore, listFeedStore } = useStore();
     const { closeModal } = modalStore;
 
     const currentStep = useMemo(() => {
@@ -180,7 +179,6 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
         else return "List Info";
     }, [type]);
 
-    // console.log('loggedInUserId', loggedInUserId)
     return (
         <ModalPortal>
             <ModalBody onClose={() => closeModal()}>
@@ -190,7 +188,6 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                     viewport={{ once: true }}
                     className="flex space-x-2 p-5"
                 >
-                    {/* <div className="flex flex-1 item-center pl-2"> */}
                     <Formik
                         initialValues={{
                             name: currentForm?.name ?? '',
@@ -222,8 +219,6 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                             errors,
                             handleSubmit,
                             setFieldValue,
-                            isSubmitting,
-                            /* and other goodies */
                         }) => (
                             <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                                 {type === CommonUpsertBoxTypes.Community 
@@ -402,7 +397,6 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                         )}
                     </Formik>
                 </motion.div>
-
             </ModalBody>
         </ModalPortal>
     );

@@ -1,5 +1,3 @@
-
-import React from "react";
 import { observer } from "mobx-react-lite";
 import { convertDateToDisplay } from "@utils/index";
 import { FilterKeys, useStore } from "@stores/index";
@@ -15,10 +13,8 @@ type Props = {
 
 function CommunityDiscussionAdminView({
     communityDiscussionAdminInfo,
-    refreshCommunityDiscussionAdminInfo
 }: Props) {
-    const { authStore, modalStore } = useStore();
-    const { currentSessionUser } = authStore;
+    const { modalStore } = useStore();
     const { showModal } = modalStore;
     
     if (communityDiscussionAdminInfo)
@@ -28,18 +24,6 @@ function CommunityDiscussionAdminView({
                      <h1 className='text-4xl'>
                         {`A Discussion Starter Welcome `}
                     </h1>
-                    {/* <CommonLink 
-                        onClick={() => showModal(<UpdateCommunityModal 
-                                                    loggedInUserId={currentSessionUser?.id!}
-                                                    communityAdminInfo={c}
-                                                    refreshCommunityAdminInfo={refreshCommunityAdminInfo}
-                                                />
-                        )}
-                        animatedLink={false}
-                        classNames='border border-[0.1rem] hover:text-[#55a8c2]'
-                    >
-                        Edit Community Discussion 
-                    </CommonLink> */}
                 </div>
                 <div className='relative flex'> 
                     <InfoCardContainer>

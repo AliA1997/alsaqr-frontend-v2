@@ -1,11 +1,8 @@
-
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import React, {
+import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import TimeAgo from "react-timeago";
 
@@ -13,10 +10,8 @@ import type { ListToDisplay } from "@typings";
 import {
   stopPropagationOnClick,
 } from "@utils/index";
-import { SaveIcon, TrashIcon } from "@heroicons/react/solid";
-import agent from "@utils/common";
+import { TrashIcon } from "@heroicons/react/solid";
 import { useStore } from "@stores/index";
-import { LoginModal } from "@common/AuthModals";
 import { convertDateToDisplay } from "@utils/index";
 import MoreSection from "@common/MoreSection";
 import { ConfirmModal } from "@common/Modal";
@@ -28,15 +23,12 @@ interface Props {
 
 function ListItemComponent({
   listToDisplay,
-  onlyDisplay
 }: Props) {
   const navigate = useNavigate();
   const { authStore, modalStore, listFeedStore } = useStore();
   const { currentSessionUser } = authStore;
   const { closeModal, showModal } = modalStore;
-  const { deleteList, loadingInitial } = listFeedStore;
-
-  const [isAlreadySaved, setIsAlraedySaved] = useState<boolean>(false);
+  const { deleteList } = listFeedStore;
 
   const initiallyBooleanValues = useRef<{
     alreadySaved: boolean;
@@ -50,17 +42,8 @@ function ListItemComponent({
   const listInfo = listToDisplay.list;
   const founder = listToDisplay.savedBy;
 
-  const checkUserIsLoggedInBeforeUpdatingList = async (
-    callback: () => Promise<void>
-  ) => {
-    if (!currentSessionUser) 
-      return showModal(<LoginModal />);
-
-    await callback();
-  };
-
   useLayoutEffect(() => {
-    //If any of the bookmarks are not undefined, that means
+    
     if (currentSessionUser) {
       const savedLists: any[] = [];
 
@@ -80,22 +63,6 @@ function ListItemComponent({
 
   const navigateToList = () => {
     navigate(`lists/${listInfo.id}`);
-  };
-
-  const onIsAlreadySaved = async () => {
-    const beforeUpdate = isAlreadySaved;
-    try {
-      await checkUserIsLoggedInBeforeUpdatingList(async () => {
-        setIsAlraedySaved(!isAlreadySaved);
-        await agent.mutatePostApiClient.likePost({
-          statusId: listToDisplay.list.id,
-          userId: userId!,
-          liked: isAlreadySaved
-        });
-      });
-    } catch {
-      setIsAlraedySaved(beforeUpdate);
-    }
   };
 
   const userId = useMemo(() => currentSessionUser ? currentSessionUser.id : "", [currentSessionUser]);
@@ -195,26 +162,6 @@ function ListItemComponent({
           </div>
           <p className="pt-1 text-gray-100 text-2xl hover:underline  z-10" onClick={e => stopPropagationOnClick(e, navigateToList)}>{listInfo.name}</p>
         </div>
-        {/* {!onlyDisplay && (
-          <div className="flex justify-end w-full px-1">
-            <div className="flex gap-2 bg-gray-100 p-2 rounded-full z-10">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className={`
-                  flex float-right cursor-pointer item-center ${isAlreadySaved ? "text-[#55a8c2]" : "text-gray-900"
-                  } hover:text-[#55a8c2]
-                `}
-                onClick={(e) => stopPropagationOnClick(e, onIsAlreadySaved)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                </svg>
-              </motion.button>
-
-            </div>
-          </div>
-        )} */}
       </div>
 
     </>

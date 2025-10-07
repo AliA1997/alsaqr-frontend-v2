@@ -1,11 +1,8 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import Auth from "../utils/auth"
 import { Comment, CommentToDisplay, PostRecord, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-// import { fetchTweets } from "@utils/tweets/fetchTweets";
 import agent from "@utils/common";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
-import { faker } from "@faker-js/faker";
 
 export default class FeedStore {
 
@@ -14,10 +11,7 @@ export default class FeedStore {
 
         reaction(
             () => this.predicate.keys(),
-            () => {
-                // this.predicate.clear();
-                // this.loadPosts();
-            }
+            () => {}
         );
     }
 

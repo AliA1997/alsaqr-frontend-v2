@@ -1,10 +1,9 @@
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
   CommentToDisplay,
 } from "@typings"
 import { useSearchParams } from "react-router-dom";
-import { convertQueryStringToObject, Params } from "@utils/index";
+import { convertQueryStringToObject } from "@utils/index";
 
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
@@ -30,16 +29,14 @@ function CommentFeedContainer({ children }: React.PropsWithChildren<any>) {
 
 
 const CommentFeed = observer(({
-  postId,
-  alreadyLoadedComments
+  postId
 }: Props) => {
   const searchParams = useSearchParams();
   
   const [mounted, setMounted] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const { authStore, commentFeedStore } = useStore();
-  const { currentSessionUser } = authStore;
-  const [isLoading, setIsLoading] = useState(false);
+  const { commentFeedStore } = useStore();
+  const [_, setIsLoading] = useState(false);
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
 
@@ -51,11 +48,6 @@ const CommentFeed = observer(({
     }
   }, [])
 
-  const feedSetLoadingInitial = useMemo(() => {
-    return commentFeedStore.setLoadingInitial;
-  }, [
-    commentFeedStore.loadingInitial
-  ]);
   const feedLoadingInitial = useMemo(() => {
     return commentFeedStore.loadingInitial;
   }, [
@@ -133,7 +125,6 @@ const CommentFeed = observer(({
     [commentFeedStore.comments]);
 
 
-  // 1. Add this loader component at the end of your posts list
   const LoadMoreTrigger = () => {
     return (
       <div ref={loaderRef} style={{ height: '20px' }}>
@@ -142,7 +133,6 @@ const CommentFeed = observer(({
     );
   };
 
-  // 2. Fix your Intersection Observer useEffect
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -178,8 +168,6 @@ const CommentFeed = observer(({
     };
   }, [fetchMoreItems]);
 
-  const userId = useMemo(() => currentSessionUser ? currentSessionUser.id : "", [currentSessionUser]);
-
   if(!loading && mounted)
     return (
       <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
@@ -195,7 +183,7 @@ const CommentFeed = observer(({
           ) : (
             <>
               {loadedComments && loadedComments.length
-                ? loadedComments.map((commentRec, commentKey) => (
+                ? loadedComments.map((commentRec) => (
                   <CommentComponent
                     key={commentRec.id}
                     commentToDisplay={commentRec}

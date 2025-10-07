@@ -25,7 +25,6 @@ export default observer(function Messages() {
         loadingHistory,
         loadingUpsert,
         directMessageHistory,
-        directMessageHistoryRegistry,
         directMessages,
         sendDirectMessage
     } = messageStore;
@@ -117,7 +116,6 @@ export default observer(function Messages() {
                 </div>
 
                 <div className={`flex-1 ${loadingHistory ? 'text-center' : ''} overflow-y-auto`}>
-                    {/* Message list items would go here */}
                     {loadingHistory && !isMounted.current ? (
                         <div className='p-3'>
                             <ModalLoader />
@@ -143,23 +141,6 @@ export default observer(function Messages() {
                 <div className="md:hidden flex items-center p-4 border-b border-gray-200 dark:border-gray-800">
                     <h2 className="text-xl font-bold">Messages</h2>
                 </div>
-
-                {/* Empty State - Using your NoRecordsTitle component */}
-                {/* <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <div className="w-24 h-24 bg-gray-200 dark:bg-gray-800 rounded-full mb-4 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-            </svg>
-          </div>
-          <NoRecordsTitle>You have no messages!</NoRecordsTitle>
-          <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            When you send or receive messages, they'll appear here.
-          </p>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full">
-            Write a message
-          </button>
-        </div> */}
-
                 {/* Conversation View (commented out for now) */}
 
                 <div className="flex-1 flex flex-col">

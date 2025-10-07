@@ -1,8 +1,8 @@
 
-import { PlusCircleIcon, UploadIcon, XIcon } from "@heroicons/react/outline";
+import { UploadIcon } from "@heroicons/react/outline";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import React, {
+import {
     useEffect,
     useLayoutEffect,
     useMemo,

@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import React, {
+import {
   useMemo,
   useState,
 } from "react";
@@ -24,9 +24,7 @@ const CommunityDiscussionItemComponent = observer(({
 }: Props) => {
   const navigate = useNavigate();
 
-  const { authStore, modalStore, communityDiscussionFeedStore } = useStore();
-  const { currentSessionUser } = authStore;
-  const { showModal } = modalStore;
+  const { communityDiscussionFeedStore } = useStore();
   const {
     joinPublicCommunityDiscussion,
     unjoinPublicCommunityDiscussion,
@@ -58,8 +56,6 @@ const CommunityDiscussionItemComponent = observer(({
   const hasToJoin = useMemo(() => currentRelationshipType === RelationshipType.None, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
   const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.InviteRequested, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
   const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Joined || joined, [currentRelationshipType, communityDiscussionToDisplay.relationshipType, joined]);
-
-  // console.log('communityDiscussionToDisplay:', currentRelationshipType)
 
   return (
     <>

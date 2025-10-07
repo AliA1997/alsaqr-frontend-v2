@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { faker } from "@faker-js/faker";
@@ -22,7 +21,7 @@ const years = [
   "2023"
 ];
 
-const bannerImage = ["nature", "technology", "photography"];
+// const bannerImage = ["nature", "technology", "photography"];
 
 type ContentProps = {
   userPName: any;

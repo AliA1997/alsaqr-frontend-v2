@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookmarkIcon, HeartIcon, UploadIcon } from "@heroicons/react/outline";
+import { BookmarkIcon, HeartIcon } from "@heroicons/react/outline";
 import { BookmarkIcon as BookmarkFillIcon, HeartIcon as HeartFillIcon } from "@heroicons/react/solid";
 import { FilterKeys } from "@stores/index";
 import { useNavigate } from "react-router-dom";
@@ -88,7 +88,7 @@ export function CommentIconButton({ onClick, numberOfComments, disabled }: Comme
 }
 
 
-export function LikesIconButton({ onClick, numberOfLikes, isLiked, disabled }: LikesIconButtonProps) {
+export function LikesIconButton({ onClick, numberOfLikes, isLiked }: LikesIconButtonProps) {
     return (
         <motion.div
             whileHover={{ scale: 1.1 }}

@@ -1,4 +1,4 @@
-import { useField, FieldHookConfig, FieldHelperProps, FormikHelpers } from 'formik';
+import { useField, FieldHookConfig, FieldHelperProps } from 'formik';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -45,8 +45,6 @@ export function MyInput({ label, prefix, disabled, ...props }: MyInputProps) {
         </div>
     );
 }
-
-// className="h-24 w-full text-xl outline-none placeholder:text-xl dark:bg-[#000000]"
 
 type FileUploadInputProps = {
     label?: string;

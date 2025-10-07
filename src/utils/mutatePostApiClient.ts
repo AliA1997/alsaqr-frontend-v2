@@ -1,7 +1,4 @@
-// import axios from "axios";
-// import { PaginatedResult } from "../models/common";
-import { axiosRequests, axiosResponseBody } from "./common";
-// import { APIResult, PaginatedResult } from "../models/common";
+import { axiosRequests } from "./common";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
 
 export const mutatePostApiClient = {

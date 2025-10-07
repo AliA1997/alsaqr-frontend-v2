@@ -1,10 +1,7 @@
-
-import { ContentContainer, ContentContainerWithRef, InfoCardContainer } from "@common/Containers";
-import { RadioCard } from "@common/RadioBoxes";
+import { InfoCardContainer } from "@common/Containers";
 import { PersonalInfoFormInputs } from "@common/RegisterForm";
 import { Select } from "@common/Select";
 import { useStore } from "@stores/index";
-import { MARITAL_STATUS_OPTIONS } from "@utils/constants";
 import { COUNTRY_OPTIONS } from "@utils/countriesOptions";
 import { Formik, FormikErrors } from "formik";
 import { observer } from "mobx-react-lite";
@@ -17,8 +14,6 @@ const PersonalInfo = observer(() => {
     const { authStore, settingsStore } = useStore();
     const { currentSessionUser, navigateBackToHome } = authStore;
     const { 
-        currentUserUpdateForm,
-        setCurrentUpdateUserForm,
         loadingUpsert,
         updateYourAccount,
     } = settingsStore;
@@ -29,8 +24,6 @@ const PersonalInfo = observer(() => {
             ...values
         };
 
-        // console.log('update personal info infoToUpsert:', infoToUpsert);
-        debugger;
         if(currentSessionUser) {
             await updateYourAccount(currentSessionUser?.id!, infoToUpsert);
 
@@ -81,17 +74,13 @@ const PersonalInfo = observer(() => {
                         
                         return errors;
                     }}
-                    onSubmit={async (values, { setSubmitting }) => {
+                    onSubmit={async (values) => {
                         await upsert(values);
                     }}
                 >
                     {({
-                        values,
                         errors,
                         handleSubmit,
-                        setFieldValue,
-                        isSubmitting,
-                        /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                             <PersonalInfoFormInputs />

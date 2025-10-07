@@ -1,5 +1,5 @@
 import { FieldHookConfig, useField } from 'formik';
-import React, { useMemo } from 'react';
+import React from 'react';
 
 type CheckboxCardProps = {
   label: string;
@@ -13,7 +13,7 @@ const CheckboxCard = ({
   icon,
   ...props
 }: CheckboxCardProps) => {
-  const [field, meta] = useField<boolean>(props.name);
+  const [field, _] = useField<boolean>(props.name);
   
   return (
     <label

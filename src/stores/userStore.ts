@@ -2,7 +2,7 @@ import agent from '@utils/common';
 import { makeAutoObservable, action, runInAction } from 'mobx';
 import { PagingParams } from '@models/common';
 import { FollowUserFormDto, UnFollowUserFormDto } from '@models/users';
-import { ProfileUser, User, UserProfileDashboardPosts } from 'typings';
+import { ProfileUser, UserProfileDashboardPosts } from 'typings';
 
 export default class UserStore {
     currentUserProfile: ProfileUser | undefined = undefined;

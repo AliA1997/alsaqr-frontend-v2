@@ -1,5 +1,4 @@
 import { makeAutoObservable } from "mobx";
-import { ModalKeys } from "@models/common";
 import React from "react";
 
 export default class ModalStore {

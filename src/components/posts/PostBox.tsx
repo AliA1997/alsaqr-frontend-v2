@@ -1,4 +1,3 @@
-
 import { EmojiHappyIcon, PhotographIcon } from "@heroicons/react/outline";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
@@ -16,7 +15,6 @@ import { XIcon } from "@heroicons/react/solid"; // Import the XMarkIcon
 
 import { loadData } from "@utils/mobx";
 import { useStore } from "@stores/index";
-import ExploreStore from "@stores/exploreStore";
 import FeedStore from "@stores/feedStore";
 import ListFeedStore from "@stores/listFeedStore";
 import CommunityFeedStore from "@stores/communityFeedStore";
@@ -27,7 +25,7 @@ interface Props {
 }
 
 function PostBox({ filterKey }: Props) {
-  const { authStore, exploreStore,  feedStore, listFeedStore, communityFeedStore } = useStore();
+  const { authStore,  feedStore, listFeedStore, communityFeedStore } = useStore();
   const { currentSessionUser } = authStore;
   const [input, setInput] = useState<string>("");
   const [image, setImage] = useState<string>("");
@@ -98,11 +96,7 @@ function PostBox({ filterKey }: Props) {
       image: image,
       userId: currentSessionUser?.id,
       tags: hashtags ?? []
-      // username: getEmailUsername(session!.user?.email!)!,
-      // profileImg: session!.user?.image!,
-      // image: image,
     };
-    // alert(JSON.stringify(postInfo));
 
     await agent.postApiClient.addPost(postInfo);
 
@@ -136,7 +130,6 @@ function PostBox({ filterKey }: Props) {
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const hashtagMatches = e.target.value.match(/#[\w\-_]+/g) || [];
       setInput(e.target.value);
-      // console.log('hashTag matches:', hashtagMatches);
       setHashtags(Array.from(new Set(hashtagMatches)));
     },
     []

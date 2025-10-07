@@ -1,5 +1,3 @@
-
-import React from "react";
 import { observer } from "mobx-react-lite";
 import type { CommunityAdminInfo } from "typings";
 import { convertDateToDisplay } from "@utils/index";

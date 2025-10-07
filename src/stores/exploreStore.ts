@@ -1,10 +1,7 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-// import Auth from "../utils/auth"
 import { ExploreTabs, ExploreToDisplay, PostToDisplay } from "@typings";
-// import { fetchTweets } from "@utils/tweets/fetchTweets";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/common";
-import { faker } from "@faker-js/faker";
 
 export default class ExploreStore {
 
@@ -13,8 +10,7 @@ export default class ExploreStore {
 
         reaction(
             () => this.predicate.keys(),
-            () => {
-            }
+            () => {}
         );
     }
 

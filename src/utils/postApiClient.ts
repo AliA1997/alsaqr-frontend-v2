@@ -1,6 +1,6 @@
 import axios from "axios";
 import { axiosRequests, axiosResponseBody } from "./common";
-import { CommentForm, PostRecord } from "typings";
+import { PostRecord } from "typings";
 
 export const postApiClient = {
     addPost: (values: PostRecord) =>
@@ -13,6 +13,4 @@ export const postApiClient = {
         axios.get(`/api/bookmarks/${userId}`, { params }).then(axiosResponseBody),
     getPost: (statusId: string) =>
         axios.get(`/api/posts/${statusId}`, {}).then(axiosResponseBody),
-    // getComments: (postId: string) =>
-    //     axios.get(`/api/comments?postId=${postId}`, {}).then(axiosResponseBody),
 }

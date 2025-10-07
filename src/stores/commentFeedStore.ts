@@ -1,10 +1,8 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import Auth from "../utils/auth"
-import { Comment, CommentForm, CommentToDisplay, PostRecord, PostToDisplay } from "@typings";
+import { CommentForm, CommentToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-// import { fetchTweets } from "@utils/tweets/fetchTweets";
 import agent from "@utils/common";
-import {  LikedCommentParams, LikedPostParams, RePostCommentParams, RePostParams } from "@models/posts";
+import {  LikedCommentParams, RePostCommentParams } from "@models/posts";
 
 export default class CommentFeedStore {
 

@@ -1,5 +1,5 @@
 import { FALLBACK_IMAGE_URL, FALLBACK_NEWS_IMAGE_URL } from '@utils/constants';
-import { MouseEventHandler, useEffect, useState } from 'react';
+import { MouseEventHandler, useState } from 'react';
 
 type CommonImageProps = {
     src: string;
@@ -12,18 +12,16 @@ export function FallbackImage({
     src,
     alt,
     onClick
-}: CommonImageProps){
+}: CommonImageProps) {
     return (
-    <img
-        className="h-10 w-10 rounded-full object-cover"
-        // blurDataURL="https://res.cloudinary.com/aa1997/image/upload/v1720130142/Web3-Client-Projects/Gm.png"
-        src={src}
-        alt={alt}
-        height={50}
-        width={50}
-        // priority={false}
-        onClick={onClick}
-    />
+        <img
+            className="h-10 w-10 rounded-full object-cover"
+            src={src}
+            alt={alt}
+            height={50}
+            width={50}
+            onClick={onClick}
+        />
     );
 }
 
@@ -34,7 +32,7 @@ export function OptimizedImage({
     classNames,
     loadedHeight,
     loadedWidth
-}: CommonImageProps & { loadedHeight?: number, loadedWidth?: number }){
+}: CommonImageProps & { loadedHeight?: number, loadedWidth?: number }) {
     const [imageUrl, setImageUrl] = useState<string>(src)
 
     return (
@@ -44,11 +42,10 @@ export function OptimizedImage({
             alt={alt}
             height={loadedHeight ? loadedHeight : 50}
             width={loadedWidth ? loadedWidth : 50}
-            // priority={false}
             onClick={onClick}
             onError={() => {
-                if(imageUrl != FALLBACK_IMAGE_URL)
-                 setImageUrl(FALLBACK_IMAGE_URL);
+                if (imageUrl != FALLBACK_IMAGE_URL)
+                    setImageUrl(FALLBACK_IMAGE_URL);
             }}
             loading="lazy"
         />
@@ -61,7 +58,7 @@ export function OptimizedNewsImage({
     alt,
     onClick,
     classNames
-}: CommonImageProps){
+}: CommonImageProps) {
     const [imageUrl, setImageUrl] = useState<string>(src)
 
     return (
@@ -71,11 +68,10 @@ export function OptimizedNewsImage({
             alt={alt}
             height={600}
             width={600}
-            // priority={false}
             onClick={onClick}
             onError={() => {
-                if(imageUrl != FALLBACK_NEWS_IMAGE_URL)
-                 setImageUrl(FALLBACK_NEWS_IMAGE_URL);
+                if (imageUrl != FALLBACK_NEWS_IMAGE_URL)
+                    setImageUrl(FALLBACK_NEWS_IMAGE_URL);
             }}
             loading="lazy"
         />

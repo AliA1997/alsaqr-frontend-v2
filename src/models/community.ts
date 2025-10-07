@@ -1,8 +1,4 @@
-// Relationship when posting is 
-// user - [:CREATED_DISCUSSION]-> CommunityDiscussion
-// community - [:DISCUSSION_POSTED] -> CommunityDiscussion
-
-import { CommunityRecord, CommunityRecordToDisplay, RelationshipType, User, UserInfo } from "@typings";
+import { CommunityRecord, RelationshipType, User, UserInfo } from "@typings";
 
 // communityDiscussion - [:POSTED_DISCUSSION_ON] -> community
 export interface CommunityDiscussion {

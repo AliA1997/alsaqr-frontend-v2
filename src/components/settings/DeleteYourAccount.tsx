@@ -1,12 +1,9 @@
-
 import CheckboxCard from "@common/CheckboxCard";
 import { InfoCardContainer } from "@common/Containers";
 import { ConfirmModal } from "@common/Modal";
 import { useStore } from "@stores/index";
 import { Formik, FormikErrors } from "formik";
 import { observer } from "mobx-react-lite";
-
-
 
 const DeleteYourAccount = observer(() => {
     const { authStore, settingsStore, modalStore } = useStore();
@@ -28,7 +25,7 @@ const DeleteYourAccount = observer(() => {
                         }
                         return errors;
                     }}
-                    onSubmit={async (values, { setSubmitting }) => {
+                    onSubmit={async (values) => {
                         showModal(
                             <ConfirmModal
                                 title="Are you sure?"
@@ -48,12 +45,7 @@ const DeleteYourAccount = observer(() => {
                     }}
                 >
                     {({
-                        values,
-                        errors,
                         handleSubmit,
-                        setFieldValue,
-                        isSubmitting,
-                        /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
                             <div>

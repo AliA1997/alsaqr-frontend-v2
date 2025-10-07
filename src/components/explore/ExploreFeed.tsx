@@ -1,33 +1,29 @@
-
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CustomPageLoader from "@common/CustomLoader";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import { ContentContainerWithRef } from "@common/Containers";
-import { Pagination, PagingParams } from "@models/common";
+import { PagingParams } from "@models/common";
 import ExploreItemComponent from "./ExploreItem";
 import { leadingDebounce } from "@utils/common";
 
-
-interface Props {
-}
+interface Props {}
 
 
-const ExploreFeed = observer(({  }: Props) => {
+const ExploreFeed = observer(({ }: Props) => {
     const [_, setLoading] = useState(false);
-    const { authStore, exploreStore } = useStore();
+    const { exploreStore } = useStore();
     const {
         loadExploreNews,
         loadingInitial,
         exploreNews,
-        newsPagination,
         newsPagingParams,
         setNewsPagingParams
     } = exploreStore;
     const containerRef = useRef(null);
     const loaderRef = useRef(null);
-    // const [currentPagination, setCurrentPagination] = useState<Pagination | undefined>(newsPagination);
+
     const feedPagination = useMemo(() => {
         return exploreStore.newsPagination
     }, [
@@ -56,7 +52,6 @@ const ExploreFeed = observer(({  }: Props) => {
         getExploreNews();
     }, [])
 
-    // 1. Add this loader component at the end of your posts list
     const LoadMoreTrigger = () => {
         return (
             <div ref={loaderRef} style={{ height: '20px' }}>
@@ -65,7 +60,6 @@ const ExploreFeed = observer(({  }: Props) => {
         );
     };
 
-    // 2. Fix your Intersection Observer useEffect
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -79,7 +73,7 @@ const ExploreFeed = observer(({  }: Props) => {
                 const hasMoreItems = (totalItems > totalItemsOnNextPage);
 
                 if (firstEntry?.isIntersecting && !loadingInitial && hasMoreItems) {
-                fetchMoreItems(newsPagingParams.currentPage + 1);
+                    fetchMoreItems(newsPagingParams.currentPage + 1);
                 }
             },
             {
@@ -104,7 +98,7 @@ const ExploreFeed = observer(({  }: Props) => {
     return (
         <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-7 dark:border-gray-800">
             <PageTitle classNames='mb-2'>Explore Popular News</PageTitle>
-            <ContentContainerWithRef 
+            <ContentContainerWithRef
                 className='text-center overflow-y-auto scrollbar-hide min-h-[100vh] max-h-[100vh]'
                 innerRef={containerRef}>
                 {loadingInitial ? (

@@ -1,16 +1,13 @@
 
 import { useNavigate } from "react-router-dom";
-import React, {
+import {
   useLayoutEffect,
-  useMemo,
   useRef,
-  useState,
 } from "react";
 import {  NotificationToDisplay } from "@typings";
 import TimeAgo from "react-timeago";
 import { useStore } from "@stores/index";
 import { convertDateToDisplay } from "@utils/index";
-import { LoginModal } from "@common/AuthModals";
 
 interface Props {
   notificationToDisplay: NotificationToDisplay;
@@ -19,12 +16,9 @@ interface Props {
 function NotificationItemComponent({
   notificationToDisplay,
 }: Props) {
-  const { authStore, modalStore } = useStore();
+  const { authStore } = useStore();
   const { currentSessionUser } = authStore;
   const navigate = useNavigate();
-  const { showModal } = modalStore;
-
-  const [isRead, setIsRead] = useState<boolean>(false);
 
   const initiallyBooleanValues = useRef<{
     read: boolean;
@@ -33,14 +27,6 @@ function NotificationItemComponent({
   });
 
   const notificationInfo = notificationToDisplay.notification;
-
-  const checkUserIsLoggedInBeforeUpdatingTweet = async (
-    callback: () => Promise<void>
-  ) => {
-    if (currentSessionUser?.id) return showModal(<LoginModal />)
-
-    await callback();
-  };
 
   useLayoutEffect(() => {
     if (currentSessionUser?.id) {
@@ -51,16 +37,6 @@ function NotificationItemComponent({
     }
   }, [currentSessionUser]);
 
-  const onIsAlreadyRead = async () => {
-    const beforeUpdate = isRead;
-    try {
-      await checkUserIsLoggedInBeforeUpdatingTweet(async () => {
-        // setIsJoined(!isJoined);
-      });
-    } catch {
-    //   setIsJoined(beforeUpdate);
-    }
-  };
 
   const navigateToNotification = () => {
     if(notificationInfo.notificationType.toString().includes('post'))

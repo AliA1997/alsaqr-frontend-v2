@@ -1,4 +1,3 @@
-
 import React, { SVGProps, useMemo } from "react";
 import { nonRoutableTitles } from "@utils/index";
 import { CommonLink, CommonLinkProps } from "@common/Links";
@@ -30,7 +29,6 @@ function SidebarRow({
   active,
   isShow,
   onClick,
-  classNames,
   href,
   overrideOnClick
 }: SidebarRowProps) {

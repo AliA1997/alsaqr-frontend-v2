@@ -1,15 +1,13 @@
 
-import { ContentContainer, ContentContainerWithRef, InfoCardContainer } from "@common/Containers";
+import { InfoCardContainer } from "@common/Containers";
 import { MultiSelect } from "@common/MultiSelect";
 import { RadioCard } from "@common/RadioBoxes";
-import { PersonalInfoFormInputs } from "@common/RegisterForm";
 import { Select } from "@common/Select";
 import { useStore } from "@stores/index";
 import { FAVORITE_QURAN_RECITER_OPTIONS, FREQUENT_MASJID_OPTIONS, HOBBIES_OPTIONS, ISLAMIC_SCHOLARS_OPTIONS, ISLAMIC_STUDY_TOPICS_OPTIONS, MARITAL_STATUS_OPTIONS, PREFERRED_MADHAB_OPTIONS, RELIGION_OPTIONS } from "@utils/constants";
-import { COUNTRY_OPTIONS } from "@utils/countriesOptions";
 import { Formik, FormikErrors } from "formik";
 import { observer } from "mobx-react-lite";
-import { PersonalInfoForm, PersonalizeAccountForm } from "@models/settings";
+import { PersonalizeAccountForm } from "@models/settings";
 import { UpdateUserForm } from "@models/users";
 import toast from "react-hot-toast";
 
@@ -18,8 +16,6 @@ const PersonalizeAccount = observer(() => {
     const { authStore, settingsStore } = useStore();
     const { currentSessionUser, navigateBackToHome } = authStore;
     const { 
-        currentUserUpdateForm,
-        setCurrentUpdateUserForm,
         loadingUpsert,
         updateYourAccount,
     } = settingsStore;
@@ -30,8 +26,6 @@ const PersonalizeAccount = observer(() => {
             ...values
         };
 
-        // console.log('update personalize account infoToUpsert:', infoToUpsert);
-        
         if(currentSessionUser) {
             await updateYourAccount(currentSessionUser?.id!, infoToUpsert);
 
@@ -72,7 +66,7 @@ const PersonalizeAccount = observer(() => {
 
                         return errors;
                     }}
-                    onSubmit={async (values, { setSubmitting }) => {
+                    onSubmit={async (values) => {
                         await upsert(values);
                     }}
                 
@@ -81,9 +75,6 @@ const PersonalizeAccount = observer(() => {
                         values,
                         errors,
                         handleSubmit,
-                        setFieldValue,
-                        isSubmitting,
-                        /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
   

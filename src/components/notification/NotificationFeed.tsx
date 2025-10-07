@@ -1,6 +1,4 @@
-
-import React, { useEffect, useMemo, useRef } from "react";
-
+import { useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { convertQueryStringToObject } from "@utils/index";
 import { observer } from "mobx-react-lite";

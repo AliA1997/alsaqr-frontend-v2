@@ -1,5 +1,5 @@
 
-import React, { useLayoutEffect, useMemo, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import SideBar from "./Sidebar";
 import Widgets from "./Widgets";
 import { useStore } from "@stores/index";
@@ -15,7 +15,6 @@ type PageContainerProps = {
 const PageContainer = ({
   children,
 }: React.PropsWithChildren<PageContainerProps>) => {
-  // const { data:session } = useSession();
   const { authStore, modalStore } = useStore();
   const { currentSessionUser } = authStore;
   const { 

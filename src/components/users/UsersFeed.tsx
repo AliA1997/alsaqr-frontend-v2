@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
   UserItemToDisplay,
@@ -38,9 +37,6 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
 
-  const userFeedSetLoadingInitial = useMemo(() => {
-    return searchStore.setSearchUsersLoadingInitial;
-  }, [searchStore.searchUsersLoadingInitial]);
   const feedLoadingInitial = useMemo(() => {
     return searchStore.searchUsersLoadingInitial;
   }, [searchStore.searchUsersLoadingInitial]);

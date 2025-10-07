@@ -1,4 +1,3 @@
-;
 import { FieldHelperProps } from "formik";
 import { FileUploadInput, MyInput } from "./Inputs";
 import { RadioCard } from "./RadioBoxes";
@@ -7,8 +6,6 @@ import { useCallback, useMemo } from "react";
 import { CommonUpsertBoxTypes } from "@typings";
 import { observer } from "mobx-react-lite";
 import { TAG_OPTIONS } from "@utils/tagOptions";
-import { useStore } from "@stores/index";
-
 
 interface Props {
     type: CommonUpsertBoxTypes;
@@ -29,9 +26,6 @@ const options = [
 
 
 export const ListOrCommunityFormInputs = observer(({ type }: Props) => {
-
-    const { authStore } = useStore();
-    const { currentSessionUser } = authStore;
 
     const handleFileChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>, helpers: FieldHelperProps<any>) => {

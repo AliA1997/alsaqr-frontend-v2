@@ -1,8 +1,7 @@
-;
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { CommonUpsertBoxTypes, PostToDisplay, User, UserItemToDisplay } from "@typings";
+import { CommonUpsertBoxTypes, PostToDisplay, UserItemToDisplay } from "@typings";
 import UserItemComponent from "@components/users/UserItem";
 import { FilterKeys } from "@stores/index";
 import { ProfileImagePreview } from "./Containers";
@@ -66,7 +65,6 @@ export const ReviewUsersAdded = ({
 export const ReviewPostsAdded = ({
     postsAdded
 }: ReviewPostsAddedProps) => {
-    const postsAddedByIds = useMemo(() => postsAdded.map(p => p.post.id), [postsAdded]);
     return (
         <div className='flex flex-col'>
             {postsAdded && postsAdded.length
@@ -133,17 +131,6 @@ export const ReviewUpsertListOrCommunity = ({
     </div>
 );
 
-// vatar: userInfo?.avatar ?? '',
-//               bgThumbnail: userInfo?.bgThumbnail ?? '',
-//               username: userInfo?.username ?? '',
-//               email: userInfo?.email ?? '',
-//               firstName: userInfo?.firstName ?? '',
-//               lastName: '',
-//               dateOfBirth: userInfo?.dateOfBirth,
-//               countryOfOrigin: userInfo?.countryOfOrigin ?? '',
-//               hobbies: userInfo?.hobbies ?? [],
-//               maritalStatus: userInfo?.maritalStatus ?? "single",
-//               religion: userInfo?.religion ??  "Prefer Not To Disclose",
 interface ReviewUserPersonalInfoProps {
     avatar: string;
     bgThumbnail: string;
@@ -162,8 +149,6 @@ interface ReviewUserHobbiesAndOtherInfoProps {
 }
 
 export const ReviewUserPersonalInfo = ({
-    // avatar,
-    // bgThumbnail,
     username,
     email,
     firstName,

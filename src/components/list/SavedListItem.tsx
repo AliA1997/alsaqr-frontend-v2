@@ -1,14 +1,6 @@
-
-import { UploadIcon } from "@heroicons/react/outline";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import React, {
-  useLayoutEffect,
+import {
   useMemo,
-  useRef,
-  useState,
 } from "react";
-import toast from "react-hot-toast";
 import TimeAgo from "react-timeago";
 import { CommunityToDisplay, PostToDisplay, UserItemToDisplay } from "@typings";
 import { useStore } from "@stores/index";
@@ -30,7 +22,6 @@ interface Props {
 function SavedListItem({
   savedListItemToDisplay
 }: Props) {
-  const navigate = useNavigate();
   const { authStore, listFeedStore, modalStore } = useStore();
   const { showModal, closeModal } = modalStore;
   const { loadingUpsert, deleteSavedListItem, loadSavedListItems, listInfoForSavedListItems } = listFeedStore;
@@ -46,7 +37,6 @@ function SavedListItem({
       const cmtyDisc = (savedListItemToDisplay.relatedEntity as CommunityDiscussionToDisplay).communityDiscussion;
       window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${cmtyDisc.communityId}/${cmtyDisc.id}`, "_blank")
     }
-    // ;
   };
 
   const RelatedEntityNode = () => {

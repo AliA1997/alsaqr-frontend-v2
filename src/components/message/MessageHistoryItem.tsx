@@ -1,5 +1,4 @@
-
-import React, {
+import {
     useLayoutEffect,
     useRef,
 } from "react";
@@ -17,9 +16,8 @@ function MessageHistoryItemComponent({
     messageHistoryItem,
     onClick
 }: Props) {
-    const { authStore, modalStore } = useStore();
+    const { authStore } = useStore();
     const { currentSessionUser } = authStore;
-    const { showModal } = modalStore;
 
     const initiallyBooleanValues = useRef<{
         read: boolean;
