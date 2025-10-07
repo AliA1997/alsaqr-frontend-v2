@@ -1,0 +1,178 @@
+;
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  BellIcon,
+  HashtagIcon,
+  BookmarkIcon,
+  CollectionIcon,
+  DotsCircleHorizontalIcon,
+  MailIcon,
+  UsersIcon,
+  LoginIcon,
+  LogoutIcon,
+  CogIcon,
+} from "@heroicons/react/outline";
+import { getEmailUsername, stopPropagationOnClick } from "@utils/index";
+import { useStore } from "@stores/index";
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { observer } from "mobx-react-lite";
+import { LoginModal, RegisterModal } from "@common/AuthModals";
+
+import { ROUTE_TO_SHOW_SETTINGS_SIDEBAR, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
+import { SettingsTabs } from "@models/enums";
+import { OptimizedImage } from "@common/Image";
+import SidebarRow from "./SidebarRow";
+import DarkSwitch from "./DarkSwitch";
+
+type SideBarProps = {};
+
+const SideBar = ({}: SideBarProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { authStore, modalStore, settingsStore } = useStore();
+  const { auth, currentSessionUser } = authStore;
+  const { closeModal, showModal } = modalStore;
+  const { currentTabIdx, setCurrentTabIdx } = settingsStore;
+  
+  const [mounted, setMounted] = useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
+  const notLoggedIn = useMemo(() => mounted && !auth?.isLoggedIn(), [auth?.isLoggedIn(), mounted]);
+  const hideSidebar = useMemo(() => ROUTE_TO_SHOW_SETTINGS_SIDEBAR === location.pathname, [location.pathname]);
+  const registrationNotCompleted = useMemo(() => !(currentSessionUser?.isCompleted ?? false), [mounted, currentSessionUser])
+    
+  const openModal = () => showModal(<LoginModal />)
+  const handleDropdownEnter = useCallback(
+    () => setIsDropdownOpen(!isDropdownOpen),
+    [isDropdownOpen]
+  );
+
+  useEffect(() => {
+    setMounted(true);
+
+    return () => {
+      setMounted(false);
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    const showLoginModal = ROUTES_USER_CANT_ACCESS.some(r => location.pathname.includes(r));
+
+    if(notLoggedIn && showLoginModal) {
+      showModal(<LoginModal />);
+    }
+      
+    if(!registrationNotCompleted && currentSessionUser)
+      closeModal();
+
+  }, [currentSessionUser?.id, mounted]);
+  
+  return (
+    <>
+      <div className={`
+          ${hideSidebar ? 'col-span-2' : 'col-span-1 md:col-span-2'}
+          flex flex-col item-center mt-2 md:mt-0 md:px-1 md:px-4 md:items-start
+        `}
+        onClick={() => setIsDropdownOpen(false)}
+      >
+        <div className="flex justify-start">
+          <img
+            className={`
+              m-0 h-full w-full md:w-[90%] transition-all duration-200 
+              sidebarLogo
+              cursor-pointer
+          `}
+            alt=""
+            style={{ maxWidth: "unset" }}
+            onClick={() => navigate("/")}
+          />
+        </div>
+        <>
+              {hideSidebar 
+                ? (
+                  <>
+                    <SidebarRow active={currentTabIdx === SettingsTabs.PersonalInfo} overrideOnClick={true} isShow={true} title="Personal Info" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalInfo)} />
+                    <SidebarRow active={currentTabIdx === SettingsTabs.PersonalizeAccount} overrideOnClick={true} isShow={true} title="Peronalize Account" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalizeAccount)} />
+                    <SidebarRow active={currentTabIdx === SettingsTabs.DeleteYourAccount} overrideOnClick={true} isShow={true} title="Delete Your Account" onClick={() => setCurrentTabIdx(SettingsTabs.DeleteYourAccount)} />
+                  </>
+                )
+                : (
+                  <>
+                  <SidebarRow Icon={HashtagIcon} title="Explore" href="/explore" />
+                  <SidebarRow
+                    Icon={BellIcon}
+                    title="Notifications"
+                    href="/notifications"
+                  />
+                  <SidebarRow Icon={MailIcon} title="Messages" href="/messages" />
+                  <SidebarRow Icon={BookmarkIcon} title="Bookmarks" href="/bookmarks" />
+                  <SidebarRow Icon={CollectionIcon} title="Lists" href="/lists" />
+                  <SidebarRow Icon={UsersIcon} title="Communities" href="/communities" />
+                  <div className="relative more-container">
+                    <SidebarRow
+                      Icon={DotsCircleHorizontalIcon}
+                      title="More"
+                      onClick={handleDropdownEnter}
+                    />
+                    {isDropdownOpen && (
+                      <div className="absolute left-0 bottom-[-10] mt-2 w-48 rounded-md shadow-lg ring-1 bg-white dark:bg-[#000000] ring-black ring-opacity-5 z-40">
+                        <div
+                          className="py-1"
+                          role="menu"
+                          aria-orientation="vertical"
+                          aria-labelledby="options-menu"
+                        >
+                          {currentSessionUser ? (
+                            <>
+                              <SidebarRow Icon={CogIcon} title="Settings" href="/settings"/>
+                              <SidebarRow Icon={LoginIcon} title="Sign Out" />
+                            </>
+                          ) : (
+                            <SidebarRow
+                              Icon={LogoutIcon}
+                              title="Sign In"
+                              onClick={openModal}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <DarkSwitch />
+                  {currentSessionUser && currentSessionUser.id && (
+                    <>
+                      <hr />
+                      {/* <div className="flex align-center p-2 cursor-pointer hover:opacity-75"> */}
+                      <div
+                        onClick={() => navigate(`/users/${currentSessionUser?.username}`)}
+                        className={`
+                          group flex max-w-fit
+                          cursor-pointer items-center space-x-2 rounded-full px-1 md:px-4 py-1 py-3
+                          transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-600 mb-1 mt-1 
+                        `}
+                      >
+                        <OptimizedImage
+                          classNames="m-0 mt-3 w-full h-full md:h-14 md:w-14 rounded-full"
+                          src={currentSessionUser?.avatar ?? ''}
+                          alt="Avatar"
+                        />
+                        {/* <div className="flex flex-col justify-center  p-3 opacity-50 text-xs sm:text-sm lg:text-md"> */}
+                        <div className={`
+                          flex flex-col display-none md:display-initial hidden 
+                          group-hover:text-[#55a8c2] dark:text-gray-50
+                          md:inline-flex text-base font-light text-xs lg:text-sm
+                        `}>
+                          <p>{currentSessionUser?.username}</p>
+                          <p className="ml-2">@{getEmailUsername(currentSessionUser?.username)}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  </>
+                )}
+        </>
+      </div>
+    </>
+  );
+};
+export default observer(SideBar);

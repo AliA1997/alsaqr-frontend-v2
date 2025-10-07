@@ -1,0 +1,139 @@
+
+import React from "react";
+import { observer } from "mobx-react-lite";
+import type { CommunityAdminInfo } from "typings";
+import { convertDateToDisplay } from "@utils/index";
+import { FilterKeys, useStore } from "@stores/index";
+import RequestedInvitesModal from "@common/RequestedInvitesModal";
+import { CommonLink } from "@common/Links";
+import UpdateCommunityModal from "@common/UpdateCommunityModal";
+import { InfoCardContainer } from "@common/Containers";
+import { TagOrLabel } from "@common/Titles";
+
+type Props = {
+    communityAdminInfo: CommunityAdminInfo;
+    refreshCommunityAdminInfo: (communityId: string) => Promise<void>;
+}
+
+function CommunityAdminView({
+    communityAdminInfo,
+    refreshCommunityAdminInfo
+}: Props) {
+    const { authStore, modalStore } = useStore();
+    const { currentSessionUser } = authStore;
+    const { showModal } = modalStore;
+    
+    if (communityAdminInfo)
+        return (
+            <>
+                <div className='flex justify-between p-5'>
+                     <h1 className='text-4xl'>
+                        {`A Founder's Welcome `}
+                    </h1>
+                    <CommonLink 
+                        onClick={() => showModal(<UpdateCommunityModal 
+                                                    loggedInUserId={currentSessionUser?.id!}
+                                                    communityAdminInfo={communityAdminInfo}
+                                                    refreshCommunityAdminInfo={refreshCommunityAdminInfo}
+                                                />
+                        )}
+                        animatedLink={false}
+                        classNames='border border-[0.1rem] hover:text-[#55a8c2]'
+                    >
+                        Edit Community
+                    </CommonLink>
+                </div>
+                <div className='relative flex'> 
+                    <img
+                        className="p-1 h-[5rem] w-[5rem] rounded-full object-cover "
+                        src={communityAdminInfo.community.avatar}
+                        alt={communityAdminInfo.community.name}
+                    />
+                    <InfoCardContainer>
+                        <h1 className='text-3xl'>
+                            {communityAdminInfo.community.name}
+                        </h1>
+                    </InfoCardContainer>
+                    <TagOrLabel 
+                        color={communityAdminInfo.community.isPrivate ? 'danger' : 'info'} 
+                        size='sm' 
+                        className='absolute bottom-0 right-0'
+                    >
+                        {communityAdminInfo.community.isPrivate ? 'Private' : 'Public'}
+                    </TagOrLabel>
+                </div>
+                <div className="flex flex-5">
+                    <InfoCardContainer>
+                        <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Invited Users:</p>
+                        <h1 className='w-full text-center text-3xl'>
+                            {communityAdminInfo.invitedCount}
+                        </h1>
+                    </InfoCardContainer>
+                    <InfoCardContainer>
+                        <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Joined Users:</p>
+                        <h1 className='w-full text-center text-3xl'>
+                            {communityAdminInfo.joinedCount}
+                        </h1>
+                    </InfoCardContainer>
+                    {communityAdminInfo.community.isPrivate && (
+                        <InfoCardContainer>
+                            <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Pending Invites:</p>
+                            <h1 className='w-full text-center text-3xl'>
+                                {communityAdminInfo.inviteRequestedUsers?.length ?? 0}
+                            </h1>
+                            <button
+                                type='button'
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    showModal(
+                                        <RequestedInvitesModal
+                                            invitedUsers={communityAdminInfo.inviteRequestedUsers}
+                                            title="Pending Invite Requests"
+                                            filterKey={FilterKeys.Community}
+                                            entityInvitedToId={communityAdminInfo.community.id}
+                                        />
+                                    );
+                                }}
+                                className={`
+                                min-w-[4rem] max-w-[12rem] max-h-[3rem] border px-3 py-1 
+                                font-bold 
+                                text-gray-900
+                                dark:text-white 
+                                hover:text-[#55a8c2]
+                                hover:opacity-90
+                                disabled:opacity-40
+                                text-xs
+                                flex
+                                `}
+                            >Accept Or Deny Invites</button>
+                        </InfoCardContainer>
+                    )}
+                    <InfoCardContainer>
+                        <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Created on: </p>
+                        <h1 className='w-full text-center mt-2'>
+                            {new Date(convertDateToDisplay(communityAdminInfo.community.createdAt)).toLocaleString('default', { dateStyle: 'short' })}
+                        </h1>
+                    </InfoCardContainer>
+                    <InfoCardContainer classNames='justify-end items-center'>
+                        <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Tags:</p>
+
+                        <div className='flex flex-wrap'>
+                            {communityAdminInfo.community.tags && communityAdminInfo.community.tags.map((t: string, tIdx: number) =>
+                                <div key={tIdx}>
+                                    <TagOrLabel 
+                                        color='secondary' 
+                                        size='sm' 
+                                    >
+                                        #{t}
+                                    </TagOrLabel>
+                                </div>)}
+                        </div>
+                    </InfoCardContainer>
+                </div>
+            </>
+        );
+
+    return <></>
+}
+
+export default observer(CommunityAdminView);

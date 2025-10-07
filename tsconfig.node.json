@@ -16,7 +16,29 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".", // Add this line
+    "paths": {
+      // Add this block
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@models/*": [
+        "./src/models/*"
+      ],
+      "@stores/*": [
+        "./src/stores/*"
+      ],
+      "@common/*": [
+        "./src/common/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@typings": [
+        "typings.d"
+      ]
+    },
   },
   "include": ["vite.config.ts"]
 }
