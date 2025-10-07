@@ -40,7 +40,6 @@ export const axiosRequests = {
   del: <T>(url: string) => axios.delete<T>(url).then(axiosResponseBody),
 };
 
-axios.defaults.baseURL = import.meta.env.VITE_PUBLIC_BASE_API_URL;
 
 axios.interceptors.response.use(
   async (response) => {
