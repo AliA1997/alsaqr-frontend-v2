@@ -43,7 +43,7 @@ function CommunityItemComponent({
 
   const navigateToCommunity = () => {
     setNavigateCommunity(community);
-    navigate(`communities/${communityInfo.id}`);
+    navigate(`/communities/${communityInfo.id}`);
   };
 
   const hasToRequestPermissionToJoin = useMemo(() => {
@@ -76,7 +76,7 @@ function CommunityItemComponent({
                 src={communityInfo.avatar}
                 alt={communityInfo.name}
               />
-              <p className='text-sm ml-2'>
+              <p className='text-sm ml-2 text-black dark:text-gray-50'>
                 {communityInfo.name}
               </p>
             </div>
@@ -104,7 +104,7 @@ function CommunityItemComponent({
           <TagOrLabel
             color={community.community.isPrivate ? 'danger' : 'info'}
             size="sm"
-            className='mt-[0.5rem] min-w-[3rem] max-w-fit self-end'
+            className='mt-[0.5rem] min-w-[3rem] max-w-fit self-end mr-3 md:mr-3'
           >
             {community.community.isPrivate ? 'Private' : 'Public'}
           </TagOrLabel>

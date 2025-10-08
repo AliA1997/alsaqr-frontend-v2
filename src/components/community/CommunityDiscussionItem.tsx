@@ -77,7 +77,7 @@ const CommunityDiscussionItemComponent = observer(({
             onClick={(e) => stopPropagationOnClick(e, navigateToCommunityDiscussion)}
           >
             <div className='flex flex-col'>
-              <h6 className='text-sm'>
+              <h6 className='text-sm text-black dark:text-gray-50'>
                 {communityDiscussionInfo.name}
               </h6>
               <p className="text-sm text-gray-500 dark:text-gray-400">

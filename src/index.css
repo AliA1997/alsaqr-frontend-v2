@@ -45,33 +45,6 @@ h1 {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-.wave {
-  position: relative;
-  width: 300px;
-  height: 300px;
-}
-
-.wave h2 {
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  position: absolute;
-  text-align: center;
-  line-height: 250px;
-  font-size: 80px;
-  text-transform: uppercase;
-}
-
-.wave h2:nth-child(1) {
-  color: transparent;
-  -webkit-text-stroke: 2px #55a8c2;
-}
-
-.wave h2:nth-child(2) {
-  color: #55a8c2;
-  /*   clip-path: polygon(0 50%, 100% 50%, 100% 0, 0 0); */
-  animation: wave 2s ease-in-out infinite;
-}
 
 @keyframes wave {
   0% {
@@ -112,23 +85,63 @@ h1 {
   }
 }
 
-@media screen and (max-width: 600px) {
+.wave {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.wave h2 {
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  text-align: center;
+  line-height: 175px;
+  font-size: 50px;
+  text-transform: uppercase;
+  padding-left: 3rem;
+}
+
+.wave h2:nth-child(1) {
+  color: transparent;
+  -webkit-text-stroke: 2px #55a8c2;
+}
+
+.wave h2:nth-child(2) {
+  color: #55a8c2;
+  /*   clip-path: polygon(0 50%, 100% 50%, 100% 0, 0 0); */
+  animation: wave 2s ease-in-out infinite;
+}
+/* 
+
+@media screen and (min-width: 600px) {
   .wave {
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
   }
 
   .wave h2 {
-    line-height: 200px;
+    line-height: 125px;
     font-size: 75px;
   }
+} */
+
+@media screen and (min-width: 768px) {
+  .wave {
+    position: relative;
+    width: 300px;
+    height: 300px;
+  }
+
+  .wave h2 {
+    line-height: 250px;
+    font-size: 80px;
+    padding-left: 0rem;
+  }
+  
 }
 
-@media screen and (max-width: 400px) {
-  .wave h2 {
-    font-size: 50px;
-  }
-}
 
 
 .sidebarLogo {

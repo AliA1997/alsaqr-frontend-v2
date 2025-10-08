@@ -8,7 +8,7 @@ export function PageTitle({ children, classNames }: React.PropsWithChildren<any>
 
 export function NoRecordsTitle({ children }: React.PropsWithChildren<any>) {
     return (
-        <h3 className="pt-5">{children}</h3>
+        <h3 className="pt-5 dark:text-gray-50">{children}</h3>
     );
 }
 

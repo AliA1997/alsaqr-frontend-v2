@@ -372,10 +372,10 @@ function PostComponent({
               return stopPropagationOnClick(e, navigateToTweetUser)
           }}
         />
-        <div>
+        <div className='text-left'>
           <div className="flex item-center space-x-1">
             <p
-              className={`font-bold mr-1 hover:underline`}
+              className={`font-bold mr-1 text-black dark:text-gray-50 hover:underline`}
               onClick={(e) => {
                 if (onlyDisplay)
                   return;
@@ -417,7 +417,7 @@ function PostComponent({
               date={convertDateToDisplay(postInfo?.createdAt)}
             />
           </div>
-          <p className="pt-1">{postInfo.text}</p>
+          <p className="pt-1 text-black dark:text-gray-50">{postInfo.text}</p>
           <div style={{ display: 'flex', gap: '4px', }} className="my-5">
             {postInfo.tags.map((tag, index) => (
               <span

@@ -17,7 +17,6 @@ interface SaveToListModalProps {
     listInfo?: ListRecord;
 }
 
-
 export const SaveToListModal = observer(({
     relatedEntityType,
     info,

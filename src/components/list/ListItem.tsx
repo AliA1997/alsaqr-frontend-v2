@@ -62,7 +62,7 @@ function ListItemComponent({
   };
 
   const navigateToList = () => {
-    navigate(`lists/${listInfo.id}`);
+    navigate(`/lists/${listInfo.id}`);
   };
 
   const userId = useMemo(() => currentSessionUser ? currentSessionUser.id : "", [currentSessionUser]);

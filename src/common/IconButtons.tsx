@@ -111,8 +111,8 @@ export function RePostedIconButton({ onClick, numberOfRePosts, isRePosted }: ReP
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`
-            flex cursor-pointer item-center space-x-3 ${isRePosted ? "text-retweet" : "text-gray-400"
-                } hover:text-retweet
+            flex cursor-pointer item-center space-x-3 ${isRePosted ? "text-[#00FF00]" : "text-gray-400"
+                } hover:text-[#00FF00]
             `}
             onClick={onClick}
         >
