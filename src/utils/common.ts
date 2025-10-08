@@ -33,13 +33,12 @@ export const axiosResponseBody = (res: AxiosResponse) => res.data;
 
 export const axiosRequests = {
   get: <T>(url: string) => axios.get<T>(url).then(axiosResponseBody),
-  post: <T>(url: string, body: {}) =>
-    axios.post<T>(url, body).then(axiosResponseBody),
+  post: <T>(url: string, body: {}, options?: {}) =>
+    axios.post<T>(url, body, options).then(axiosResponseBody),
   put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(axiosResponseBody),
   patch: <T>(url: string, body: {}) => axios.patch<T>(url, body).then(axiosResponseBody),
   del: <T>(url: string) => axios.delete<T>(url).then(axiosResponseBody),
 };
-
 
 axios.interceptors.response.use(
   async (response) => {

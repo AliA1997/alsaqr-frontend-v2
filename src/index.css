@@ -137,6 +137,13 @@ h1 {
   width: 2.5rem;
 }
 
+#footer-img > .sidebarLogo {
+  content: url('https://res.cloudinary.com/aa1997/image/upload/v1751518818/new-desktop-logo_ocwyft.svg');
+  height: 2.5rem;
+  width: 5rem;
+  padding: 0;
+}
+
 @media(min-width: 768px) {
   .sidebarLogo {
     content: url('https://res.cloudinary.com/aa1997/image/upload/v1751518818/new-desktop-logo_ocwyft.svg');
@@ -144,9 +151,16 @@ h1 {
     width: 7rem;
     padding-left: 1em;
   }
+
+  #footer-img > .sidebarLogo {
+    content: url('https://res.cloudinary.com/aa1997/image/upload/v1751518818/new-desktop-logo_ocwyft.svg');
+    height: 5rem;
+    width: 7rem;
+    padding-left: 1em;
+  }
+
 }
 
-/* In your global CSS file */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

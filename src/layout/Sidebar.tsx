@@ -114,7 +114,7 @@ const SideBar = ({}: SideBarProps) => {
                       onClick={handleDropdownEnter}
                     />
                     {isDropdownOpen && (
-                      <div className="absolute left-0 bottom-[-10] mt-2 w-48 rounded-md shadow-lg ring-1 bg-white dark:bg-[#000000] ring-black ring-opacity-5 z-40">
+                      <div className="absolute left-0 bottom-[-10] mt-2 w-48 rounded-md shadow-lg ring-1 bg-white dark:bg-[#000000] ring-black ring-opacity-5 z-[800]">
                         <div
                           className="py-1"
                           role="menu"

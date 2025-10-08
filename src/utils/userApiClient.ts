@@ -1,13 +1,15 @@
 import axios from "axios";
-import { axiosResponseBody } from "./common";
+import { axiosRequests, axiosResponseBody } from "./common";
 import { UserRegisterFormDto } from "typings";
 import { FollowUserFormDto, UnFollowUserFormDto, UpdateUserFormDto } from "@models/users";
 
 export const userApiClient = {
     sessionSignin: (email: string) => 
-        axios.post(`/api/session/signin`, { values: { email } }).then(axiosResponseBody),
+        axiosRequests.post(`/api/session/signin`, { values: { email } }).then(axiosResponseBody),
     sessionCheck: (email: string) => 
-        axios.post(`/api/session/check `, { values: { email } }).then(axiosResponseBody),
+        axios.post(`/api/session/check `, { values: { email } }, { headers: {
+            "Content-Type": "application/json"
+        }}).then(axiosResponseBody),
     
     
     getUserProfile: (username: string) => 
@@ -30,4 +32,4 @@ export const userApiClient = {
         axios.put(`/api/users/${userId}`, { values }).then(axiosResponseBody),
     deleteUser: (userId: string) => 
         axios.delete(`/api/users/${userId}`).then(axiosResponseBody)
-}
+} 
