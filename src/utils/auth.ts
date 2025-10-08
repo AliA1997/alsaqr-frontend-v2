@@ -38,7 +38,9 @@ export default class Auth {
     isLoggedIn() {
         return !!this.cookie.get('user')
     }
-
+    clearUser() {
+        return this.cookie.remove('user');
+    }
     clearToken(key: string = 'jwt') {
         this.cookie.remove(key);
     }

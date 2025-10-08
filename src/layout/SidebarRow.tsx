@@ -54,6 +54,7 @@ function SidebarRow({
       if (title === SIGN_IN_TITLE || title === MORE_TITLE || overrideOnClick) onClick!(e);
       if (title === SIGN_OUT_TITLE) {
         await supabase.auth.signOut();
+        auth?.clearUser();
         setCurrentSessionUser(undefined);
       };
     }

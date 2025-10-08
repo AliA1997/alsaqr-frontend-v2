@@ -29,7 +29,7 @@ export default observer(function ({ children }: React.PropsWithChildren<any>) {
                         </Suspense>
                     </main>
                 </div>
-                <footer className="fixed bottom-0 left-0 z-[999] bg-white dark:bg-[#1d2a2e] text-gray-900 dark:text-gray-300 mt-8 w-full">
+                <footer className="fixed bottom-0 left-0 z-[900] bg-white dark:bg-[#1d2a2e] text-gray-900 dark:text-gray-300 mt-8 w-full">
                     <div className="mx-auto w-full max-w-6xl px-4 py-6 lg:px-8">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                             <div className="flex justify-start">

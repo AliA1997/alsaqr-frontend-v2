@@ -13,9 +13,7 @@ export interface CommunityDiscussion {
     isPrivate: boolean;
 }
 
-export interface CommunityDiscussionRecord extends CommunityDiscussion {
-
-}
+export interface CommunityDiscussionRecord extends CommunityDiscussion {}
 
 
 export interface CommunityDiscussionAdminInfo {

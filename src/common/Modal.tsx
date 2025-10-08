@@ -16,15 +16,15 @@ interface ModalBodyProps {
 const ModalBody = ({ onClose, headerChildren, children, classNames }: ModalBodyProps) => {
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ${classNames ?? ""}`}>
-      <div className="bg-white dark:bg-[#000000] rounded-lg shadow-lg w-11/12 max-w-lg mx-auto">
+    <div className={`fixed inset-0 z-[999] flex items-center justify-center bg-white dark:bg-black h-screen ${classNames ?? ""}`}>
+      <div className="relative bg-white dark:bg-[#000000] rounded-lg shadow-lg w-11/12 max-w-lg mx-auto">
         <div className="relative p-4">
           {headerChildren
             ? headerChildren
             : (
               <button
                 onClick={onClose}
-                className="absolute right-5 top-100 text-gray-400 hover:text-gray-600 block float-right"
+                className="absolute right-5 top-3 text-gray-400 hover:text-gray-600 block float-right"
               >
                 <svg
                   className="w-6 h-6"

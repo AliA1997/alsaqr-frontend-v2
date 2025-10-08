@@ -10,9 +10,12 @@ import UsersFeed from "@components/users/UsersFeed";
 import { ReviewForm, ReviewUserHobbiesAndOtherInfo, ReviewUserPersonalInfo, ReviewUsersAdded } from "./ReviewForm";
 import { ProfileImagePreview } from "./Containers";
 import { supabase } from "@utils/supabase";
+import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
+import { useLocation } from "react-router";
 
 
 export const LoginModal = observer(() => {
+  const { pathname } = useLocation();
   const { authStore, modalStore } = useStore();
   const { currentSessionUser } = authStore;
   const { closeModal } = modalStore;
@@ -30,7 +33,9 @@ export const LoginModal = observer(() => {
   return (
     <ModalPortal>
       <ModalBody onClose={() => {
-        if (currentSessionUser)
+        const canCloseLoginModal = !(ROUTES_USER_CANT_ACCESS.some(r => pathname.includes(r)));
+
+        if (canCloseLoginModal || currentSessionUser)
           closeModal();
 
       }}>
