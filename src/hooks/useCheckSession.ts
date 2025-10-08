@@ -12,6 +12,13 @@ export function useCheckSession(setState: Function, sessionUser: User | undefine
       await userApiClient.sessionSignin(sessionInfo.data.session.user.email!);
       const checkData = await userApiClient.sessionCheck(sessionInfo.data.session.user.email!);
 
+      console.log("JSON.stringify", JSON.stringify(checkData))
+      console.log("JSON.parse", JSON.parse(checkData))
+      console.log("checkData.data", checkData.data)
+      console.log("checkData.result", checkData.result)
+
+      console.log("JSON.parse", JSON.parse(checkData.data))
+      
       setState(checkData.result);
     } else {
       setState(undefined);
