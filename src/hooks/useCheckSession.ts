@@ -10,9 +10,9 @@ export function useCheckSession(setState: Function, sessionUser: User | undefine
     const sessionInfo = await supabase.auth.getSession();
     if (sessionInfo && sessionInfo.data.session) {
       await userApiClient.sessionSignin(sessionInfo.data.session.user.email!);
-      const { result: userSession } = await userApiClient.sessionCheck(sessionInfo.data.session.user.email!);
+      const checkData = await userApiClient.sessionCheck(sessionInfo.data.session.user.email!);
 
-      setState(userSession);
+      setState(checkData.result);
     } else {
       setState(undefined);
     }
