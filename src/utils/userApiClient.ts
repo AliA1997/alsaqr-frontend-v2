@@ -5,9 +5,9 @@ import { FollowUserFormDto, UnFollowUserFormDto, UpdateUserFormDto } from "@mode
 
 export const userApiClient = {
     sessionSignin: (email: string) => 
-        axiosRequests.post(`/api/session/signin`, { values: { email } }).then(axiosResponseBody),
+        axios.post(`/api/session/signin`, { values: { email } }).then(axiosResponseBody),
     sessionCheck: (email: string) => 
-        axiosRequests.post(`/api/session/check `, { values: { email } }).then(axiosResponseBody),
+        axios.post(`/api/session/check `, { values: { email } }).then(axiosResponseBody),
     
     
     getUserProfile: (username: string) => 
