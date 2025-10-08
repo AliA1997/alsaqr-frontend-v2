@@ -124,7 +124,7 @@ const CommunityFeed = observer(({ }: Props) => {
   const noRecordsTitle = useMemo(() => 'You are not part of any communities', []);
 
   return (
-    <div className="col-span-7  text-left scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
+    <div className="col-span-7  text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
       <PageTitle>Communities</PageTitle>
       <div className="flex justify-items-center align-items-center pt-5 px-5">
           <button

@@ -234,7 +234,7 @@ const Feed = observer(({
       </div>
       <ContentContainerWithRef 
         classNames={`
-          text-center overflow-y-auto scrollbar-hide
+          text-left overflow-y-auto scrollbar-hide
           ${filterKey === FilterKeys.SearchPosts ? 'min-h-[30vh] max-h-[40vh]' : 'min-h-[100vh] max-h-[100vh]'}  
         `}
         innerRef={containerRef}

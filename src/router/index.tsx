@@ -15,6 +15,8 @@ import NotificationsPage from "@features/Notifications";
 import SettingsPage from "@features/Settings";
 import StatusPage from '@features/Status';
 import UserProfilePage from "@features/User";
+import PrivacyPage from "@features/PrivacyPolicy";
+import TermsAndConditionsPage from "@features/TermsAndConditions";
 // import VerifyAccount from "../features/VerifyAccount";
 // import AIAssistant from "../features/AIAssistant";
 // import WikiBooksSearchResults from "../features/WikiBooksSearchResults";
@@ -121,6 +123,8 @@ export const routes: RouteObject[] = [
       { path: "messages", element: <MessagesPage /> },
       { path: "notifications", element: <NotificationsPage /> },
       { path: "settings", element: <SettingsPage /> },
+      { path: "privacy-policy", element: <PrivacyPage /> },
+      { path: "terms-and-conditions", element: <TermsAndConditionsPage /> },
       { path: "status/:status_id", element: <StatusPage /> },
       { path: "users/:name", element: <UserProfilePage /> },
       // { path: "collaborate", element: <Collaborate /> },

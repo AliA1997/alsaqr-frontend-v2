@@ -45,10 +45,10 @@ export default observer(function ({ children }: React.PropsWithChildren<any>) {
                             </div>
 
                             <div className="flex gap-6 text-sm">
-                                <a href="/privacy-policy" className="hover:text-white text-[#55a8c2]">
+                                <a href="/privacy-policy" className="dark:hover:text-white hover:opacity-70 text-[#55a8c2]">
                                     Privacy
                                 </a>
-                                <a href="/terms-and-conditions" className="hover:text-white text-[#55a8c2]">
+                                <a href="/terms-and-conditions" className="dark:hover:text-white hover:opacity-70 text-[#55a8c2]">
                                     Terms
                                 </a>
                             </div>

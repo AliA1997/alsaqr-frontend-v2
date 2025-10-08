@@ -70,7 +70,7 @@ const SideBar = ({}: SideBarProps) => {
     <>
       <div className={`
           ${hideSidebar ? 'col-span-2' : 'col-span-1 md:col-span-2'}
-          flex flex-col item-center mt-2 md:mt-0 md:px-1 md:px-4 md:items-start
+          flex flex-col item-center mt-2 md:mt-0 md:px-4 md:items-start
         `}
         onClick={() => setIsDropdownOpen(false)}
       >
@@ -151,7 +151,7 @@ const SideBar = ({}: SideBarProps) => {
                         `}
                       >
                         <OptimizedImage
-                          classNames="m-0 mt-3 w-full h-full md:h-14 md:w-14 rounded-full"
+                          classNames="m-0 mt-3 w-full h-8 md:h-14 md:w-14 rounded-full"
                           src={currentSessionUser?.avatar ?? ''}
                           alt="Avatar"
                         />

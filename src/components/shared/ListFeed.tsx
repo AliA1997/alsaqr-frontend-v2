@@ -125,7 +125,7 @@ const ListFeed = observer(({}: Props) => {
   const noRecordsTitle = useMemo(() => 'You don\'t have any lists', []);
 
   return (
-    <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
+    <div className="text-left col-span-7 scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
       <PageTitle>Lists</PageTitle>
       <div className="flex justify-items-center align-items-center pt-5 px-5">
           <button
@@ -145,7 +145,7 @@ const ListFeed = observer(({}: Props) => {
         <CustomPageLoader title="Loading" />
       ) : (
         <ContentContainerWithRef
-          classNames='flex flex-wrap min-h-100 md:justify-start'
+          classNames='flex flex-wrap min-h-100 md:justify-start px-5'
           innerRef={containerRef}
         >
           <>
