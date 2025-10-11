@@ -123,7 +123,7 @@ const SideBar = ({}: SideBarProps) => {
                         >
                           {currentSessionUser ? (
                             <>
-                              <SidebarRow Icon={CogIcon} title="Settings" href="/settings"/>
+                              <SidebarRow Icon={CogIcon} title="Settings" isShow={true} href="/settings"/>
                               <SidebarRow Icon={LoginIcon} title="Sign Out" />
                             </>
                           ) : (

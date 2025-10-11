@@ -40,6 +40,7 @@ import { TagOrLabel } from "@common/Titles";
 import { usePDF } from "react-to-pdf";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PostPDF from "@components/pdf/PostPdf";
+import { OptimizedImage, OptimizedPostImage } from "@common/Image";
 
 
 interface Props {
@@ -361,8 +362,8 @@ function PostComponent({
               return stopPropagationOnClick(e, navigateToTweet)
           }}
         />
-        <img
-          className="h-10 w-10 rounded-full object-cover z-50 hover:bg-blue-200"
+        <OptimizedImage
+          classNames="h-10 w-10 rounded-full object-cover z-50 hover:bg-blue-200"
           src={postToDisplay.profileImg}
           alt={postToDisplay.username}
           onClick={(e) => {
@@ -435,10 +436,10 @@ function PostComponent({
           </div>
           {postInfo.image && (
             <div className="w-[300px] h-[200px] overflow-hidden flex justify-center items-center">
-              <img
+              <OptimizedPostImage
                 src={postInfo.image}
                 alt="img/post"
-                className="m-5 ml-0 w-full h-full object-cover shadow-sm"
+                classNames="m-5 ml-0 w-full h-full object-cover shadow-sm"
               />
             </div>
 

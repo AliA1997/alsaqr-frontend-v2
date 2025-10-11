@@ -19,6 +19,7 @@ import FeedStore from "@stores/feedStore";
 import ListFeedStore from "@stores/listFeedStore";
 import CommunityFeedStore from "@stores/communityFeedStore";
 import agent from "@utils/common";
+import { OptimizedImage } from "@common/Image";
 
 interface Props {
   filterKey: FilterKeys;
@@ -145,8 +146,8 @@ function PostBox({ filterKey }: Props) {
       viewport={{ once: true }}
       className="flex space-x-2 p-5"
     >
-      <img
-        className="h-14 w-14 rounded-full object-cover mt-4"
+      <OptimizedImage
+        classNames="h-14 w-14 rounded-full object-cover mt-4"
         src={currentSessionUser?.avatar ?? ""}
         alt=""
       />

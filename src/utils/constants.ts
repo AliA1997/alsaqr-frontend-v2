@@ -374,7 +374,9 @@ export const INVITATION_EXPIRE_TIME = (24 * 60 * 60 * 1000) * 3
 
 export const FALLBACK_IMAGE_URL = "https://res.cloudinary.com/aa1997/image/upload/v1720130142/Web3-Client-Projects/Gm.png";
 
-export const FALLBACK_NEWS_IMAGE_URL = "/explore-news-placeholder.png";
+export const FALLBACK_NEWS_IMAGE_URL = "/explore-news-placeholder.svg";
+
+export const FALLBACK_POST_IMAGE_URL = "/post-placeholder.svg";
 
 export const EXPLORE_SOURCES = [
   {

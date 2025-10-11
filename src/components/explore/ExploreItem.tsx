@@ -23,8 +23,7 @@ function ExploreItemComponent({
                 `}
             style={{ transform: 'scale: 0.8' }}
         >
-            <div className="w-full h-full overflow-hidden">
-
+            <div className="w-full h-full md:w-[15rem] md:h-[15rem] overflow-hidden">
                 <OptimizedNewsImage
                     src={exploreItem.urlToImage}
                     alt={exploreItem.url}

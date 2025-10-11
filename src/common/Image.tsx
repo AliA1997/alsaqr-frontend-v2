@@ -1,4 +1,4 @@
-import { FALLBACK_IMAGE_URL, FALLBACK_NEWS_IMAGE_URL } from '@utils/constants';
+import { FALLBACK_IMAGE_URL, FALLBACK_NEWS_IMAGE_URL, FALLBACK_POST_IMAGE_URL } from '@utils/constants';
 import { MouseEventHandler, useState } from 'react';
 
 type CommonImageProps = {
@@ -21,6 +21,7 @@ export function FallbackImage({
             height={50}
             width={50}
             onClick={onClick}
+            loading="lazy"
         />
     );
 }
@@ -52,8 +53,33 @@ export function OptimizedImage({
     );
 }
 
-
 export function OptimizedNewsImage({
+    src,
+    alt,
+    onClick,
+    classNames
+}: CommonImageProps) {
+    const [imageUrl, setImageUrl] = useState<string>(src)
+    
+    return (
+        <img
+            className={classNames ? classNames : "h-full w-full object-cover"}
+            src={imageUrl ?? ""}
+            alt={alt}
+            height={600}
+            width={600}
+            onClick={onClick}
+            onError={() => {
+                if (imageUrl != FALLBACK_NEWS_IMAGE_URL)
+                    setImageUrl(FALLBACK_NEWS_IMAGE_URL);
+            }}
+            loading="lazy"
+        />
+    );
+}
+
+
+export function OptimizedPostImage({
     src,
     alt,
     onClick,
@@ -70,8 +96,8 @@ export function OptimizedNewsImage({
             width={600}
             onClick={onClick}
             onError={() => {
-                if (imageUrl != FALLBACK_NEWS_IMAGE_URL)
-                    setImageUrl(FALLBACK_NEWS_IMAGE_URL);
+                if (imageUrl != FALLBACK_POST_IMAGE_URL)
+                    setImageUrl(FALLBACK_POST_IMAGE_URL);
             }}
             loading="lazy"
         />
