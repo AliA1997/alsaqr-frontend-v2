@@ -229,15 +229,15 @@ export default class CommunityFeedStore {
             this.setPagingParams(new PagingParams(1, 25));
         }
         try {
-            const { result } = await agent.communityApiClient.getCommunities(this.axiosParams, userId) ?? [];
+            const { items, pagination } = await agent.communityApiClient.getCommunities(this.axiosParams, userId) ?? [];
 
             runInAction(() => {
-                result.data.forEach((community: CommunityToDisplay) => {
+                items.forEach((community: CommunityToDisplay) => {
                     this.setCommunity(community.community.id, community)
                 });
             });
 
-            this.setPagination(result.pagination);
+            this.setPagination(pagination);
         } finally {
             this.setLoadingInitial(false);
         }

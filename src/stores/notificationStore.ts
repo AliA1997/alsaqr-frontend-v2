@@ -68,16 +68,16 @@ export default class NotificationStore {
 
         this.setLoadingInitial(true);
         try {
-            const { result } = await agent.notificationApiClient.getNotifications(userId, this.axiosParams) ?? [];
+            const { items, pagination } = await agent.notificationApiClient.getNotifications(userId, this.axiosParams) ?? [];
 
             runInAction(() => {
-                result.data.forEach((not: NotificationToDisplay) => {
+                items.forEach((not: NotificationToDisplay) => {
                     this.setNotification(not.notification.id, not);
                 });
 
             });
 
-            this.setPagination(result.pagination);
+            this.setPagination(pagination);
         } finally {
             this.setLoadingInitial(false);
         }

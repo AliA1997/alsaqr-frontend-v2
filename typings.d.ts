@@ -127,6 +127,7 @@ export interface UserProfileDashboardPosts {
   likedPosts: DashboardPostToDisplay[];
   repostedPosts: DashboardPostToDisplay[];
   repliedPosts: DashboardPostToDisplay[];
+  success: boolean;
 }
 
 export interface DashboardPostToDisplay extends PostToDisplay {

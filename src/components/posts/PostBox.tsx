@@ -163,7 +163,7 @@ function PostBox({ filterKey }: Props) {
             }
            }}
             placeholder={inputPlaceholder}
-            className="h-24 w-full text-xl outline-none placeholder:text-xl dark:bg-[#000000] resize-none p-5"
+            className="h-24 w-full text-xl outline-none placeholder:text-xl dark:text-gray-50 dark:bg-[#000000] resize-none p-5"
           />
           {image && (
             <motion.div

@@ -156,17 +156,17 @@ export default class ListFeedStore {
     }
 
     loadLists = async (userId: string) => {
-        debugger;
         this.setLoadingInitial(true);
+ 
         try {
-            const { result } = await agent.listApiClient.getLists(this.axiosParams, userId);
+            const { items, pagination } = await agent.listApiClient.getLists(this.axiosParams, userId);
             runInAction(() => {
-                result.data.forEach((list: ListToDisplay) => {
+                items.forEach((list: ListToDisplay) => {
                     this.setList(list.list.id, list)
                 });
             });
 
-            this.setPagination(result.pagination);
+            this.setPagination(pagination);
         } finally {
             this.setLoadingInitial(false);
         }

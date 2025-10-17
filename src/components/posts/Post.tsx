@@ -466,6 +466,7 @@ function PostComponent({
                     })}
                   numberOfComments={numberOfComments}
                   disabled={onlyDisplay ?? false}
+                  classNames={`${commentBoxOpen ? 'text-[#55a8c2] hover:text-gray-50' : ''}`}
                 />
                 <RePostedIconButton
                   onClick={(e) => stopPropagationOnClick(e, onRetweet)}
@@ -533,7 +534,7 @@ function PostComponent({
             >
               <form
                 onSubmit={handleSubmit}
-                className="mt-3 flex space-x-3"
+                className="mt-3 flex flex-1 flex-col space-x-3"
               >
                 {image && (
                   <motion.div
@@ -551,7 +552,7 @@ function PostComponent({
                     </button>
                     <div className='w-[300px] h-[200px] overflow-hidden flex justify-center items-center'>
                       <img
-                        className="mt-10 w-full h-full object-cover shadow-lg"
+                        className="mt-10 w-[10rem] h-[10rem] object-cover shadow-lg"
                         src={image}
                         width={20}
                         height={20}
@@ -563,7 +564,7 @@ function PostComponent({
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  className="flex-1 rounded-lg bg-gray-100 p-2 outline-none dark:bg-gray-700"
+                  className="flex-1 rounded-lg bg-gray-100 p-2 outline-none dark:text-gray-50 dark:bg-gray-700"
                   type="text"
                   placeholder="Write a comment..."
                 />
@@ -572,7 +573,7 @@ function PostComponent({
                   type="submit"
                   className="text-[#55a8c2] disabled:text-gray-200 cursor-pointer"
                 >
-                  Post
+                  Post Comment
                 </button>
               </form>
               <UpsertBoxIconButton setInput={setInput} input={input} setImage={setImage} />

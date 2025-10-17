@@ -47,7 +47,7 @@ export default class UserStore {
         this.setLoadingInitial(true);
         let profile;
         try {
-            const {user} = await agent.userApiClient.getUserProfile(username);
+            const user = await agent.userApiClient.getUserProfile(username);
 
             runInAction(() => {
                 this.setCurrentUserProfile(user);
@@ -58,11 +58,11 @@ export default class UserStore {
         }
         return profile;
     }
-    loadProfilePosts = async (userId: string) => {
+    loadProfilePosts = async (username: string) => {
 
         this.setLoadingPosts(true);
         try {
-            const {profilePosts} = await agent.userApiClient.getUserProfilePosts(userId, this.axiosParams);
+            const profilePosts = await agent.userApiClient.getUserProfilePosts(username, this.axiosParams);
 
             runInAction(() => {
                 this.setCurrentUserProfilePosts(profilePosts);

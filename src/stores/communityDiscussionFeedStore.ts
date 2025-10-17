@@ -196,14 +196,14 @@ export default class CommunityDiscussionFeedStore {
 
         this.setLoadingInitial(true);
         try {
-            const { result } = await agent.communityApiClient.getCommunityDiscussions(this.axiosParams, userId, communityId) ?? [];
+            const { items, pagination } = await agent.communityApiClient.getCommunityDiscussions(this.axiosParams, userId, communityId) ?? [];
             runInAction(() => {
-                result.data.forEach((communityDiscussion: CommunityDiscussionToDisplay) => {
+                items.forEach((communityDiscussion: CommunityDiscussionToDisplay) => {
                     this.setCommunityDiscussion(communityDiscussion.communityDiscussion.id, communityDiscussion)
                 });
             });
 
-            this.setPagination(result.pagination);
+            this.setPagination(pagination);
         } finally {
             this.setLoadingInitial(false);
         }

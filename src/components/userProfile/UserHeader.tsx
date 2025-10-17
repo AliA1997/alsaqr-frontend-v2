@@ -21,21 +21,19 @@ import { OptimizedImage } from "@common/Image";
 import SidebarRow from "../../layout/SidebarRow";
 
 type UserHeaderProps = {
-  currentSession: any | undefined;
   profileInfo: ProfileUser;
   refreshProfileInfo: () => Promise<void>;
   numberOfPosts: number;
   followerCount: number;
   followingCount: number;
 };
-const UserHeader: React.FC<UserHeaderProps> = ({
-  currentSession,
+const UserHeader = ({
   profileInfo,
   refreshProfileInfo,
   numberOfPosts,
   followerCount,
   followingCount
-}) => {
+}: UserHeaderProps) => {
   const navigate = useNavigate();
   const { authStore, userStore, messageStore, modalStore } = useStore();
   const { followUser, unFollowUser, loadingFollow } = userStore;
@@ -44,8 +42,8 @@ const UserHeader: React.FC<UserHeaderProps> = ({
   const { showModal, closeModal } = modalStore;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
 
-  const profileIsLoggedInUser = useMemo(() => profileInfo.user.username === (currentSession?.user?.username ?? ""), [currentSession, profileInfo]);
-  const isFollowingUser = useMemo(() => currentSession?.user?.followingUsers?.some((fU: any) => fU.id === profileInfo.user.id) ?? false, [profileInfo, currentSession]);
+  const profileIsLoggedInUser = useMemo(() => profileInfo.user.username === (currentSessionUser?.username ?? ""), [currentSessionUser, profileInfo]);
+  const isFollowingUser = useMemo(() => currentSessionUser?.followingUsers?.some((fU: any) => fU.id === profileInfo.user.id) ?? false, [profileInfo, currentSessionUser]);
   const handleDropdownEnter = useCallback(
       () => setIsDropdownOpen(!isDropdownOpen),
       [isDropdownOpen]
@@ -54,21 +52,22 @@ const UserHeader: React.FC<UserHeaderProps> = ({
   const handleOnMessage = useCallback(
     () => {
       setCurrentProfileToMessage(profileInfo);
-      showModal(
-        <MessageModal
-          loggedInUser={currentSession?.user}
-          usersInMessageModal={defineUsersMessagesArray(currentSession?.user!, profileInfo.user)}
-        />
-      );
+      if(currentSessionUser)
+        showModal(
+          <MessageModal
+            loggedInUser={currentSessionUser!}
+            usersInMessageModal={defineUsersMessagesArray(currentSessionUser!, profileInfo.user)}
+          />
+        );
     },
-    [currentSession, profileInfo]
+    [currentSessionUser, profileInfo]
   );
 
   const onFollow = useCallback(async () => {
     if(isFollowingUser)
-      await unFollowUser(currentSession?.user?.id, profileInfo.user.id)
+      await unFollowUser(currentSessionUser?.id ?? "", profileInfo.user.id)
     else
-      await followUser(currentSession?.user?.id, profileInfo.user.id)
+      await followUser(currentSessionUser?.id ?? "", profileInfo.user.id)
 
     await refreshProfileInfo();
 
@@ -159,7 +158,8 @@ const UserHeader: React.FC<UserHeaderProps> = ({
                       <button
                         type='button'
                         className={`
-                          rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40
+                          rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40 cursor-pointer
+                          hover:opacity-70
                         `}
                         onClick={onFollow}
                       >

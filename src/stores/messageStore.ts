@@ -85,13 +85,13 @@ export default class MessageStore {
             this.predicate.set('senderId', senderId);
             this.predicate.set('receiverId', receiverId);
 
-            const { result } = await agent.messageApiClient.loadDirectMessages(senderId, this.axiosParams);
+            const { items, pagination } = await agent.messageApiClient.loadDirectMessages(senderId, this.axiosParams);
 
             runInAction(() => {
-                result.data.map((messageItem: MessageToDisplay) => this.setDirectMessage(messageItem));
+                items.map((messageItem: MessageToDisplay) => this.setDirectMessage(messageItem));
             })
 
-            this.setPagination(result.pagination);
+            this.setPagination(pagination);
         } finally {
             this.setLoadingInitial(false);
         }
@@ -105,13 +105,13 @@ export default class MessageStore {
         this.directMessageHistoryRegistry.clear();
         try {
 
-            const { result } = await agent.messageApiClient.loadDirectMessageHistory(senderId, this.axiosParams);
-            debugger;
+            const { items, pagination } = await agent.messageApiClient.loadDirectMessageHistory(senderId, this.axiosParams);
+
             runInAction(() => {
-                result.data.map((messageItem: MessageHistoryToDisplay) => this.setDirectMessageHistory(messageItem));
+                items.map((messageItem: MessageHistoryToDisplay) => this.setDirectMessageHistory(messageItem));
             })
 
-            this.setPagination(result.pagination);
+            this.setPagination(pagination);
         } finally {
             this.setLoadingHistory(false);
         }

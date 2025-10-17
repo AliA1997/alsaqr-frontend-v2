@@ -25,7 +25,7 @@ export default defineConfig({
     proxy: {
        '/api': {
         changeOrigin: true,
-        target: 'https://alsaqr.netlify.app', // your backend server URL
+        target: 'https://alsaqr-zl3zq.ondigitalocean.app', // your backend server URL
         secure: false
        },
    },

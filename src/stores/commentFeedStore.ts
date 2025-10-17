@@ -82,14 +82,14 @@ export default class CommentFeedStore {
             if(this.pagingParams.currentPage === 1)
                 this.commentsRegistry.clear();
         
-            const { result } = await agent.commentApiClient.getCommentsForPost(this.axiosParams, postId) ?? [];
+            const { items, pagination } = await agent.commentApiClient.getCommentsForPost(this.axiosParams, postId) ?? [];
             
             runInAction(() => {
-                result.data.forEach((cmt: CommentToDisplay) => {
+                items.forEach((cmt: CommentToDisplay) => {
                     this.setComment(cmt.id, cmt);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {

@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
   CommentToDisplay,
 } from "@typings"
-import { useSearchParams } from "react-router-dom";
 import { convertQueryStringToObject } from "@utils/index";
 
 import { observer } from "mobx-react-lite";
@@ -31,7 +30,6 @@ function CommentFeedContainer({ children }: React.PropsWithChildren<any>) {
 const CommentFeed = observer(({
   postId
 }: Props) => {
-  const searchParams = useSearchParams();
   
   const [mounted, setMounted] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -118,7 +116,7 @@ const CommentFeed = observer(({
 
   useEffect(() => {
     getComments();
-  }, [searchParams]);
+  }, []);
 
   const loadedComments = useMemo(
     () => commentFeedStore.comments,
@@ -174,7 +172,7 @@ const CommentFeed = observer(({
         <ContentContainerWithRef
           classNames={`
             text-center overflow-y-auto scrollbar-hide
-            min-h-[30vh] max-h-[40vh]
+            min-h-[20vh] max-h-[40vh]
           `}
           innerRef={containerRef}
         >

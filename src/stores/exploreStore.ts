@@ -100,14 +100,14 @@ export default class ExploreStore {
             if(this.newsPagingParams.currentPage === 1)
                 this.exploreNewsRegistry.clear();
         
-            const {result} = await agent.exploreApiClient.getExplore(this.newsAxiosParams);
+            const { items, pagination } = await agent.exploreApiClient.getExplore(this.newsAxiosParams);
             
             runInAction(() => {
-                result.data.forEach((exploreNewItem: ExploreToDisplay) => {
+                items.forEach((exploreNewItem: ExploreToDisplay) => {
                     this.setExploreNewsItem(exploreNewItem);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {
@@ -123,14 +123,14 @@ export default class ExploreStore {
             if(this.newsPagingParams.currentPage === 1)
                 this.exploreNewsRegistry.clear();
         
-            const {result} = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.AlJazeeraEnglish, this.newsAxiosParams);
+            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.AlJazeeraEnglish, this.newsAxiosParams);
             
             runInAction(() => {
-                result.data.forEach((exploreNewItem: ExploreToDisplay) => {
+                items.forEach((exploreNewItem: ExploreToDisplay) => {
                     this.setAjNewsItem(exploreNewItem);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {
@@ -145,14 +145,14 @@ export default class ExploreStore {
             if(this.newsPagingParams.currentPage === 1)
                 this.exploreNewsRegistry.clear();
         
-            const {result} = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.Argaam, this.newsAxiosParams);
+            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.Argaam, this.newsAxiosParams);
             
             runInAction(() => {
-                result.data.forEach((exploreNewItem: ExploreToDisplay) => {
+                items.forEach((exploreNewItem: ExploreToDisplay) => {
                     this.setArgaamNewsItem(exploreNewItem);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {
@@ -166,14 +166,14 @@ export default class ExploreStore {
             if(this.newsPagingParams.currentPage === 1)
                 this.exploreNewsRegistry.clear();
         
-            const {result} = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.BleacherReport, this.newsAxiosParams);
+            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.BleacherReport, this.newsAxiosParams);
             
             runInAction(() => {
-                result.data.forEach((exploreNewItem: ExploreToDisplay) => {
+                items.forEach((exploreNewItem: ExploreToDisplay) => {
                     this.setBleacherReportNewsItem(exploreNewItem);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {
@@ -187,14 +187,14 @@ export default class ExploreStore {
             if(this.newsPagingParams.currentPage === 1)
                 this.exploreNewsRegistry.clear();
         
-            const {result} = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.CryptoCoinsNews, this.newsAxiosParams);
+            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.CryptoCoinsNews, this.newsAxiosParams);
             
             runInAction(() => {
-                result.data.forEach((exploreNewItem: ExploreToDisplay) => {
+                items.forEach((exploreNewItem: ExploreToDisplay) => {
                     this.setCryptoCoinNewsItem(exploreNewItem);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {
@@ -208,14 +208,14 @@ export default class ExploreStore {
             if(this.newsPagingParams.currentPage === 1)
                 this.exploreNewsRegistry.clear();
         
-            const {result} = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.HackerNews, this.newsAxiosParams);
+            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.HackerNews, this.newsAxiosParams);
             
             runInAction(() => {
-                result.data.forEach((exploreNewItem: ExploreToDisplay) => {
+                items.forEach((exploreNewItem: ExploreToDisplay) => {
                     this.setHackerNewsItem(exploreNewItem);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {
@@ -229,14 +229,14 @@ export default class ExploreStore {
             if(this.newsPagingParams.currentPage === 1)
                 this.exploreNewsRegistry.clear();
         
-            const {result} = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.SABQ, this.newsAxiosParams);
+            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.SABQ, this.newsAxiosParams);
             
             runInAction(() => {
-                result.data.forEach((exploreNewItem: ExploreToDisplay) => {
+                items.forEach((exploreNewItem: ExploreToDisplay) => {
                     this.setSabqNewsItem(exploreNewItem);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {

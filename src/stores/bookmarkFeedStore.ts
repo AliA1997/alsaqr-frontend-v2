@@ -80,16 +80,16 @@ export default class BookmarkFeedStore {
             if(this.pagingParams.currentPage === 1)
                 this.bookmarkedPostsRegistry.clear();
         
-            const { result } = await agent.postApiClient.getBookmarkedPosts(this.axiosParams, sessionUserId) ?? [];
+            const { items, pagination } = await agent.postApiClient.getBookmarkedPosts(this.axiosParams, sessionUserId) ?? [];
 
             runInAction(() => {
-                result.data.forEach((pst: PostToDisplay) => {
+                items.forEach((pst: PostToDisplay) => {
                     this.setBookmarkedPost(pst.post.id, pst);
                 });
                 debugger;
             });
 
-            this.setPagination(result.pagination);
+            this.setPagination(pagination);
         } finally {
             this.setLoadingInitial(false);
         }

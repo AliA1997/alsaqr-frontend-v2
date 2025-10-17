@@ -19,7 +19,7 @@ import {
 import { useStore } from "@stores/index";
 import { LoginModal } from "@common/AuthModals";
 import { convertDateToDisplay, formatTimeAgo } from "@utils/index";
-import { LikesIconButton, RePostedIconButton } from "@common/IconButtons";
+import { BookmarkedIconButton, LikesIconButton, RePostedIconButton } from "@common/IconButtons";
 
 import { TrashIcon } from "@heroicons/react/solid";
 import MoreSection from "@common/MoreSection";
@@ -27,6 +27,7 @@ import { ConfirmModal } from "@common/Modal";
 import { TagOrLabel } from "@common/Titles";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import CommentPDF from "@components/pdf/CommentPdf";
+import { OptimizedImage, OptimizedPostImage } from "@common/Image";
 
 interface Props {
     commentToDisplay: CommentToDisplay;
@@ -52,6 +53,7 @@ function CommentComponent({
     } = commentFeedStore;
     const [isRePosted, setIsRePosted] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState<boolean>(false);
+    const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
     const userId = useMemo(() => currentSessionUser ? currentSessionUser.id : "", [currentSessionUser]);
 
     const initiallyBooleanValues = useRef<{
@@ -84,7 +86,7 @@ function CommentComponent({
                 liked: mounted ? isLiked : isLikedBefore,
                 reposted: mounted ? isRePosted : isRepostedBefore
             };
-            
+            setIsBookmarked(false);
         }, 
         [commentToDisplay.id, refreshComments]
     );
@@ -169,6 +171,23 @@ function CommentComponent({
             setIsRePosted(beforeUpdate);
         }
     };
+    
+    const onBookmarkComment = async () => {
+        const beforeUpdate = isRePosted;
+        try {
+            await checkUserIsLoggedInBeforeUpdatingComment(async () => {
+                setIsRePosted(!isRePosted);
+
+                await rePostComment({
+                    statusId: commentToDisplay.id,
+                    userId: userId!,
+                    reposted: isRePosted
+                });
+            });
+        } catch {
+            setIsRePosted(beforeUpdate);
+        }
+    }
 
 
     const moreOptions = useMemo(() => {
@@ -232,21 +251,21 @@ function CommentComponent({
                             return stopPropagationOnClick(e, navigateToComment)
                     }}
                 />
-                <img
-                    className="h-10 w-10 rounded-full object-cover z-50"
+                <OptimizedImage
+                    classNames="h-10 w-10 rounded-full object-cover z-50 hover:bg-blue-200"
                     src={commentToDisplay.profileImg}
                     alt={commentToDisplay.username}
                     onClick={(e) => {
-                        if (onlyDisplay)
-                            return;
-                        else
-                            return stopPropagationOnClick(e, navigateToCommentUser)
+                    if (onlyDisplay)
+                        return;
+                    else
+                        return stopPropagationOnClick(e, navigateToCommentUser)
                     }}
                 />
                 <div>
                     <div className="flex item-center space-x-1">
                         <p
-                            className={`font-bold mr-1 hover:underline`}
+                            className={`font-bold mr-1 text-black dark:text-gray-50 hover:underline`}
                             onClick={(e) => {
                                 if (onlyDisplay)
                                     return;
@@ -288,13 +307,13 @@ function CommentComponent({
                             date={convertDateToDisplay(commentToDisplay?.createdAt)}
                         />
                     </div>
-                    <p className="pt-1  w-full">{commentToDisplay.text}</p>
+                    <p className="pt-1 text-left text-black dark:text-gray-50">{commentToDisplay.text}</p>
                     {commentToDisplay.image && (
                         <div className="w-[300px] h-[200px] overflow-hidden flex justify-center items-center">
-                            <img
+                            <OptimizedPostImage
                                 src={commentToDisplay.image}
                                 alt="img/post"
-                                className="m-5 ml-0 w-full h-full object-cover shadow-sm"
+                                classNames="m-5 ml-0 w-full h-full object-cover shadow-sm"
                             />
                         </div>
 
@@ -308,7 +327,6 @@ function CommentComponent({
                         (
                             <MoreSection
                                 moreOptions={moreOptions}
-                                moreOptionClassNames="bg-red-700"
                             />
                         )
                         : null
@@ -327,6 +345,11 @@ function CommentComponent({
                             disabled={onlyDisplay ?? false}
                         />
                         <div className="flex gap-2">
+                            <BookmarkedIconButton
+                                onClick={(e) => stopPropagationOnClick(e, onBookmarkComment)}
+                                isBookmarked={isBookmarked}
+                                disabled={onlyDisplay ?? false}
+                            />
                             <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}

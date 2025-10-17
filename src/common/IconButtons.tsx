@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 interface CommentIconButtonProps extends React.ButtonHTMLAttributes<HTMLDivElement> {
     numberOfComments: number;
+    classNames?: string;
 }
 interface LikesIconButtonProps extends React.ButtonHTMLAttributes<HTMLDivElement> {
     numberOfLikes: number;
@@ -32,13 +33,16 @@ interface MoreButtonProps extends React.ButtonHTMLAttributes<HTMLDivElement> {
     containerClassNames?: string;
 }
 
-export function CommentIconButton({ onClick, numberOfComments, disabled }: CommentIconButtonProps) {
+export function CommentIconButton({ onClick, numberOfComments, classNames, disabled }: CommentIconButtonProps) {
     if (disabled)
         return (
             <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex cursor-pointer item-center space-x-3 text-gray-400 hover:text-[#55a8c2] border-none bg-transparent"
+                className={`
+                flex cursor-pointer item-center space-x-3 text-gray-400 hover:text-[#55a8c2] border-none bg-transparent
+                    ${classNames ? classNames : ''}    
+                `}
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

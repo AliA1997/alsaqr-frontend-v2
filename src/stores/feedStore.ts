@@ -91,14 +91,14 @@ export default class FeedStore {
             if(this.pagingParams.currentPage === 1)
                 this.postsRegistry.clear();
         
-            const { result } = await agent.postApiClient.getPosts(this.axiosParams) ?? [];
+            const { items, pagination } = await agent.postApiClient.getPosts(this.axiosParams) ?? [];
             
             runInAction(() => {
-                result.data.forEach((pst: PostToDisplay) => {
+                items.forEach((pst: PostToDisplay) => {
                     this.setPost(pst.post.id, pst);
                 });
                 
-                this.setPagination(result.pagination);
+                this.setPagination(pagination);
             });
 
         } finally {

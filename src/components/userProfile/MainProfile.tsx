@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import type {
   DashboardPostToDisplay,
 } from "@typings";
@@ -10,9 +10,7 @@ import { useStore } from "@stores/index";
 import CustomPageLoader from "@common/CustomLoader";
 import Tabs from "@common/Tabs";
 import PostComponent from "../posts/Post";
-
 import UserHeader from "./UserHeader";
-import { supabase } from "@utils/supabase";
 
 
 const MainProfile = () => {
@@ -27,8 +25,6 @@ const MainProfile = () => {
   const params = useParams();
   const { name } = params;
   const username = name as string;
-  const [currentSession, setCurrentSession] = useState<any | undefined>(undefined);
-
 
   async function refreshProfileInfo() {
     await loadProfile(username);
@@ -36,20 +32,16 @@ const MainProfile = () => {
 
   useLayoutEffect(() => {
     async function getProfileInfo() {
-      supabase.auth.getSession()
-        .then(currentSessionResult => {
-          setCurrentSession(currentSessionResult ?? undefined);
-          return loadProfile(username)
-        })
-        .then(async ({ user }) => {
-          await loadProfilePosts(user.id);
+      loadProfile(username)
+        .then(async () => {
+          await loadProfilePosts(username);
         })
       
     }
 
     getProfileInfo();
   }, []);
-
+  
   const renderer = useCallback(
     (postToDisplay: DashboardPostToDisplay) => (
       <PostComponent
@@ -67,7 +59,6 @@ const MainProfile = () => {
           {currentUserProfile && (
             <>
               <UserHeader
-                currentSession={currentSession}
                 refreshProfileInfo={refreshProfileInfo}
                 profileInfo={currentUserProfile}
                 numberOfPosts={currentUserProfilePosts?.userPosts?.length ?? 0}
