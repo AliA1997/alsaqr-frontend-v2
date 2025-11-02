@@ -1,6 +1,7 @@
 import { makeAutoObservable, reaction } from "mobx";
 import Auth from "../utils/auth";
 import { ServerError } from "typings";
+import { SidebarTabs } from "@models/enums";
 
 export default class CommonStore {
   error: ServerError | null = null;
@@ -10,6 +11,7 @@ export default class CommonStore {
   alertMessage: string[] = [];
   alertsDisplayed: boolean = false;
 
+  currentTab: SidebarTabs | undefined = undefined;
   constructor() {
     makeAutoObservable(this);
 
@@ -36,6 +38,10 @@ export default class CommonStore {
   setAppLoaded = () => {
     this.appLoaded = true;
   };
+
+  setCurrentTab = (t: SidebarTabs | undefined) => {
+    this.currentTab = t;
+  }
 
   addAlertMessage = (alert: string) => {
     if (!this.alertMessage) this.alertMessage = [];

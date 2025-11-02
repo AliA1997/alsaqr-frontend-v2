@@ -1,15 +1,8 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
-  BellIcon,
-  HashtagIcon,
-  BookmarkIcon,
-  CollectionIcon,
   DotsCircleHorizontalIcon,
-  MailIcon,
-  UsersIcon,
   LoginIcon,
-  LogoutIcon,
-  CogIcon,
+  LogoutIcon
 } from "@heroicons/react/outline";
 import { getEmailUsername } from "@utils/index";
 import { useStore } from "@stores/index";
@@ -19,7 +12,7 @@ import { observer } from "mobx-react-lite";
 import { LoginModal } from "@common/AuthModals";
 
 import { ROUTE_TO_SHOW_SETTINGS_SIDEBAR, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
-import { SettingsTabs } from "@models/enums";
+import { SettingsTabs, SidebarTabs } from "@models/enums";
 import { OptimizedImage } from "@common/Image";
 import SidebarRow from "./SidebarRow";
 import DarkSwitch from "./DarkSwitch";
@@ -29,8 +22,9 @@ type SideBarProps = {};
 const SideBar = ({}: SideBarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { authStore, modalStore, settingsStore } = useStore();
+  const { authStore, commonStore, modalStore, settingsStore } = useStore();
   const { auth, currentSessionUser } = authStore;
+  const { currentTab, setCurrentTab } = commonStore;
   const { closeModal, showModal } = modalStore;
   const { currentTabIdx, setCurrentTabIdx } = settingsStore;
   
@@ -97,16 +91,144 @@ const SideBar = ({}: SideBarProps) => {
                 )
                 : (
                   <>
-                  <SidebarRow Icon={HashtagIcon} title="Explore" href="/explore" />
+                  <SidebarRow 
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/explore.svg"
+                          alt="Explore Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
+                    title="Explore" 
+                    href="/explore"
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Explore);
+                    }}
+                    active={currentTab === SidebarTabs.Explore}
+                  />
                   <SidebarRow
-                    Icon={BellIcon}
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/notifications.svg"
+                          alt="Notifications Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
                     title="Notifications"
                     href="/notifications"
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Notifications);
+                    }}
+                    active={currentTab === SidebarTabs.Notifications}
                   />
-                  <SidebarRow Icon={MailIcon} title="Messages" href="/messages" />
-                  <SidebarRow Icon={BookmarkIcon} title="Bookmarks" href="/bookmarks" />
-                  <SidebarRow Icon={CollectionIcon} title="Lists" href="/lists" />
-                  <SidebarRow Icon={UsersIcon} title="Communities" href="/communities" />
+                  <SidebarRow 
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/messages.svg"
+                          alt="Messages Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
+                    title="Messages" 
+                    href="/messages" 
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Messages);
+                    }}
+                    active={currentTab === SidebarTabs.Messages}
+                  />
+                  <SidebarRow 
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/bookmarks.svg"
+                          alt="Bookmarks Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
+                    title="Bookmarks" 
+                    href="/bookmarks" 
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Bookmarks);
+                    }}
+                    active={currentTab === SidebarTabs.Bookmarks}
+                  />
+                  <SidebarRow 
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/lists.svg"
+                          alt="Lists Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
+                    title="Lists" 
+                    href="/lists"
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Lists);
+                    }}
+                    active={currentTab === SidebarTabs.Lists}
+                  />
+                  <SidebarRow 
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/community.svg"
+                          alt="Community Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
+                    title="Communities" 
+                    href="/communities" 
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Communities);
+                    }}
+                    active={currentTab === SidebarTabs.Communities}
+                  />
+                  <SidebarRow 
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/zook.svg"
+                          alt="Zook Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
+                    title="Marketplace" 
+                    overrideOnClick={true}
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Zook);
+                      window.location.href = `${import.meta.env.VITE_PUBLIC_ZOOK_URL}`;
+                    }}
+                    active={currentTab === SidebarTabs.Zook}
+                  />
+                  <SidebarRow 
+                    IconImage={
+                      <>
+                        <img
+                          src="/icons/meetup.svg"
+                          alt="Meetup Icon"
+                          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                        />
+                      </>
+                    }
+                    title="Meetups" 
+                    overrideOnClick={true}
+                    onClick={() => {
+                      setCurrentTab(SidebarTabs.Meetup);
+                      window.location.href = `${import.meta.env.VITE_PUBLIC_MEETUP_URL}`;
+                    }}
+                    active={currentTab === SidebarTabs.Meetup}
+                  />
                   <div className="relative more-container">
                     <SidebarRow
                       Icon={DotsCircleHorizontalIcon}
@@ -123,7 +245,20 @@ const SideBar = ({}: SideBarProps) => {
                         >
                           {currentSessionUser ? (
                             <>
-                              <SidebarRow Icon={CogIcon} title="Settings" isShow={true} href="/settings"/>
+                              <SidebarRow 
+                                IconImage={
+                                  <>
+                                    <img
+                                      src="/icons/settings.svg"
+                                      alt="Settings Icon"
+                                      className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                                    />
+                                  </>
+                                }
+                                title="Settings" 
+                                isShow={true} 
+                                href="/settings"
+                              />
                               <SidebarRow Icon={LoginIcon} title="Sign Out" />
                             </>
                           ) : (

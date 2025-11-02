@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { SunIcon, MoonIcon } from "@heroicons/react/solid";
 import { useTheme } from "../ThemeProvider";
 
 type DarkSwitchProps = {};
@@ -20,9 +19,17 @@ const DarkSwitch: React.FC<DarkSwitchProps> = () => {
       onClick={() => theme === 'dark' ? setTheme('light') : setTheme('dark')}
     >
       {theme === "dark" ? (
-        <SunIcon className="w-5 h-5 md:w-6 md:h-6" />
+        <img
+          src="/icons/light-mode.svg"
+          alt="Light Mode Icon"
+          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+        />
       ) : (
-        <MoonIcon className="w-5 h-5 md:w-6 md:h-6" />
+        <img
+          src="/icons/dark-mode.svg"
+          alt="Dark Mode Icon"
+          className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+        />
       )}
       {/* Simplified display classes: removed redundant 'display-none' and fixed order */}
       <p className="hidden md:inline-flex dark:text-gray-50 font-light group-hover:text-black dark:group-hover:text-[#1d2a2e] text-[#1d2a2e]">
