@@ -21,11 +21,12 @@ export default defineConfig({
     },
   },
   server: {
-    cors: false,
+    cors: true,
     proxy: {
        '/api': {
         changeOrigin: true,
-        target: 'https://alsaqr-zl3zq.ondigitalocean.app', // your backend server URL
+        target: 'https://api.alsaqr.app/', // your backend server URL
+        // target: "https://localhost:32769/",
         secure: false
        },
    },

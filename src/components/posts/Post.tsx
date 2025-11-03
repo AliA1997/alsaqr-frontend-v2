@@ -335,9 +335,11 @@ function PostComponent({
         dark:border-gray-800 ${!onlyDisplay && 'hover:shadow-lg dark:hover:bg-[#000000]'}  
       `}
       ref={targetRef}
+      test-dataid="postcard"
     >
       {showLabel && (
         <TagOrLabel
+          testId="posttag"
           color="postGradient"
           size="md"
           className="absolute top-0 right-0"
@@ -376,6 +378,7 @@ function PostComponent({
         <div className='text-left'>
           <div className="flex item-center space-x-1">
             <p
+              data-testid="usernamelink"
               className={`font-bold mr-1 text-black dark:text-gray-50 hover:underline`}
               onClick={(e) => {
                 if (onlyDisplay)
@@ -527,6 +530,7 @@ function PostComponent({
         <>
           {userId && (
             <motion.div
+              data-testid="commentbox"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -562,6 +566,7 @@ function PostComponent({
                   </motion.div>
                 )}
                 <input
+                  data-testid="postcommentinput"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   className="flex-1 rounded-lg bg-gray-100 p-2 outline-none dark:text-gray-50 dark:bg-gray-700"
@@ -569,6 +574,7 @@ function PostComponent({
                   placeholder="Write a comment..."
                 />
                 <button
+                  data-testid="postcommentbutton"
                   disabled={!input}
                   type="submit"
                   className="text-[#55a8c2] disabled:text-gray-200 cursor-pointer"

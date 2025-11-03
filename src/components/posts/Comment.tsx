@@ -228,6 +228,7 @@ function CommentComponent({
 
     return (
         <div
+            data-testid='commentcard'
             className={`
                 relative flex flex-col space-x-3 border-y border-gray-100 p-5 
                 dark:border-gray-800 ${!onlyDisplay && 'hover:shadow-lg dark:hover:bg-[#000000]'}  
@@ -235,6 +236,7 @@ function CommentComponent({
         >
             {showLabel && (
                 <TagOrLabel 
+                    testId="commenttag"
                     color="commentGradient"
                     size="md"
                     className="absolute top-0 right-0"
@@ -265,6 +267,7 @@ function CommentComponent({
                 <div>
                     <div className="flex item-center space-x-1">
                         <p
+                            data-testid="usernamelink"
                             className={`font-bold mr-1 text-black dark:text-gray-50 hover:underline`}
                             onClick={(e) => {
                                 if (onlyDisplay)

@@ -37,6 +37,7 @@ export function CommentIconButton({ onClick, numberOfComments, classNames, disab
     if (disabled)
         return (
             <motion.div
+                data-testid="commentbutton"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 className={`
@@ -95,6 +96,7 @@ export function CommentIconButton({ onClick, numberOfComments, classNames, disab
 export function LikesIconButton({ onClick, numberOfLikes, isLiked }: LikesIconButtonProps) {
     return (
         <motion.div
+            data-testid='likesbutton'
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`
@@ -112,6 +114,7 @@ export function LikesIconButton({ onClick, numberOfLikes, isLiked }: LikesIconBu
 export function RePostedIconButton({ onClick, numberOfRePosts, isRePosted }: RePostedIconButtonProps) {
     return (
         <motion.div
+            data-testid="reposticonbutton"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`
@@ -143,6 +146,7 @@ export function RePostedIconButton({ onClick, numberOfRePosts, isRePosted }: ReP
 export function BookmarkedIconButton({ onClick, isBookmarked }: BookmarkIconButtonProps) {
     return (
         <motion.div
+            data-testid="bookmarkbutton"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`
@@ -169,6 +173,7 @@ export function AddOrFollowButton({ isAdded, isFollowing, onIsAlreadyAdded, onIs
             {isAdded || isFollowing
                 ? (
                     <button
+                        data-testid="addorfollowbutton"
                         type='button'
                         onClick={filterKey === FilterKeys.SearchUsers || filterKey === FilterKeys.SearchPosts ? onIsAlreadyAdded : onIsAlreadyFollowing}
                         className={`w-[2.5rem] h-[2.5rem] border rounded-full bg-[#55a8c2] p-2 hover:bg-[transparent]`}

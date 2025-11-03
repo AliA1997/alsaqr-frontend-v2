@@ -154,6 +154,7 @@ function PostBox({ filterKey }: Props) {
       <div className="flex flex-1 item-center pl-2">
         <form className="flex flex-1 flex-col">
           <textarea
+            data-testid="postboxinput"
             value={input}
             onChange={handleInputChange}
             onKeyDown={ (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -234,6 +235,7 @@ function PostBox({ filterKey }: Props) {
               )}
             </div>
             <button
+              data-testid="postboxbutton"
               onClick={handleSubmit}
               disabled={!input || submitting}
               className={`rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white
