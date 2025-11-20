@@ -9,15 +9,15 @@ import { useCheckSession } from '@hooks/useCheckSession';
 export default observer(function ({ children }: React.PropsWithChildren<any>) {
     const { authStore } = useStore();
     const { auth, setCurrentSessionUser } = authStore;
+
     useCheckSession(setCurrentSessionUser, auth?.getUser())
     return (
             <motion.div
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="dark:bg-[#0e1517] h-screen overflow-hidden"
+                className="dark:bg-[#0e1517] h-screen overflow-hidden mb-[20vh]"
             >
-
                 <div className="mx-auto max-h-screen overflow-hidden lg:w-6xl">
                     <main className="grid grid-cols-9">
                         <Suspense

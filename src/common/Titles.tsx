@@ -1,7 +1,7 @@
 
 export function PageTitle({ children, classNames }: React.PropsWithChildren<any>) {
     return (
-        <h2 className={`p-5 pb-0 text-xl dark:text-gray-50 font-bold ${classNames && classNames}`}>{children}</h2>
+        <h2 className={`bg-gray-50 sticky top-0 z-[999] p-5 pb-0 text-xl dark:text-gray-50 font-bold ${classNames && classNames}`}>{children}</h2>
     );
 }
 

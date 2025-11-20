@@ -60,8 +60,10 @@ function MessageInput({
                         placeholder="Type a message..."
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
+                        data-testid="messageinput"
                     />
                     <button
+                        data-testid="messagesubmitbutton"
                         type="submit"
                         className="ml-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
                         disabled={!input.trim() || submitting}

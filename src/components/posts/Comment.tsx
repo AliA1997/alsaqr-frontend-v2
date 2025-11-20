@@ -310,7 +310,7 @@ function CommentComponent({
                             date={convertDateToDisplay(commentToDisplay?.createdAt)}
                         />
                     </div>
-                    <p className="pt-1 text-left text-black dark:text-gray-50">{commentToDisplay.text}</p>
+                    <p data-testid="commentcardtext" className="pt-1 text-left text-black dark:text-gray-50">{commentToDisplay.text}</p>
                     {commentToDisplay.image && (
                         <div className="w-[300px] h-[200px] overflow-hidden flex justify-center items-center">
                             <OptimizedPostImage

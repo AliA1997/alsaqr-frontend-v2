@@ -15,6 +15,8 @@ import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import CustomPageLoader from "@common/CustomLoader";
 import { ContentContainerWithRef } from "@common/Containers";
 import CommunityDiscussionItemComponent from "@components/community/CommunityDiscussionItem";
+import { OpenUpsertModalButton } from "@common/Buttons";
+import { useThrottle } from "@hooks/useThrottle";
 
 interface Props {
   communityId: string;
@@ -22,7 +24,7 @@ interface Props {
 
 const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   const { authStore, modalStore, communityDiscussionFeedStore } = useStore();
-  const { currentSessionUser } = authStore;
+  const { auth, currentSessionUser } = authStore;
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
   const [mounted, setMounted] = useState<boolean>(false);
@@ -36,38 +38,41 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
     loadCommunityDiscussions
   } = communityDiscussionFeedStore;
 
-  async function getPosts() {
-    try {
-      const paramsFromQryString = convertQueryStringToObject(
-        window.location.search
-      );
+  async function getRecords() {
+    const paramsFromQryString = convertQueryStringToObject(
+      window.location.search
+    );
 
 
-      if (
-        (paramsFromQryString.currentPage && paramsFromQryString.itemsPerPage)
-        && (paramsFromQryString.currentPage !== predicate.get('currentPage')
-          || paramsFromQryString.itemsPerPage !== predicate.get('itemsPerPage')
-          || paramsFromQryString.searchTerm != predicate.get('searchTerm'))) {
+    if (
+      (paramsFromQryString.currentPage && paramsFromQryString.itemsPerPage)
+      && (paramsFromQryString.currentPage !== predicate.get('currentPage')
+        || paramsFromQryString.itemsPerPage !== predicate.get('itemsPerPage')
+        || paramsFromQryString.searchTerm != predicate.get('searchTerm'))) {
 
-        setPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
-        setPredicate('searchTerm', paramsFromQryString.searchTerm);
-      }
-
-      await loadFeedRecords();
-    } finally {
+      setPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
+      setPredicate('searchTerm', paramsFromQryString.searchTerm);
     }
+
+    if(!communityDiscussionFeedStore.communityDiscussions.length)
+      await loadFeedRecords();
+
   }
   const fetchMoreItems = async (pageNum: number) => {
     setPagingParams(new PagingParams(pageNum, 25))
     await loadFeedRecords();
   };
-  const loadFeedRecords = async () => {
-    await loadCommunityDiscussions(currentSessionUser?.id ?? 'undefined', communityId!)
-  }
+  const loadFeedRecords = useThrottle(async () => {
+    const authUserId = import.meta.env.VITE_PUBLIC_IS_TEST_MODE ? auth?.getUser()?.id : currentSessionUser?.id;
+    
+    await loadCommunityDiscussions(authUserId ?? 'undefined', communityId!)
+  }, 30_000);
 
   useEffect(() => {
-    if(currentSessionUser?.id) {
-      getPosts();
+    const isLoggedIn = import.meta.env.VITE_PUBLIC_IS_TEST_MODE ? auth?.isLoggedIn() : currentSessionUser?.id;
+
+    if(isLoggedIn) {
+      getRecords();
       setMounted(true);
     }
 
@@ -93,7 +98,7 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
-        const currentPage = pagination?.currentPage ?? 0;
+        const currentPage = pagination?.currentPage ?? 1;
         const itemsPerPage = pagination?.itemsPerPage ?? 25;
         const totalItems = pagination?.totalItems ?? 0;
 
@@ -128,23 +133,20 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   const noRecordsTitle = useMemo(() =>  'You are not part of any discussions', []);
 
   return (
-    <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
+    <div className="col-span-7 text-left scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
       <PageTitle>Community Discussions</PageTitle>
-      <div className="flex justify-items-center align-items-center pt-5 px-5">
-          <button
-              type='button'
-              className={`rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40 hover:opacity-90`}
-              onClick={() => modalStore.showModal(
-                              <ListOrCommunityUpsertModal 
-                                loggedInUserId={currentSessionUser?.id!} 
-                                type={commonUpsertBoxType}
-                                communityId={communityId}
-                              />
-              )}
-          >
-            Create Community Discussion
-          </button>
-      </div>
+      <OpenUpsertModalButton
+        testId="createcommunitydiscussionbutton"
+        onClick={() => modalStore.showModal(
+                        <ListOrCommunityUpsertModal 
+                          loggedInUserId={currentSessionUser?.id!} 
+                          type={commonUpsertBoxType}
+                          communityId={communityId}
+                        />
+        )}
+      >
+        Create Community Discussion
+      </OpenUpsertModalButton>
       {loadingInitial || !mounted ? (
         <CustomPageLoader title="Loading" />
       ) : (

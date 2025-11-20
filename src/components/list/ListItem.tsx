@@ -15,6 +15,7 @@ import { useStore } from "@stores/index";
 import { convertDateToDisplay } from "@utils/index";
 import MoreSection from "@common/MoreSection";
 import { ConfirmModal } from "@common/Modal";
+import { OptimizedImage } from "@common/Image";
 
 interface Props {
   listToDisplay: ListToDisplay;
@@ -108,12 +109,13 @@ function ListItemComponent({
           p-5 mr-1 mb-2 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] h-[8.5rem] w-[30rem] lg:w-[20rem]
           hover:cursor-pointer`}
         style={{ backgroundImage: `url('${listInfo.bannerImage}')`, objectFit: "scale-down" }}
+        data-testid='listcard'
       >
         <div className="absolute m-0 inset-0 bg-gradient-to-t from-gray-900/40 to-gray-900/20"></div>
         <div className="flex flex-col justify-between h-full space-x-3 cursor-pointer">
-          <div className="flex item-center space-x-1 z-10">
-            <img
-              className="h-10 w-10 rounded-full object-cover hover:underline"
+          <div className="flex item-center w-full space-x-1 z-10 relative">
+            <OptimizedImage
+              classNames="h-10 w-10 rounded-full object-cover hover:underline"
               src={founder.avatar}
               alt={founder.username}
               onClick={(e) => stopPropagationOnClick(e, navigateToTweetUser)}
@@ -155,12 +157,19 @@ function ListItemComponent({
               (
                 <MoreSection
                   moreOptions={moreOptions}
+                  moreOptionClassNames="top-[-1rem] right-[-1.5rem]"
                 />
               )
               : null
             }
           </div>
-          <p className="pt-1 text-gray-100 text-2xl hover:underline  z-10" onClick={e => stopPropagationOnClick(e, navigateToList)}>{listInfo.name}</p>
+          <p 
+            data-testid='listtext'
+            className="pt-1 text-gray-100 text-2xl hover:underline  z-10" 
+            onClick={e => stopPropagationOnClick(e, navigateToList)}
+          >
+              {listInfo.name}
+          </p>
         </div>
       </div>
 

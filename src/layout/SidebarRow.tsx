@@ -70,7 +70,8 @@ function SidebarRow({
     onClick: sidebarOnClick,
     animatedLink: title === SIGN_IN_TITLE || title === DELETE_YOUR_ACCOUNT,
     activeInd: active ?? false,
-    classNames: "py-[1rem]"
+    classNames: "py-[1rem]",
+    testId: title.toLowerCase()
   };
   const showText = useMemo(() => [SIGN_IN_TITLE, SIGN_OUT_TITLE].some((showTextTitle: string) => showTextTitle == title) || (isShow ?? false), [title]);
 
@@ -79,7 +80,9 @@ function SidebarRow({
       <CommonLink {...commonLinkProps}>
         {Icon && <Icon className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0" />}
         {IconImage && IconImage}
-        <p className={`${showText ? '' : 'hidden'} group-hover:text-[#55a8c2] md:inline-flex text-base font-light ${active ? 'text-[#55a8c2]' : ''}`}>
+        <p 
+          className={`${showText ? '' : 'hidden'} group-hover:text-[#55a8c2] md:inline-flex text-base font-light ${active ? 'text-[#55a8c2]' : ''}`}
+        >
           {title}
         </p>
       </CommonLink>

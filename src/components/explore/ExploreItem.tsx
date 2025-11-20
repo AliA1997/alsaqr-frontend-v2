@@ -7,7 +7,7 @@ interface Props {
 }
 
 function ExploreItemComponent({
-    exploreItem,
+    exploreItem
 }: Props) {
 
     const navigateToExploreTopics = () => {
@@ -22,6 +22,7 @@ function ExploreItemComponent({
                     mr-1 max-h-96 w-[90%] md:w-[48%] lg:w-[32%] cursor-pointer
                 `}
             style={{ transform: 'scale: 0.8' }}
+            data-testid={"explorecard"}
         >
             <div className="w-full h-full md:w-[15rem] md:h-[15rem] overflow-hidden">
                 <OptimizedNewsImage
@@ -37,7 +38,7 @@ function ExploreItemComponent({
                 className="w-full absolute bottom-0 left-0 p-4"
                 onClick={e => stopPropagationOnClick(e, navigateToExploreTopics)}
             >
-                <h6 className="text-white text-sm font-bold sm:text-lg md:text-md drop-shadow-lg line-clamp-2 hover:underline">
+                <h6 data-testid='exploretext' className="text-white text-sm font-bold sm:text-lg md:text-md drop-shadow-lg line-clamp-2 hover:underline">
                     {exploreItem.title}
                 </h6>
             </div>

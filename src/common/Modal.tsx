@@ -24,7 +24,7 @@ const ModalBody = ({ onClose, headerChildren, children, classNames }: ModalBodyP
             : (
               <button
                 onClick={onClose}
-                className="absolute right-5 top-3 text-gray-400 hover:text-gray-600 block float-right"
+                className="absolute right-5 top-3 text-gray-400 hover:text-gray-600 block float-right cursor-pointer"
               >
                 <svg
                   className="w-6 h-6"

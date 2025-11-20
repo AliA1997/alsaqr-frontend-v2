@@ -215,7 +215,7 @@ const UserHeader = ({
 
           <div className="space-y-1 justify-center w-full mt-3 ml-3">
             <div>
-              <h2 className="text-xl leading-6 font-bold text-gray-800 dark:text-white">
+              <h2 data-testid="userheaderusername" className="text-xl leading-6 font-bold text-gray-800 dark:text-white">
                 {profileInfo.user.username}
               </h2>
               <p className="text-sm leading-5 font-medium text-gray-600 dark:text-gray-400">

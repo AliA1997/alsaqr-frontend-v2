@@ -1,6 +1,7 @@
 import Auth from '@utils/auth';
 import agent from '@utils/common';
 import { DEFAULT_USER_REGISTRATION_FORM } from '@utils/constants';
+import { testAuthUser } from '@utils/testData';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { User, UserRegisterForm, UserRegisterFormDto } from 'typings';
 
@@ -16,10 +17,15 @@ export default class AuthStore {
     if (!this.auth)
       this.auth = new Auth();
 
-    const loggedInUser = this.auth?.getUser();
-    if (loggedInUser) {
-      this.setCurrentSessionUser(loggedInUser);
-      console.log("Found existing logged in user");
+    if(import.meta.env.VITE_PUBLIC_IS_TEST_MODE) {
+        this.auth.setUser(testAuthUser)
+        this.setCurrentSessionUser(testAuthUser);
+    } else {
+      const loggedInUser = this.auth?.getUser();
+      if (loggedInUser) {
+        this.setCurrentSessionUser(loggedInUser);
+        console.log("Found existing logged in user");
+      }
     }
   }
   loadingRegistration: boolean = false;

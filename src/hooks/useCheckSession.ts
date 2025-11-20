@@ -20,7 +20,8 @@ export function useCheckSession(setState: Function, sessionUser: User | undefine
   }
 
   useLayoutEffect(() => {
-    getSetSession();
+    if(!import.meta.env.VITE_PUBLIC_IS_TEST_MODE)
+      getSetSession();
   }, [sessionUser?.id, pathname]);
 
   return {};

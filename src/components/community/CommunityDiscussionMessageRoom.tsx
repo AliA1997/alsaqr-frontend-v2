@@ -1,4 +1,5 @@
 import { NoRecordsTitle } from '@common/Titles';
+import { OptimizedImage } from '@common/Image';
 import UpsertBoxIconButton from '@common/UpsertBoxIconButtons';
 import { XIcon } from '@heroicons/react/outline';
 import { ArrowLeftIcon } from '@heroicons/react/solid';
@@ -87,15 +88,15 @@ const CommunityDiscussionMessageRoom = ({
     urlParams.append('itemsPerPage', itemsPerPage?.toString() ?? '100');
     urlParams.append('currentPage', currentPage?.toString() ?? '1');
     try {
-      const { result } = await communityApiClient.getCommunityDiscussionMessages(
+      const { items, pagination } = await communityApiClient.getCommunityDiscussionMessages(
         urlParams,
         loggedInUser.id,
         communityId,
         communityDiscussionId
       );
 
-      setMessages(result.data);
-      setPagination(result.pagination);
+      setMessages(items);
+      setPagination(pagination);
     } finally {
       setLoadingMessages(false);
     }
@@ -137,8 +138,7 @@ const CommunityDiscussionMessageRoom = ({
     }
   };
   async function refreshCommunityDiscussionInfo(communityId: string) {
-      const communityDiscussionInfoResult = await communityApiClient
-        .getAdminCommunityDiscussionInfo(loggedInUser.id, communityId, communityDiscussionId);
+      const communityDiscussionInfoResult = await communityApiClient.getAdminCommunityDiscussionInfo(loggedInUser.id, communityId, communityDiscussionId);
   
       setCommunityDiscussionInfo(communityDiscussionInfoResult);
       setLoadingAdminInfo(false);
@@ -153,7 +153,7 @@ const CommunityDiscussionMessageRoom = ({
   }, [commmityDiscussionInfo])
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-[#0e1517]">
+    <div data-testid='communitydiscussionmessagecontainer' className="flex flex-col h-screen bg-gray-50 dark:bg-[#0e1517]">
       {/* Header */}
       <div className="bg-white p-4 border-b border-gray-200 dark:border-gray-900 flex items-center dark:bg-[#0e1517]">
         <button
@@ -166,11 +166,11 @@ const CommunityDiscussionMessageRoom = ({
         <div className="flex space-x-2">
           {
             communityDiscussionUsers.map(user => (
-              <img
+              <OptimizedImage
                 key={user.id}
                 src={user.avatar}
                 alt={user.username}
-                className="w-10 h-10 rounded-full border-2 border-white dark:border-none"
+                classNames="w-10 h-10 rounded-full border-2 border-white dark:border-none"
               />
             ))}
         </div>
@@ -197,12 +197,13 @@ const CommunityDiscussionMessageRoom = ({
                 <div
                   key={message.communityDiscussionMessage.id}
                   className={`flex ${message.communityDiscussionMessage.userId === loggedInUser.id ? 'justify-end' : 'justify-start'}`}
+                  data-testid="communitydiscussionmessagecard"
                 >
                   {!(message.communityDiscussionMessage.userId === loggedInUser.id) && (
-                    <img
+                    <OptimizedImage
                       src={message.profileImg}
                       alt={message.username}
-                      className="w-8 h-8 rounded-full mr-2 mt-1"
+                      classNames="w-8 h-8 rounded-full mr-2 mt-1"
                     />
                   )}
                   <div className={`max-w-xs md:max-w-md lg:max-w-lg ${(message.communityDiscussionMessage.userId === loggedInUser.id) ? 'flex flex-col items-end' : ''}`}>

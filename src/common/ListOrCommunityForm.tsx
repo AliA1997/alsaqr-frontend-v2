@@ -88,6 +88,7 @@ export const ListOrCommunityFormInputs = observer(({ type }: Props) => {
                                 name="isPrivate"
                                 value={option.value}
                                 label={option.label}
+                                testId={`${option.label.toLowerCase()}radiobox`}
                                 description={option.description}
                             />
                         ))}

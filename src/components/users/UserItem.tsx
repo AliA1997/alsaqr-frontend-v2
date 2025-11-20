@@ -15,6 +15,7 @@ import { LoginModal } from "@common/AuthModals";
 import { shortenText } from "@utils/index";
 import { MAX_BIO_LENGTH_FEED } from "@utils/constants";
 import { AddOrFollowButton } from "@common/IconButtons";
+import { OptimizedImage } from "@common/Image";
 
 interface Props {
     filterKey?: FilterKeys;
@@ -128,11 +129,10 @@ function UserItemComponent({
                     />
                 )}
  
-                {/* <div className="absolute m-0 inset-0"></div> */}
                 <div className="flex flex-col justify-self-stretch grow justify-start h-full space-x-3 cursor-pointer">
                     <div className="flex justify-items-start items-end align-items-end space-x-2">
-                        <img
-                            className="h-10 w-10 rounded-full object-cover"
+                        <OptimizedImage
+                            classNames="h-10 w-10 rounded-full object-cover"
                             src={userItemInfo.avatar}
                             alt={userItemInfo.username}
                             onClick={(e) => stopPropagationOnClick(e, navigateToUser)}

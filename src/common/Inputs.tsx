@@ -16,7 +16,7 @@ export function MyInput({ label, prefix, disabled, ...props }: MyInputProps) {
     return (
         <div className="w-full">
             {label && (
-                <label htmlFor={props.id || props.name} className="block mb-2 text-md font-medium">
+                <label htmlFor={props.id || props.name} className="block mb-2 text-md font-medium dark:text-gray-50">
                     {label}
                 </label>
             )}
@@ -33,9 +33,10 @@ export function MyInput({ label, prefix, disabled, ...props }: MyInputProps) {
                     type={props.type || 'text'}
                     placeholder={props.placeholder}
                     className={`
-                        h-12 w-full text-lg outline-none placeholder:text-xl dark:bg-[#000000] ${prefix ? 'pl-12' : ''}
+                        h-12 w-full text-lg outline-none placeholder:text-xl dark:bg-[#000000] dark:text-gray-50 ${prefix ? 'pl-12' : ''}
                         ${meta.touched && meta.error ? 'border-red-500 border' : ''} ${props.className || ''}`}
                     disabled={disabled ?? false}
+                    data-testid={`${props.name.toLowerCase()}input`}
                 />
                 {meta.touched && meta.error ? (
                     <div className="text-red-500 text-sm mt-1">{meta.error}</div>
@@ -65,15 +66,16 @@ export function FileUploadInput({ label, ...props }: FileUploadInputProps) {
                 type="file"
                 onChange={e => props.handleFileChange(e, helpers)}
                 onBlur={field.onBlur}
+                data-testid={`${props.name.toLowerCase()}input`}
                 className={`block w-full text-sm text-gray-500
-          file:mr-4 file:py-2 file:px-4
-          file:rounded-md file:border-0
-          file:text-sm file:font-semibold
-          file:bg-blue-50 file:text-blue-700
-          hover:file:bg-blue-100
-          dark:file:bg-blue-900 dark:file:text-blue-100
-          dark:hover:file:bg-blue-800
-          ${meta.touched && meta.error ? 'border-red-500' : 'border-gray-300'}`}
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100
+                    dark:file:bg-blue-900 dark:file:text-blue-100
+                    dark:hover:file:bg-blue-800
+                    ${meta.touched && meta.error ? 'border-red-500' : 'border-gray-300'}`}
             />
             {meta.touched && meta.error ? (
                 <div className="text-red-500 text-xs mt-1">{meta.error}</div>

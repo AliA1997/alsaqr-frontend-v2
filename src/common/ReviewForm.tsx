@@ -243,7 +243,7 @@ export const ReviewForm = observer(({ sections, hideTitle, previewInfo, type }: 
                 />
             )}
 
-            <div className="divide-y">
+            <div data-testid='modalreviewform' className="divide-y">
                 {sections.map((section, index) => (
                     <div key={index} className="group">
                         <button

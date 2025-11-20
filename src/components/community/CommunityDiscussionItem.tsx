@@ -70,14 +70,16 @@ const CommunityDiscussionItemComponent = observer(({
           h-[10rem]
           mb-4         /* Add some bottom margin between items */
         `}
+        data-testid="communitydiscussioncard"
       >
         <div className="flex flex-col justify-start h-full space-x-3 p-1">
           <div
+            data-testid='communitydiscussionlink'
             className="flex justify-around item-center space-x-1 cursor-pointer hover:underline"
             onClick={(e) => stopPropagationOnClick(e, navigateToCommunityDiscussion)}
           >
             <div className='flex flex-col'>
-              <h6 className='text-sm text-black dark:text-gray-50'>
+              <h6 data-testid="communitydiscussiontext" className='text-sm text-black dark:text-gray-50'>
                 {communityDiscussionInfo.name}
               </h6>
               <p className="text-sm text-gray-500 dark:text-gray-400">

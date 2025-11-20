@@ -20,8 +20,6 @@ const years = [
   "2023"
 ];
 
-// const bannerImage = ["nature", "technology", "photography"];
-
 type ContentProps = {
   userPName: any;
   userPhotoUrl: any;
@@ -38,9 +36,6 @@ const Content: React.FC<ContentProps> = ({ userPName, userPhotoUrl }) => {
     );
     setUseYear(shuffle(years).pop());
   }, [userPName]);
-
-  /*   console.log(userPName, "yo");
-  console.log(user?.displayName); */
 
   return (
     <div>

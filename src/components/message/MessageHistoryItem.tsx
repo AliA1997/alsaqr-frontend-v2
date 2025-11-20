@@ -45,6 +45,7 @@ function MessageHistoryItemComponent({
                     h-[12.5rem]
                     cursor-pointer
                 `}
+                data-testid="messagehistorycard"
             >
                 {/* On click handler on button below */}
                 <button 
@@ -60,7 +61,10 @@ function MessageHistoryItemComponent({
                             alt={messageHistoryItem.receiverUsername}
                         />
                     )}
-                    <div className="flex flex-col justify-between item-center space-x-1">
+                    <div 
+                        className="flex flex-col justify-between item-center space-x-1"
+                        data-testid="messagehistorytext"
+                    >
                         <p className='text-sm'>
                             {messageHistoryItem.receiverUsername}
                         </p>

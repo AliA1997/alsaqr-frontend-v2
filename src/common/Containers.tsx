@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 import { User } from 'typings';
+import { OptimizedImage } from '@common/Image';
 
-export const ContentContainerWithRef = ({ innerRef, children, classNames, ...otherProps }: React.PropsWithChildren<any>) => {
+export const ContentContainerWithRef = ({ innerRef, children, classNames, testId, ...otherProps }: React.PropsWithChildren<any>) => {
   return (
     <div 
       ref={innerRef}
-      className={`max-w-4xl mx-auto bg-white dark:bg-[#0e1517] rounded-lg mt-10 ${classNames && classNames}`} {...otherProps}>
+      className={`max-w-4xl mx-auto bg-white dark:bg-[#0e1517] rounded-lg mt-10 ${classNames && classNames}`} 
+      data-testid={testId ?? ""}
+      {...otherProps}
+    >
       {children}
     </div>    
   );
@@ -54,17 +58,16 @@ type MessagesImagePreviewProps = {
 
 export function MessagesImagePreview({user, index}: MessagesImagePreviewProps) {
   return (
-    <img
+    <OptimizedImage
       key={user.id}
       src={user.avatar}
       alt={user.username}
-      className={`
+      classNames={`
         w-10 h-10 rounded-full border-2 border-white dark:border-gray-800
         relative  /* Enables z-index */
-        ${index === 0 ? 'z-0' : index === 1 ? 'z-10' : 'z-20'}  /* Stacking order */`}
-      style={{
-        marginLeft: `${index > 0 ? '-1rem' : ''}`
-      }}
+        ${index === 0 ? 'z-0' : index === 1 ? 'z-10' : 'z-20'} 
+        ${index > 0 ? 'ml-[-1rem]' : ''}
+        /* Stacking order */`}
     />
   );
 }

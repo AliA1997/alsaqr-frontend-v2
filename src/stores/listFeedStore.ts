@@ -157,7 +157,7 @@ export default class ListFeedStore {
 
     loadLists = async (userId: string) => {
         this.setLoadingInitial(true);
- 
+
         try {
             const { items, pagination } = await agent.listApiClient.getLists(this.axiosParams, userId);
             runInAction(() => {
@@ -167,6 +167,8 @@ export default class ListFeedStore {
             });
 
             this.setPagination(pagination);
+        } catch(error) {
+            console.log("ERROR:", error);
         } finally {
             this.setLoadingInitial(false);
         }
@@ -178,7 +180,7 @@ export default class ListFeedStore {
         try {
             await agent.listApiClient.deleteList(userId, listId);
             
-            await agent.listApiClient.getLists(this.axiosParams, userId);
+            await this.loadLists(userId);
         } finally {
             this.setLoadingUpsert(false);
         }

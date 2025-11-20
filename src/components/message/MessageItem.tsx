@@ -12,6 +12,7 @@ function MessageItem({ loggedInUserId, messageToDisplay }: Props) {
         <div
             key={messageToDisplay.message.id}
             className={`flex ${messageToDisplay.message.senderId === loggedInUserId ? 'justify-end' : 'justify-start'}`}
+            data-testid="messageitemcard"
         >
             {!(messageToDisplay.message.senderId === loggedInUserId) && (
                 <img
@@ -29,7 +30,7 @@ function MessageItem({ loggedInUserId, messageToDisplay }: Props) {
                 <div
                     className={`p-3 rounded-lg ${(messageToDisplay.message.senderId === loggedInUserId) ? 'bg-blue-500 text-white' : 'bg-[#55a8c2] text-white'}`}
                 >
-                    <p>{messageToDisplay.message.text}</p>
+                    <p data-testid="messageitemtext">{messageToDisplay.message.text}</p>
                     {messageToDisplay.message.image && (
                         <img
                             src={messageToDisplay.message.image}

@@ -335,7 +335,7 @@ function PostComponent({
         dark:border-gray-800 ${!onlyDisplay && 'hover:shadow-lg dark:hover:bg-[#000000]'}  
       `}
       ref={targetRef}
-      test-dataid="postcard"
+      data-testid="postcard"
     >
       {showLabel && (
         <TagOrLabel
@@ -404,6 +404,7 @@ function PostComponent({
               </svg>
             )}
             <p
+              data-testid="postusername"
               className="hidden text-sm text-gray-500 sm:inline dark:text-gray-400 hover:underline"
               onClick={(e) => {
                 if (onlyDisplay)
@@ -421,7 +422,7 @@ function PostComponent({
               date={convertDateToDisplay(postInfo?.createdAt)}
             />
           </div>
-          <p className="pt-1 text-black dark:text-gray-50">{postInfo.text}</p>
+          <p data-testid="postcardtext" className="pt-1 text-black dark:text-gray-50">{postInfo.text}</p>
           <div style={{ display: 'flex', gap: '4px', }} className="my-5">
             {postInfo.tags.map((tag, index) => (
               <span

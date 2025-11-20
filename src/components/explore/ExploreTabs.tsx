@@ -41,7 +41,10 @@ export default observer(() => {
 
     const renderer = useCallback(
         (exploreNewsItem: ExploreToDisplay) => (
-            <ExploreItemComponent key={exploreNewsItem.title} exploreItem={exploreNewsItem} />
+            <ExploreItemComponent 
+                key={exploreNewsItem.title} 
+                exploreItem={exploreNewsItem} 
+            />
         ),
         [
             exploreNews,
@@ -71,13 +74,13 @@ export default observer(() => {
 
             setPagingParams(new PagingParams(1, 40));
         }, [
-        exploreNews,
-        ajNews,
-        argaamNews,
-        bleacherReportNews,
-        cryptoCoinNews,
-        sabqNews
-    ]
+            exploreNews,
+            ajNews,
+            argaamNews,
+            bleacherReportNews,
+            cryptoCoinNews,
+            sabqNews
+        ]
     );
 
     const getNewsContent = (srcId?: string) => {
@@ -103,7 +106,8 @@ export default observer(() => {
                     title: "Popular",
                     content: getNewsContent(),
                     renderer,
-                    noRecordsContent: 'No explore news to show.'
+                    noRecordsContent: 'No explore news to show.',
+                    testId: "populartab"
                 },
                 ...EXPLORE_SOURCES.map(src => ({
                     tabKey: src.id as ExploreTabs,
@@ -111,7 +115,8 @@ export default observer(() => {
                     image: src.image,
                     content: getNewsContent(src.id),
                     renderer,
-                    noRecordsContent: 'No news to show.'
+                    noRecordsContent: 'No news to show.',
+                    testId: src.testId
                 })),
             ]}
             loading={loadingInitial}

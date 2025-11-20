@@ -21,12 +21,12 @@ const CommunityDiscussionForumPage = () => {
         }
     }, [])
 
-    if (currentSessionUser)
+    if (currentSessionUser && currentSessionUser?.id)
         return <CommunityDiscussionMessageRoom
-            loggedInUser={currentSessionUser!}
-            communityDiscussionId={community_discussion_id!}
-            communityId={community_id!}
-        />
+                    loggedInUser={currentSessionUser!}
+                    communityDiscussionId={community_discussion_id!}
+                    communityId={community_id!}
+                />
     else if (mounted)
         return (
             <div>You need to be logged in to access this chat.</div>

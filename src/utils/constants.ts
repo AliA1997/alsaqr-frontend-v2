@@ -383,25 +383,30 @@ export const EXPLORE_SOURCES = [
     id: "al-jazeera-english",
     name: "Al Jazeera English",
     image: "/explore-sources/aljazeeraenglish.svg",
+    testId: 'ajtab',
   },
   {
     id: "argaam",
     name: "Argaam",
     image: "/explore-sources/argaam.svg",
+    testId: 'argaamtab',
   },
   {
     id: "bleacher-report",
     name: "Bleacher Report",
     image: "/explore-sources/bleacher-report.svg",
+    testId: 'brtab',
   },
   {
     id: "crypto-coins-news",
     name: "Crypto Coins News",
     image: "/explore-sources/cryptocoinnews.svg",
+    testId: 'ccntab',
   },
   {
     id: "sabq",
     name: "SABQ",
     image: "/explore-sources/sabq.svg",
+    testId: 'sabqtab'
   },
 ]

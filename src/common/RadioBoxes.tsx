@@ -5,6 +5,7 @@ type RadioCardProps = {
   label: string;
   description?: string;
   value: string;
+  testId?: string;
   icon?: React.ReactNode;
 } & FieldHookConfig<string>;
 
@@ -13,6 +14,7 @@ export const RadioCard = ({
   description,
   value,
   icon,
+  testId,
   ...props
 }: RadioCardProps) => {
   const [field, _] = useField<string>(props.name);
@@ -45,6 +47,7 @@ export const RadioCard = ({
                 ? 'text-blue-900 dark:text-blue-100'
                 : 'text-gray-900 dark:text-gray-100'
             }`}
+            data-testid={testId ?? ""}
           >
             {label}
           </span>

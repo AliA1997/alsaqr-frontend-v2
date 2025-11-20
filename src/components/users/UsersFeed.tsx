@@ -3,7 +3,6 @@ import type {
   UserItemToDisplay,
 } from "@typings";
 
-import { useSearchParams } from "react-router-dom";
 import { convertQueryStringToObject } from "@utils/index";
 import { ModalLoader } from "@common/CustomLoader";
 import { observer } from "mobx-react-lite";
@@ -31,7 +30,7 @@ function FeedContainer({ children }: React.PropsWithChildren<any>) {
 
 
 const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAddedOrFollowedByIds, onAddOrFollow }: Props) => {
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
   const { searchStore } = useStore();
   const containerRef = useRef(null);
@@ -97,14 +96,13 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
     if (!filterKey) return;
 
     getUsers();
-  }, [searchParams]);
+  }, []);
 
   const loadedUsers = useMemo(() => {
     return searchStore.searchedUsers;
   }, [searchStore.searchedUsers]);
 
 
-  // 1. Add this loader component at the end of your posts list
   const LoadMoreTrigger = () => {
     return (
       <div ref={loaderRef} style={{ height: '20px' }}>
@@ -113,12 +111,12 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
     );
   };
 
-  // 2. Fix your Intersection Observer useEffect
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
-        const currentPage = userFeedPagination?.currentPage ?? 0;
+        const currentPage = userFeedPagination?.currentPage ?? 1;
         const itemsPerPage = userFeedPagination?.itemsPerPage ?? 25;
         const totalItems = userFeedPagination?.totalItems ?? 0;
 
@@ -131,8 +129,8 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
       },
       {
         root: containerRef.current,
-        rootMargin: '100px',
-        threshold: 0.2
+        rootMargin: '0px',
+        threshold: 0.1
       }
     );
 
@@ -146,7 +144,7 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
         observer.unobserve(currentLoader);
       }
     };
-  }, [fetchMoreItems]);
+  }, []);
 
 
   return (

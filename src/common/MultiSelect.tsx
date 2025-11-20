@@ -79,6 +79,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
 
         {/* Input for new options */}
         <input
+          data-testid="multiselectinput"
           type="text"
           value={inputValue}
           onChange={handleInputChange}
@@ -95,6 +96,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
             <div
               key={option.value}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+              data-testid="multiselectfilteredlabel"
               onClick={() => {
                 if (!field.value.includes(option.value)) {
                   helpers.setValue([...field.value, option.value]);

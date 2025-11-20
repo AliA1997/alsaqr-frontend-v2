@@ -13,6 +13,7 @@ type TabsProps = {
     content: any[];
     noRecordsContent: string;
     renderer: (obj: any) => React.ReactNode;
+    testId?: string;
   }[];
   showNumberOfRecords?: boolean;
   loading: boolean;
@@ -28,6 +29,7 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
       tabs.map((t) => ({
         tabKey: t.tabKey,
         title: t.title,
+        testId: t.testId,
         image: t.image ?? undefined,
         numberOfRecords: t.content.length,
       })),
@@ -60,7 +62,7 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
       <div className={`flex justify-around`}>
         {tabLinks.map(
           (
-            tl: { tabKey: string; title: string, image?: string; numberOfRecords: number },
+            tl: { tabKey: string; title: string, image?: string; numberOfRecords: number, testId?: string },
             tlIdx: number
           ) => (
             <CommonLink
@@ -68,6 +70,7 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
               onClick={() => handleTabSwitch(tl.tabKey)}
               activeInd={activeTab === tl.tabKey}
               animatedLink={false}
+              testId={tl.testId ?? "tab"}
             >
               {tl.image ? (
                 <OptimizedImage

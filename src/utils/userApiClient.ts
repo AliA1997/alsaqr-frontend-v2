@@ -5,31 +5,31 @@ import { FollowUserFormDto, UnFollowUserFormDto, UpdateUserFormDto } from "@mode
 
 export const userApiClient = {
     sessionSignin: (email: string) => 
-        axiosRequests.post(`/api/session/signin`, { values: { email } }).then(axiosResponseBody),
+        axiosRequests.post(`/api/Session/signin`, { values: { email } }).then(axiosResponseBody),
     sessionCheck: (email: string) => 
-        axios.post(`/api/session/check `, { values: { email } }, { headers: {
+        axios.post(`/api/Session/check `, { values: { email } }, { headers: {
             "Content-Type": "application/json"
         }}).then(axiosResponseBody),
     
     
     getUserProfile: (username: string) => 
-        axios.get(`/api/profile/${username}`).then(axiosResponseBody),
+        axios.get(`/api/Profile/${username}`).then(axiosResponseBody),
 
     getUsersToAdd: (userId: string, params: URLSearchParams) =>
-        axios.get(`/api/users/${userId}/usersToAdd`, { params }).then(axiosResponseBody),
+        axios.get(`/api/Users/${userId}/usersToAdd`, { params }).then(axiosResponseBody),
     getUserProfilePosts: (username: string, params: URLSearchParams) =>
-        axios.get(`/api/profile/${username}/posts`, { params }).then(axiosResponseBody),
+        axios.get(`/api/Profile/${username}/posts`, { params }).then(axiosResponseBody),
     
     completeRegistration: (userId: string, values: UserRegisterFormDto) =>
-        axios.post(`/api/users/${userId}/completeRegistration`, { values }).then(axiosResponseBody),
+        axios.post(`/api/Users/${userId}/completeRegistration`, { values }).then(axiosResponseBody),
     
     followUser: (userId: string, values: FollowUserFormDto) =>
-        axios.patch(`/api/users/${userId}/follow`, { values }).then(axiosResponseBody),
+        axios.patch(`/api/Users/${userId}/follow`, { values }).then(axiosResponseBody),
     unFollowUser: (userId: string, values: UnFollowUserFormDto) =>
-        axios.patch(`/api/users/${userId}/unfollow`, { values }).then(axiosResponseBody),
+        axios.patch(`/api/Users/${userId}/unfollow`, { values }).then(axiosResponseBody),
 
     updateUser: (userId: string, values: UpdateUserFormDto) => 
-        axios.put(`/api/users/${userId}`, { values }).then(axiosResponseBody),
+        axios.put(`/api/Users/${userId}`, { values }).then(axiosResponseBody),
     deleteUser: (userId: string) => 
-        axios.delete(`/api/users/${userId}`).then(axiosResponseBody)
+        axios.delete(`/api/Users/${userId}`).then(axiosResponseBody)
 } 

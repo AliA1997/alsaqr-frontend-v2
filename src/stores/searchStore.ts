@@ -92,18 +92,15 @@ export default class SearchStore {
             if(this.searchedUsersPagingParams.currentPage === 1)
                 this.searchUsersRegistry.clear();
             
-            console.log('userId:', userId);
-            const { result } = await agent.userApiClient.getUsersToAdd(userId, this.searchUsersAxiosParams) ?? [];
+            const { items, pagination } = await agent.userApiClient.getUsersToAdd(userId, this.searchUsersAxiosParams) ?? [];
 
-            console.log('result:', result);
-            debugger;
             runInAction(() => {
-                result.data.forEach((userItem: UserItemToDisplay) => {
+                items.forEach((userItem: UserItemToDisplay) => {
                     this.setSearchedUser(userItem.user.id, userItem);
                 });
             });
 
-            this.setSearchedUsersPagination(result.pagination);
+            this.setSearchedUsersPagination(pagination);
         } finally {
             this.setSearchUsersLoadingInitial(false);
         }
@@ -117,18 +114,15 @@ export default class SearchStore {
             if(this.searchedPostsPagingParams.currentPage === 1)
                 this.searchUsersRegistry.clear();
             
-            console.log('userId:', userId);
-            const { result } = await agent.postApiClient.getPostsToAdd(userId, this.searchPostsAxiosParams) ?? [];
+            const { items, pagination } = await agent.postApiClient.getPostsToAdd(userId, this.searchPostsAxiosParams) ?? [];
 
-            console.log('result:', result);
-            debugger;
             runInAction(() => {
-                result.data.forEach((postItem: PostToDisplay) => {
+                items.forEach((postItem: PostToDisplay) => {
                     this.setSearchedPost(postItem.post.id, postItem);
                 });
             });
 
-            this.setSearchedPostsPagination(result.pagination);
+            this.setSearchedPostsPagination(pagination);
         } finally {
             this.setSearchPostsLoadingInitial(false);
         }

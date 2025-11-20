@@ -84,7 +84,7 @@ const NotificationFeed = observer(({ }: Props) => {
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
-        const currentPage = pagination?.currentPage ?? 0;
+        const currentPage = pagination?.currentPage ?? 1;
         const itemsPerPage = pagination?.itemsPerPage ?? 10;
         const totalItems = pagination?.totalItems ?? 0;
 

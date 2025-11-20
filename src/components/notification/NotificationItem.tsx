@@ -55,6 +55,7 @@ function NotificationItemComponent({
           cursor-pointer
         `}
         onClick={navigateToNotification}
+        data-testid="notificationcard"
       >
         <div className="absolute m-0 inset-0"></div>
         <div className="flex flex-col justify-between h-full space-x-3 cursor-pointer">
@@ -66,7 +67,10 @@ function NotificationItemComponent({
             />
         )}
           <div className="flex justify-between item-center space-x-1">
-            <p className='text-sm'>
+            <p 
+              className='text-sm' 
+              data-testid="notificationtext"
+            >
               {notificationInfo.message}
             </p>
             {notificationInfo.createdAt && (

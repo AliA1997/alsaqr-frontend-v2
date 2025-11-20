@@ -71,6 +71,7 @@ const MainProfile = () => {
                   {
                     tabKey: "recent",
                     title: "Recent",
+                    testId: 'recenttab',
                     content: currentUserProfilePosts?.userPosts ?? [],
                     renderer,
                     noRecordsContent: 'No posts'
@@ -78,6 +79,7 @@ const MainProfile = () => {
                   {
                     tabKey: "reposts",
                     title: "Reposts",
+                    testId: 'repoststab',
                     content: currentUserProfilePosts?.repostedPosts ?? [],
                     renderer,
                     noRecordsContent: 'No reposts found'
@@ -85,6 +87,7 @@ const MainProfile = () => {
                   {
                     tabKey: "bookmarks",
                     title: "Bookmarks",
+                    testId: 'bookmarkstab',
                     content: currentUserProfilePosts?.bookmarkedPosts ?? [],
                     renderer,
                     noRecordsContent: `No bookmarks found`
@@ -92,6 +95,7 @@ const MainProfile = () => {
                   {
                     tabKey: "replied-posts",
                     title: "Replies",
+                    testId: 'repliestab',
                     content: currentUserProfilePosts?.repliedPosts ?? [],
                     renderer,
                     noRecordsContent: `No replied posts found`
@@ -99,6 +103,7 @@ const MainProfile = () => {
                   {
                     tabKey: "liked-posts",
                     title: "Liked Posts",
+                    testId: 'likestab',
                     content: currentUserProfilePosts?.likedPosts ?? [],
                     renderer,
                     noRecordsContent: `No liked posts found`

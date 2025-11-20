@@ -68,15 +68,20 @@ function CommunityItemComponent({
           3xl:w-[30%]
           h-[7.5rem]
         `}
+        data-testid="communitycard"
       >
         <div className="flex flex-col justify-between h-full space-x-3">
           <div className="flex item-center justify-between space-x-1">
-            <div className='flex  hover:underline cursor-pointer' onClick={(e) => stopPropagationOnClick(e, navigateToCommunity)}>
+            <div 
+              className='flex hover:underline cursor-pointer' 
+              data-testid='communitylink'
+              onClick={(e) => stopPropagationOnClick(e, navigateToCommunity)}
+            >
               <OptimizedImage
                 src={communityInfo.avatar}
                 alt={communityInfo.name}
               />
-              <p className='text-sm ml-2 text-black dark:text-gray-50'>
+              <p  data-testid="communitytext" className='text-sm ml-2 text-black dark:text-gray-50'>
                 {communityInfo.name}
               </p>
             </div>

@@ -49,6 +49,7 @@ const Feed = observer(({
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
 
+
   const feedLoadingInitial = useMemo(() => {
     if (filterKey === FilterKeys.Explore) return exploreStore.loadingInitial;
     // else if (filterKey === FilterKeys.Search) return searchStore.predicate;
@@ -179,7 +180,6 @@ const Feed = observer(({
   }, [searchStore.searchedPosts, feedStore.posts, exploreStore.explorePosts, bookmarkFeedStore.bookmarkedPosts]);
 
 
-  // 1. Add this loader component at the end of your posts list
   const LoadMoreTrigger = () => {
     return (
       <div ref={loaderRef} style={{ height: '20px' }}>
@@ -188,7 +188,6 @@ const Feed = observer(({
     );
   };
 
-  // 2. Fix your Intersection Observer useEffect
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -223,9 +222,15 @@ const Feed = observer(({
     };
   }, []);
 
-  const userId = useMemo(() => currentSessionUser ? currentSessionUser.id : "", [currentSessionUser?.id, auth?.getUser()?.id]);
+  const userId = useMemo(() => 
+     import.meta.env.VITE_PUBLIC_IS_TEST_MODE 
+      ? auth?.getUser()?.id : currentSessionUser ? currentSessionUser.id 
+      : "", 
+    [currentSessionUser?.id, auth?.getUser()?.id]);
   return (
-    <div className="col-span-7 text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
+    <div 
+      className="col-span-7 text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800"
+    >
       {title && <PageTitle>{title}</PageTitle>}
       <div>
         {currentSessionUser && !hideTweetBox && (
@@ -238,6 +243,7 @@ const Feed = observer(({
           ${filterKey === FilterKeys.SearchPosts ? 'min-h-[30vh] max-h-[40vh]' : 'min-h-[100vh] max-h-[100vh]'}  
         `}
         innerRef={containerRef}
+        data-testid="feedcontaineritems"
       >
         {loading ? (
           <>

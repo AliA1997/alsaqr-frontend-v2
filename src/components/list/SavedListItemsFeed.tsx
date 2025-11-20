@@ -73,7 +73,7 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
       },
       {
         root: containerRef.current,
-        rootMargin: '100px',
+        rootMargin: '10px',
         threshold: 0.2
       }
     );
@@ -88,12 +88,12 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
         observer.unobserve(currentLoader);
       }
     };
-  }, [fetchMoreItems]);
+  }, []);
 
   return (
     <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-7 dark:border-gray-800">
       <PageTitle>{listInfoForSavedListItems?.name ?? ""}</PageTitle>
-      <ContentContainerWithRef innerRef={containerRef} style={{ minHeight: '100vh' }}>
+      <ContentContainerWithRef testId='savedlistfeed' innerRef={containerRef} style={{ minHeight: '100vh' }}>
         {loadingListItems ? (
           <CustomPageLoader title="Loading" />
         ) : (
