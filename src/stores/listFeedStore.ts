@@ -4,12 +4,15 @@ import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/common";
 import { ListItemToDisplay } from "@models/list";
 import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
+import { makePersistable } from "mobx-persist-store";
+import { store } from ".";
 
 export default class ListFeedStore {
-    
+
     constructor() {
         makeAutoObservable(this);
-        
+        makePersistable(this, { name: 'ListFeedStore', properties: ['listsRegistry'], storage: window.localStorage });
+
         reaction(
             () => this.predicate.keys(),
             () => {
@@ -17,14 +20,14 @@ export default class ListFeedStore {
             }
         );
     }
-    
-    
+
+
     loadingInitial = false;
     loadingListItems = false;
     predicate = new Map();
     savedListItemsPredicate = new Map();
     setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
+        if (value) {
             this.predicate.set(predicate, value);
         } else {
             this.predicate.delete(predicate);
@@ -74,19 +77,19 @@ export default class ListFeedStore {
     setListCreationForm = (val: CreateListOrCommunityForm) => {
         this.listCreationForm = val;
     }
-    
+
     setList = (listId: string, list: ListToDisplay) => {
         this.listsRegistry.set(listId, list);
     }
     setSavedListItem = (listItemId: string, listItem: ListItemToDisplay) => {
         this.savedListItemsRegistry.set(listItemId, listItem);
     }
-    
+
     resetPredicate = () => {
         this.predicate.clear();
     }
     resetPagingParams = () => {
-        this.pagingParams = new PagingParams(1 , 25);
+        this.pagingParams = new PagingParams(1, 25);
     }
 
     resetListsState = () => {
@@ -125,7 +128,14 @@ export default class ListFeedStore {
                 isPrivate: 'private'
             };
             await agent.listApiClient.addList(newListDto, userId)
+            runInAction(() => {
+                this.setListCreationForm(DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM);
+                this.setCurrentStepInListCreation(0);
+            });
 
+            store.modalStore.closeModal();
+
+            await this.loadLists(userId);
         } finally {
             this.setLoadingUpsert(false);
         }
@@ -167,19 +177,19 @@ export default class ListFeedStore {
             });
 
             this.setPagination(pagination);
-        } catch(error) {
+        } catch (error) {
             console.log("ERROR:", error);
         } finally {
             this.setLoadingInitial(false);
         }
 
     }
-    
+
     deleteList = async (userId: string, listId: string) => {
         this.setLoadingUpsert(true);
         try {
             await agent.listApiClient.deleteList(userId, listId);
-            
+
             await this.loadLists(userId);
         } finally {
             this.setLoadingUpsert(false);
@@ -194,13 +204,13 @@ export default class ListFeedStore {
         try {
 
             const { result, listInfo } = await agent.listApiClient.getSavedListItems(this.savedListItemsAxiosParams, userId, listId);
-        
+
             runInAction(() => {
                 result.data.forEach((listItem: ListItemToDisplay) => {
                     this.setSavedListItem(listItem.listItem.id, listItem)
                 });
                 this.setSavedListItemsPagination(result.pagination);
-                
+
                 this.setListInfoForSavedListItems(listInfo);
             });
         } finally {
@@ -213,7 +223,7 @@ export default class ListFeedStore {
         this.setLoadingUpsert(true);
         try {
             await agent.listApiClient.deleteSavedListItem(userId, listId, listItemId);
-        
+
         } finally {
             this.setLoadingUpsert(false);
         }

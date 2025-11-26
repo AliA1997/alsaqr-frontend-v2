@@ -64,6 +64,8 @@ export function FileUploadInput({ label, ...props }: FileUploadInputProps) {
             )}
             <input
                 type="file"
+                id={props.id}
+                name={props.name}
                 onChange={e => props.handleFileChange(e, helpers)}
                 onBlur={field.onBlur}
                 data-testid={`${props.name.toLowerCase()}input`}

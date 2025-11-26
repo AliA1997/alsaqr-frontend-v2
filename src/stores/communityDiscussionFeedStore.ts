@@ -5,11 +5,13 @@ import agent from "@utils/common";
 import type { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionToDisplay } from "@models/community";
 import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
 import { store } from ".";
+import { makePersistable } from "mobx-persist-store";
 
 export default class CommunityDiscussionFeedStore {
 
     constructor() {
         makeAutoObservable(this);
+        makePersistable(this, { name: 'CommunityDiscussionFeedStore', properties: ['communityDiscussionsRegistry'], storage: window.localStorage });
 
         reaction(
             () => this.predicate.keys(),
@@ -24,7 +26,7 @@ export default class CommunityDiscussionFeedStore {
     loadingUpsert = false;
     predicate = new Map();
     setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
+        if (value) {
             this.predicate.set(predicate, value);
         } else {
             this.predicate.delete(predicate);
@@ -62,10 +64,9 @@ export default class CommunityDiscussionFeedStore {
         this.communityDiscussionsRegistry.set(communityDiscussionId, communityDiscussion);
     }
     updateCommunityDiscussionRelationship = (communityDiscussionId: string, newStatus: RelationshipType) => {
-        if(this.communityDiscussionsRegistry.has(communityDiscussionId)) {
+        if (this.communityDiscussionsRegistry.has(communityDiscussionId)) {
             const communityDiscussionInfo = this.communityDiscussionsRegistry.get(communityDiscussionId);
             this.setCommunityDiscussion(communityDiscussionId, { ...communityDiscussionInfo!, relationshipType: newStatus });
-            console.log('updateCommunityDiscussionRelationship', JSON.stringify(this.communityDiscussionsRegistry.get(communityDiscussionId)))
         }
     }
     resetListsState = () => {
@@ -147,7 +148,7 @@ export default class CommunityDiscussionFeedStore {
 
     }
     acceptRequestToJoinPrivateCommunityDiscussion = async (
-        communityId: string, 
+        communityId: string,
         communityDiscussionId: string,
         invitedUserId: string,
         acceptToDenyRequest: AcceptOrDenyCommunityInviteConfirmationDto) => {
@@ -179,13 +180,14 @@ export default class CommunityDiscussionFeedStore {
             };
 
             await agent.communityApiClient.addCommunityDiscussion(newCommunityDiscussionDto, userId, communityId);
-            store.modalStore.closeModal();
-            await this.loadCommunityDiscussions(userId, communityId);
-            
             runInAction(() => {
                 this.setCommunityDiscussionCreationForm(DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM);
                 this.setCurrentStepInCommunityDiscussionCreation(0);
             });
+
+            store.modalStore.closeModal();
+            await this.loadCommunityDiscussions(userId, communityId);
+
         } finally {
             this.setLoadingUpsert(false);
         }

@@ -105,7 +105,7 @@ function ListItemComponent({
     <>
       <div
         className={`
-          flex flex-col relative justify-between space-x-3 border-y border-gray-100 
+          flex flex-col relative justify-between space-x-3 border-y border-gray-100 mr-[1rem]
           p-5 mr-1 mb-2 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] h-[8.5rem] w-[30rem] lg:w-[20rem]
           hover:cursor-pointer`}
         style={{ backgroundImage: `url('${listInfo.bannerImage}')`, objectFit: "scale-down" }}

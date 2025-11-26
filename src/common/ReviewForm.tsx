@@ -88,7 +88,7 @@ export const ReviewUpsertListOrCommunity = ({
     tags,
     type
 }: ReviewNewCommunityProps) => (
-    <div className='flex flex-col'>
+    <div className='flex flex-col text-gray-900 dark:text-gray-50'>
         {!(type === CommonUpsertBoxTypes.CommunityDiscussion || type === CommonUpsertBoxTypes.UpdateCommunity) && (
             <div className='flex flex-col x-space-3 justify-items-between'>
                 <h5 className='font-bold mr-2'>
@@ -256,7 +256,7 @@ export const ReviewForm = observer(({ sections, hideTitle, previewInfo, type }: 
                             aria-expanded={isExpanded(index)}
                             aria-controls={`section-${index}`}
                         >
-                            <h4 className="font-medium text-gray-700 dark:text-gray-100">{section.title}</h4>
+                            <h4 className="font-medium text-gray-700 dark:text-gray-50">{section.title}</h4>
                             <motion.div
                                 animate={{ rotate: isExpanded(index) ? 180 : 0 }}
                                 transition={{ duration: 0.2 }}

@@ -1,3 +1,4 @@
+import { XIcon } from "@heroicons/react/solid";
 import { FieldHookConfig, useField } from "formik";
 import { useState } from "react";
 
@@ -48,7 +49,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
   return (
     <div className="space-y-2 relative">
       {label && (
-        <label htmlFor={props.name} className="block text-md font-medium text-gray-700 dark:text-gray-200">
+        <label htmlFor={props.name} className="block text-md font-medium text-gray-700 dark:text-gray-100">
           {label}
         </label>
       )}
@@ -61,19 +62,18 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
             label: selectedValue,
           };
           return (
-            <div
+            <button
+              type="button"
+              onDoubleClick={() => removeOption(selectedValue)}
               key={selectedValue}
-              className="flex items-center px-2 bg-blue-100 dark:bg-blue-900 rounded-full text-md"
+              className="flex items-center px-2 bg-[#55a8c2] text-gray-50 rounded-full text-md"
             >
               {selectedOption.label}
-              <button
-                type="button"
+              <XIcon 
                 onClick={() => removeOption(selectedValue)}
-                className="text-blue-500 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-100"
-              >
-                ×
-              </button>
-            </div>
+                className="ml-2 h-4 w-4 hover:bg-[unset] cursor-pointer" 
+              />
+            </button>
           );
         })}
 
@@ -85,13 +85,20 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder || "Type and press enter..."}
-          className="flex-1 min-w-[100px] text-xl outline-none placeholder:text-xl dark:bg-[#000000]"
+          className={`
+            flex-1 min-w-[100px] text-xl outline-none placeholder:text-xl dark:bg-[#000000]
+            dark:text-gray-50 text-gray-900
+          `}
         />
       </div>
 
       {/* Dropdown with suggestions */}
       {inputValue && filteredOptions.length > 0 && (
-        <div className="absolute left-0 bottom-0 mt-1 w-full z-[9999] border bg-[#FFFFFF] rounded-md shadow-lg dark:bg-[#000000] dark:border-gray-700">
+        <div className={`
+          absolute left-0 bottom-0 mt-1 w-full z-[9999] border bg-[#FFFFFF] 
+          rounded-md shadow-lg dark:bg-[#000000] dark-border-gray-50 dark:border-gray-700
+          dark:text-gray-50
+        `}>
           {filteredOptions.slice(0, 6).map(option => (
             <div
               key={option.value}

@@ -54,7 +54,6 @@ export default class MessageStore {
     }
 
     setDirectMessageHistory = (messageHistory: MessageHistoryToDisplay) => {
-        debugger;
         this.directMessageHistoryRegistry.set(messageHistory.receiverId, messageHistory);
     }
     setSelectedDirectMessageHistoryItem = (val: MessageHistoryToDisplay | undefined) => {

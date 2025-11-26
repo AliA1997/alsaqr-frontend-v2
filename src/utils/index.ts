@@ -80,18 +80,18 @@ export function getPercievedNumberOfRecord<T>(
   mounted?: boolean,
   userId?: string
 ) {
-   if(mounted && userId && (stateBool && !origBool))  {
+  if (mounted && userId && (stateBool && !origBool)) {
     return loadedNumberOfRecords.some((l: any) => l.id === userId) ? loadedNumberOfRecords.length : loadedNumberOfRecords.length + 1
   }
-  else if(stateBool && !origBool)
+  else if (stateBool && !origBool)
     return loadedNumberOfRecords.length + 1
-  else if(!stateBool && origBool)
+  else if (!stateBool && origBool)
     return (loadedNumberOfRecords.length - 1 < 0 ? 0 : loadedNumberOfRecords.length - 1);
   else
     return loadedNumberOfRecords.length;
 }
 
-export function defineUsersMessagesArray(sender: User, receiver: User){
+export function defineUsersMessagesArray(sender: User, receiver: User) {
   return [
     sender,
     receiver
@@ -100,26 +100,16 @@ export function defineUsersMessagesArray(sender: User, receiver: User){
 
 
 export function convertDateToDisplay(neo4jDateTime: any) {
+  if (neo4jDateTime) {
 
-  if(neo4jDateTime) {
-    
-    if(!neo4jDateTime.year) {
+    if (!neo4jDateTime.year) {
       return neo4jDateTime;
     }
-    // Convert to JS Date CORRECTLY
-    const dateObj = new Date(
-      neo4jDateTime.year.low ?? neo4jDateTime.year.high,
-      neo4jDateTime.month.low ?? neo4jDateTime.month.high,
-      neo4jDateTime.day.low ?? neo4jDateTime.day.high,
-      neo4jDateTime.hour.low ?? neo4jDateTime.hour.high,
-      neo4jDateTime.minute.low ?? neo4jDateTime.minute.high,
-      neo4jDateTime.second.low ?? neo4jDateTime.second.high,
-      neo4jDateTime.nanosecond.low ?? neo4jDateTime.nanosecond.high,
-      // neo4jDateTime.timeZoneOffsetSeconds?.low ?? neo4jDateTime.timeZoneOffsetSeconds.high
-    );
-  
+
+    const dateObj = new Date(neo4jDateTime.localDateTime);
+
     const jsDate: Date = dateObj
-  
+
     return jsDate;
   }
   return new Date();
@@ -131,13 +121,13 @@ export function shortenText(text: string, maxLength: number): string {
 }
 
 
-export function formatTimeAgo(date: Date | string | undefined) {
-  console.log('date', date);
-  if(date) {
+export function formatTimeAgo(date: any) {
+
+  if (date) {
     const dateParsed: Date = typeof date === 'string' ? new Date(date) : date;
     const now = new Date();
     const seconds = Math.floor((now.getTime() - dateParsed.getTime()) / 1000);
-    
+
     const intervals = {
       year: 31536000,
       month: 2592000,
@@ -147,14 +137,14 @@ export function formatTimeAgo(date: Date | string | undefined) {
       minute: 60,
       second: 1
     };
-  
+
     for (const [unit, secondsInUnit] of Object.entries(intervals)) {
       const interval = Math.floor(seconds / secondsInUnit);
       if (interval >= 1) {
         return `${interval} ${unit}${interval === 1 ? '' : 's'} ago`;
       }
     }
-    
+
     return 'just now';
   }
 

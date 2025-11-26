@@ -3,14 +3,8 @@ import React, { Suspense } from 'react';
 import PageContainer from './layout/PageContainer';
 import LoadingSpinner from './layout/LoadingSpinner';
 import { observer } from 'mobx-react-lite';
-import { useStore } from './stores';
-import { useCheckSession } from '@hooks/useCheckSession';
 
 export default observer(function ({ children }: React.PropsWithChildren<any>) {
-    const { authStore } = useStore();
-    const { auth, setCurrentSessionUser } = authStore;
-
-    useCheckSession(setCurrentSessionUser, auth?.getUser())
     return (
             <motion.div
                 initial={{ opacity: 0 }}

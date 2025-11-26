@@ -10,11 +10,11 @@ export const communityApiClient = {
     requestToJoinCommunity: (values: CommunityInviteConfirmationDto, userId: string, communityId: string) =>
         axiosRequests.post(`/api/Communities/${userId}/${communityId}/request-join`, { values }).then(axiosResponseBody),
     acceptOrDenyToJoinRequestToCommunity: (values: AcceptOrDenyCommunityInviteConfirmationDto, userId: string, communityId: string) =>
-        axiosRequests.put(`/api/Communities/${userId}/${communityId}/request-join`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/Communities/${userId}/${communityId}/request-join`, { values }).then(axiosResponseBody),
     joinCommunity: (values: CommunityInviteConfirmationDto, userId: string, communityId: string) =>
-        axiosRequests.put(`/api/Communities/${userId}/${communityId}/join`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/Communities/${userId}/${communityId}/join`, { values }).then(axiosResponseBody),
     unjoinCommunity: (values: any, userId: string, communityId: string) =>
-        axiosRequests.put(`/api/Communities/${userId}/${communityId}/unjoin`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/Communities/${userId}/${communityId}/unjoin`, { values }).then(axiosResponseBody),
     
     getAdminCommunityInfo: (params: URLSearchParams | undefined, userId: string, communityId: string) =>
         axios.get(`/api/Communities/${userId}/${communityId}`, { params }).then(axiosResponseBody),
@@ -33,11 +33,11 @@ export const communityApiClient = {
     requestToJoinCommunityDiscussion: (values: CommunityInviteConfirmationDto, userId: string, communityId: string, communityDiscussionId: string) =>
         axiosRequests.post(`/api/CommunityDiscussion/${userId}/${communityId}/${communityDiscussionId}/request-join`, { values }).then(axiosResponseBody),
     acceptOrDenyToJoinRequestToCommunityDiscussion: (values: AcceptOrDenyCommunityInviteConfirmationDto, userId: string, communityId: string, communityDiscussionId: string) =>
-        axiosRequests.put(`/api/CommunityDiscussion/${userId}/${communityId}/${communityDiscussionId}/request-join`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/CommunityDiscussion/${userId}/${communityId}/${communityDiscussionId}/request-join`, { values }).then(axiosResponseBody),
     joinCommunityDiscussion: (values: CommunityInviteConfirmationDto, userId: string, communityId: string, communityDiscussionId: string) =>
-        axiosRequests.put(`/api/CommunityDiscussion/${userId}/${communityId}/${communityDiscussionId}/join`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/CommunityDiscussion/${userId}/${communityId}/${communityDiscussionId}/join`, { values }).then(axiosResponseBody),
     unjoinCommunityDiscussion: (values: any, userId: string, communityId: string, communityDiscussionId: string) =>
-        axiosRequests.put(`/api/CommunityDiscussion/${userId}/${communityId}/${communityDiscussionId}/unjoin`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/CommunityDiscussion/${userId}/${communityId}/${communityDiscussionId}/unjoin`, { values }).then(axiosResponseBody),
     
 
     addCommunityDiscussionMessage: (

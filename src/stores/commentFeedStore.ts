@@ -120,12 +120,12 @@ export default class CommentFeedStore {
 
     addComment = async (newComment: CommentForm) => {
 
-        this.setLoadingInitial(true);
+        this.setLoadingUpsert(true);
         try {
             await agent.commentApiClient.addComment(newComment) ?? {};
 
         } finally {
-            this.setLoadingInitial(false);
+            this.setLoadingUpsert(false);
         }
 
     }

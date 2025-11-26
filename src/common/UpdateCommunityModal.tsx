@@ -74,7 +74,6 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
     const lastStepBeforeReview = useMemo(() => 0, []);
     const reviewInfoSectionTitle = useMemo(() => "Review Community Update", []);
 
-    // console.log('loggedInUserId', loggedInUserId)
     return (
         <ModalPortal>
             <ModalBody onClose={() => closeModal()}>
@@ -84,7 +83,6 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
                     viewport={{ once: true }}
                     className="flex space-x-2 p-5"
                 >
-                    {/* <div className="flex flex-1 item-center pl-2"> */}
                     <Formik
                         initialValues={{
                             name: communityDetails.name ?? currentForm?.name ?? '',

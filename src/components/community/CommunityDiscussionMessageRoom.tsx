@@ -32,7 +32,7 @@ const CommunityDiscussionMessageRoom = ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [loadingMessages, setLoadingMessages] = useState<boolean>(true);
   const [loadingAdminInfo, setLoadingAdminInfo] = useState<boolean>(false);
-  console.log('Loading Admin Info....', loadingAdminInfo);
+
   const [commmityDiscussionInfo, setCommunityDiscussionInfo] = useState<CommunityDiscussionInfoForMessageRoom | undefined>(undefined);
   const [adminCommunityDiscussionInfo, setAdminCommunityDiscussionInfo] = useState<CommunityDiscussionAdminInfo | undefined>(undefined);
   const userId = useMemo(() => loggedInUser?.id, [loggedInUser]);
@@ -152,6 +152,7 @@ const CommunityDiscussionMessageRoom = ({
     return Array.from(new Set([...jUsers, ...iUsers]).values())
   }, [commmityDiscussionInfo])
 
+  console.log("current loading status:", loadingAdminInfo)
   return (
     <div data-testid='communitydiscussionmessagecontainer' className="flex flex-col h-screen bg-gray-50 dark:bg-[#0e1517]">
       {/* Header */}

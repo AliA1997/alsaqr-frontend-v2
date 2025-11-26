@@ -17,6 +17,7 @@ import { ContentContainerWithRef } from "@common/Containers";
 import CommunityDiscussionItemComponent from "@components/community/CommunityDiscussionItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
 import { useThrottle } from "@hooks/useThrottle";
+import { inTestMode } from "@utils/constants";
 
 interface Props {
   communityId: string;
@@ -63,13 +64,13 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
     await loadFeedRecords();
   };
   const loadFeedRecords = useThrottle(async () => {
-    const authUserId = import.meta.env.VITE_PUBLIC_IS_TEST_MODE ? auth?.getUser()?.id : currentSessionUser?.id;
+    const authUserId = inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
     
     await loadCommunityDiscussions(authUserId ?? 'undefined', communityId!)
   }, 30_000);
 
   useEffect(() => {
-    const isLoggedIn = import.meta.env.VITE_PUBLIC_IS_TEST_MODE ? auth?.isLoggedIn() : currentSessionUser?.id;
+    const isLoggedIn = inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
 
     if(isLoggedIn) {
       getRecords();
@@ -131,6 +132,9 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   const commonUpsertBoxType = useMemo(() => CommonUpsertBoxTypes.CommunityDiscussion, [])
 
   const noRecordsTitle = useMemo(() =>  'You are not part of any discussions', []);
+
+  if(!mounted && loadingInitial && !loadedRecords.length)
+    return <CustomPageLoader title="Loading" />
 
   return (
     <div className="col-span-7 text-left scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">

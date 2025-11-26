@@ -1,5 +1,5 @@
 
-import { PlusCircleIcon, UploadIcon, XIcon } from "@heroicons/react/outline";
+import { PlusCircleIcon, UploadIcon } from "@heroicons/react/outline";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -9,10 +9,9 @@ import {
   useRef,
   useState,
 } from "react";
-import toast from "react-hot-toast";
 import TimeAgo from "react-timeago";
 
-import type { CommentForm, PostToDisplay, User } from "@typings";
+import type { PostToDisplay, User } from "@typings";
 import {
   getPercievedNumberOfRecord,
   stopPropagationOnClick,
@@ -28,8 +27,6 @@ import {
   RePostedIconButton
 } from "@common/IconButtons";
 
-import { faker } from "@faker-js/faker";
-import UpsertBoxIconButton from "@common/UpsertBoxIconButtons";
 import { TrashIcon } from "@heroicons/react/solid";
 import MoreSection from "@common/MoreSection";
 import { ConfirmModal } from "@common/Modal";
@@ -41,6 +38,7 @@ import { usePDF } from "react-to-pdf";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PostPDF from "@components/pdf/PostPdf";
 import { OptimizedImage, OptimizedPostImage } from "@common/Image";
+import CommentBox from "./CommentBox";
 
 
 interface Props {
@@ -74,8 +72,6 @@ function PostComponent({
     deleteYourPost
   } = feedStore;
   const { addComment } = commentFeedStore;
-  const [input, setInput] = useState<string>("");
-  const [image, setImage] = useState<string>("");
 
   const [commentBoxOpen, setCommentBoxOpen] = useState<boolean>(false);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
@@ -177,30 +173,6 @@ function PostComponent({
     setIsLiked(initiallyBooleanValues.current?.liked ?? false);
     setIsRePosted(initiallyBooleanValues.current?.retweeted ?? false);
   }, [initiallyBooleanValues.current])
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-
-    const commentToast = toast.loading("Posting Comment...");
-
-    const newComment: CommentForm = {
-      id: `comment_${faker.datatype.uuid()}`,
-      postId: postInfo.id,
-      userId: postInfo.userId!,
-      text: input,
-      image: image
-    }
-
-    toast.success("Comment Posted!", {
-      id: commentToast,
-    });
-
-    await addComment(newComment);
-    setInput("");
-    setImage("");
-    setCommentBoxOpen(false);
-
-  };
 
   const navigateToTweetUser = () => {
     navigate(`/users/${postToDisplay.username}`);
@@ -530,61 +502,11 @@ function PostComponent({
       {!isSearchedPosts && commentBoxOpen && (
         <>
           {userId && (
-            <motion.div
-              data-testid="commentbox"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className='flex flex-col justify-items-start'
-            >
-              <form
-                onSubmit={handleSubmit}
-                className="mt-3 flex flex-1 flex-col space-x-3"
-              >
-                {image && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    className='relative'
-                  >
-                    <button
-                      onClick={() => setImage("")} // Replace with your close logic
-                      className="absolute left-2 top-2 z-10 rounded-full bg-red-800 p-2 text-white hover:bg-red-700 focus:outline-none"
-                      aria-label="Close"
-                    >
-                      <XIcon className="h-5 w-5" />
-                    </button>
-                    <div className='w-[300px] h-[200px] overflow-hidden flex justify-center items-center'>
-                      <img
-                        className="mt-10 w-[10rem] h-[10rem] object-cover shadow-lg"
-                        src={image}
-                        width={20}
-                        height={20}
-                        alt="image/tweet"
-                      />
-                    </div>
-                  </motion.div>
-                )}
-                <input
-                  data-testid="postcommentinput"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  className="flex-1 rounded-lg bg-gray-100 p-2 outline-none dark:text-gray-50 dark:bg-gray-700"
-                  type="text"
-                  placeholder="Write a comment..."
-                />
-                <button
-                  data-testid="postcommentbutton"
-                  disabled={!input}
-                  type="submit"
-                  className="text-[#55a8c2] disabled:text-gray-200 cursor-pointer"
-                >
-                  Post Comment
-                </button>
-              </form>
-              <UpsertBoxIconButton setInput={setInput} input={input} setImage={setImage} />
-            </motion.div>
+            <CommentBox 
+              postId={postInfo.id}
+              userId={postInfo.userId!}
+              setCommentBoxOpen={setCommentBoxOpen}
+            />
           )}
         </>
       )}

@@ -91,7 +91,6 @@ function UserItemComponent({
         try {
             await checkUserIsLoggedInBeforeUpdatingUserItem(async () => {
                 setIsAdded(!isAdded);
-                debugger;
                 onAddOrFollow!(userItemToDisplay);
             });
         } catch {
@@ -130,7 +129,7 @@ function UserItemComponent({
                 )}
  
                 <div className="flex flex-col justify-self-stretch grow justify-start h-full space-x-3 cursor-pointer">
-                    <div className="flex justify-items-start items-end align-items-end space-x-2">
+                    <div className="flex justify-items-start items-end align-items-end space-x-2 text-gray-900 dark:text-gray-50">
                         <OptimizedImage
                             classNames="h-10 w-10 rounded-full object-cover"
                             src={userItemInfo.avatar}

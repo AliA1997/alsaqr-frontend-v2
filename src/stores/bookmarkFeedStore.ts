@@ -86,7 +86,6 @@ export default class BookmarkFeedStore {
                 items.forEach((pst: PostToDisplay) => {
                     this.setBookmarkedPost(pst.post.id, pst);
                 });
-                debugger;
             });
 
             this.setPagination(pagination);

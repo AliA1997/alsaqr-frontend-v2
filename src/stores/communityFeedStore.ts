@@ -2,15 +2,17 @@ import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { CommunityToDisplay, CreateListOrCommunityForm, CreateListOrCommunityFormDto, RelationshipType } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/common";
-import {DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
+import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
 import { store } from ".";
 import { AcceptOrDenyCommunityInviteConfirmationDto, UpdateCommunityForm, UpdateCommunityFormDto } from "@models/community";
+import { makePersistable } from "mobx-persist-store";
 
 export default class CommunityFeedStore {
 
     constructor() {
         makeAutoObservable(this);
-        
+        makePersistable(this, { name: 'CommunityFeedStore', properties: ['communityRegistry'], storage: window.localStorage });
+
         reaction(
             () => this.predicate.keys(),
             () => {
@@ -24,7 +26,7 @@ export default class CommunityFeedStore {
     loadingJoinCommunity = false;
     predicate = new Map();
     setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
+        if (value) {
             this.predicate.set(predicate, value);
         } else {
             this.predicate.delete(predicate);
@@ -66,7 +68,7 @@ export default class CommunityFeedStore {
         this.communityRegistry.set(communityId, community);
     }
     private updateCommunityRelationship = (communityId: string, newStatus: RelationshipType) => {
-        if(this.communityRegistry.has(communityId)) {
+        if (this.communityRegistry.has(communityId)) {
             const communityInfo = this.communityRegistry.get(communityId);
             communityInfo!.relationshipType = newStatus;
             this.setCommunity(communityId, communityInfo!);
@@ -179,7 +181,7 @@ export default class CommunityFeedStore {
 
     }
     acceptRequestToJoinPrivateCommunity = async (
-        communityId: string, 
+        communityId: string,
         invitedUserId: string,
         acceptToDenyRequest: AcceptOrDenyCommunityInviteConfirmationDto) => {
 
@@ -202,19 +204,20 @@ export default class CommunityFeedStore {
 
         this.setLoadingUpsert(true);
         try {
-            const newCommunityDto: CreateListOrCommunityFormDto = { 
-                ...newCommunity, 
+            const newCommunityDto: CreateListOrCommunityFormDto = {
+                ...newCommunity,
                 usersAdded: newCommunity.usersAdded.map(u => u.user.id),
                 postsAdded: newCommunity.postsAdded.map(p => p.post.id)
             };
             await agent.communityApiClient.addCommunity(newCommunityDto, userId)
-            store.modalStore.closeModal();
-            await this.loadCommunities(userId, true);
 
             runInAction(() => {
                 this.setCurrentStepInCommunityCreation(0);
                 this.setCommunityCreationForm(DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM);
             });
+
+            store.modalStore.closeModal();
+            await this.loadCommunities(userId, true);
         } finally {
             this.setLoadingUpsert(false);
         }
@@ -224,7 +227,7 @@ export default class CommunityFeedStore {
     loadCommunities = async (userId: string, refresh?: boolean) => {
 
         this.setLoadingInitial(true);
-        if(refresh) {
+        if (refresh) {
             this.communityRegistry.clear();
             this.setPagingParams(new PagingParams(1, 25));
         }

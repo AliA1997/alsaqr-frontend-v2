@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
-import {  PostRecord } from "@typings";
+import { PostRecord } from "@typings";
 import {
   defaultSearchParams
 } from "@utils/index";
@@ -20,25 +20,28 @@ import ListFeedStore from "@stores/listFeedStore";
 import CommunityFeedStore from "@stores/communityFeedStore";
 import agent from "@utils/common";
 import { OptimizedImage } from "@common/Image";
+import { checkNsfwInImage, initializeClient } from "@utils/gradio";
+import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";
+import { DangerAlert } from "@common/Alerts";
 
 interface Props {
   filterKey: FilterKeys;
 }
 
 function PostBox({ filterKey }: Props) {
-  const { authStore,  feedStore, listFeedStore, communityFeedStore } = useStore();
+  const { authStore, feedStore, listFeedStore, communityFeedStore } = useStore();
   const { currentSessionUser } = authStore;
   const [input, setInput] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-
+  const [nsfwAlert, setNsfwAlert] = useState<string>('');
 
   const storeToUse: FeedStore | ListFeedStore | CommunityFeedStore = useMemo(
     () => {
-      if(filterKey == FilterKeys.Lists)
+      if (filterKey == FilterKeys.Lists)
         return listFeedStore;
-      else if(filterKey == FilterKeys.Community)
+      else if (filterKey == FilterKeys.Community)
         return communityFeedStore;
       else
         return feedStore;
@@ -86,6 +89,7 @@ function PostBox({ filterKey }: Props) {
   );
 
   const postNewPost = async () => {
+
     const postInfo: PostRecord = {
       id: faker.datatype.uuid(),
       createdAt: new Date().toISOString(),
@@ -101,7 +105,7 @@ function PostBox({ filterKey }: Props) {
 
     await agent.postApiClient.addPost(postInfo);
 
-    setSearchQry(defaultSearchParams.search_term);    
+    setSearchQry(defaultSearchParams.search_term);
     await loadData(storeToUse);
 
     toast("Post Posted", {
@@ -113,7 +117,15 @@ function PostBox({ filterKey }: Props) {
     async (e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
       e.preventDefault();
       setSubmitting(true);
-      
+      const gradioClient = await initializeClient();
+      const nsfwStatus = await checkNsfwInImage(gradioClient, image);
+      if (nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
+        setNsfwAlert("Please choose a different photo — explicit images aren’t allowed in posts.");
+        setImage('');
+        setSubmitting(false);
+        return;
+      }
+
       postNewPost()
         .then(() => {
           setInput("");
@@ -140,133 +152,142 @@ function PostBox({ filterKey }: Props) {
   const inputPlaceholder = useMemo(() => filterKey === FilterKeys.Lists ? "New List..." : "What's Happening", [filterKey])
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      className="flex space-x-2 p-5"
-    >
-      <OptimizedImage
-        classNames="h-14 w-14 rounded-full object-cover mt-4"
-        src={currentSessionUser?.avatar ?? ""}
-        alt=""
-      />
-      <div className="flex flex-1 item-center pl-2">
-        <form className="flex flex-1 flex-col">
-          <textarea
-            data-testid="postboxinput"
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={ (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              setInput(prev => prev + '\n'); // Add newline character
-            }
-           }}
-            placeholder={inputPlaceholder}
-            className="h-24 w-full text-xl outline-none placeholder:text-xl dark:text-gray-50 dark:bg-[#000000] resize-none p-5"
-          />
-          {image && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className='relative'
-            >
-              <button
-                onClick={() => setImage("")} // Replace with your close logic
-                className="absolute left-2 top-2 z-10 rounded-full bg-red-800 p-2 text-white hover:bg-red-700 focus:outline-none"
-                aria-label="Close"
+    <>
+      {nsfwAlert && (
+        <DangerAlert
+          title="NSFW Photos Not Allowed"
+          message={nsfwAlert}
+          onClose={() => setNsfwAlert('')}
+        />
+      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        className="flex space-x-2 p-5"
+      >
+        <OptimizedImage
+          classNames="h-14 w-14 rounded-full object-cover mt-4"
+          src={currentSessionUser?.avatar ?? ""}
+          alt=""
+        />
+        <div className="flex flex-1 item-center pl-2">
+          <form className="flex flex-1 flex-col">
+            <textarea
+              data-testid="postboxinput"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  setInput(prev => prev + '\n'); // Add newline character
+                }
+              }}
+              placeholder={inputPlaceholder}
+              className="h-24 w-full text-xl outline-none placeholder:text-xl dark:text-gray-50 dark:bg-[#000000] resize-none p-5"
+            />
+            {image && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className='relative'
               >
-                <XIcon className="h-5 w-5" /> 
-              </button>
-              <img
-                className="mt-10 h-40 w-full rounded-xl object-contain shadow-lg"
-                src={image}
-                width={20}
-                height={20}
-                alt="image/tweet"
-              />
-            </motion.div>
-          )}
-          <div style={{ display: 'flex', gap: '4px' }}>
-            {hashtags.map((tag, index) => (
-              <span 
-                key={index}
-                style={{
-                  backgroundColor: '#e0f2fe',
-                  color: '#0369a1',
-                  padding: '2px 6px',
-                  borderRadius: '4px'
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-          <div className="flex items-center mt-2">
-            <div className="flex flex-1 space-x-2 text-[#55a8c2]">
-              <PhotographIcon
-                onClick={handleUploadImage}
-                className="h-5 w-5 cursor-pointer
-              transition-transform duration-150 ease-out
-              hover:scale-150"
-              />
-              <input
-                type="file"
-                ref={imageInputRef}
-                hidden
-                onChange={handleFileChange}
-              />
-              <EmojiHappyIcon
-                onClick={handleShowEmojiPicker}
-                className="h-5 w-5 cursor-pointer
-              transition-transform duration-150 ease-out
-              hover:scale-150"
-              />
-              {showEmojiPicker && (
-                <div style={{ position: "absolute", zIndex: 1000 }}>
-                  <Picker
-                    data={emojiData}
-                    onEmojiSelect={handleEmojiSelect(input)}
-                    onClickOutside={handleEmojiSelectClickOutside}
-                  />
-                </div>
-              )}
-            </div>
-            <button
-              data-testid="postboxbutton"
-              onClick={handleSubmit}
-              disabled={!input || submitting}
-              className={`rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white
-              disabled:opacity-40`}
-              type="button"
-            >
-              {submitting ? (
-                <svg
-                  aria-hidden="true"
-                  className="inline w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-[#55a8c2]"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+                <button
+                  onClick={() => setImage("")} // Replace with your close logic
+                  className="absolute left-2 top-2 z-10 rounded-full bg-red-800 p-2 text-white hover:bg-red-700 focus:outline-none"
+                  aria-label="Close"
                 >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                    fill="currentFill"
-                  />
-                </svg>
-              ) : (
-                buttonText
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </motion.div>
+                  <XIcon className="h-5 w-5" />
+                </button>
+                <img
+                  className="mt-10 h-40 w-full rounded-xl object-contain shadow-lg"
+                  src={image}
+                  width={20}
+                  height={20}
+                  alt="image/tweet"
+                />
+              </motion.div>
+            )}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {hashtags.map((tag, index) => (
+                <span
+                  key={index}
+                  style={{
+                    backgroundColor: '#e0f2fe',
+                    color: '#0369a1',
+                    padding: '2px 6px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center mt-2">
+              <div className="flex flex-1 space-x-2 text-[#55a8c2]">
+                <PhotographIcon
+                  onClick={handleUploadImage}
+                  className="h-5 w-5 cursor-pointer
+                transition-transform duration-150 ease-out
+                hover:scale-150"
+                />
+                <input
+                  type="file"
+                  ref={imageInputRef}
+                  hidden
+                  onChange={handleFileChange}
+                />
+                <EmojiHappyIcon
+                  onClick={handleShowEmojiPicker}
+                  className="h-5 w-5 cursor-pointer
+                transition-transform duration-150 ease-out
+                hover:scale-150"
+                />
+                {showEmojiPicker && (
+                  <div style={{ position: "absolute", zIndex: 1000 }}>
+                    <Picker
+                      data={emojiData}
+                      onEmojiSelect={handleEmojiSelect(input)}
+                      onClickOutside={handleEmojiSelectClickOutside}
+                    />
+                  </div>
+                )}
+              </div>
+              <button
+                data-testid="postboxbutton"
+                onClick={handleSubmit}
+                disabled={!input || submitting}
+                className={`rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white cursor-pointer
+                disabled:opacity-40`}
+                type="button"
+              >
+                {submitting ? (
+                  <svg
+                    aria-hidden="true"
+                    className="inline w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-[#55a8c2]"
+                    viewBox="0 0 100 101"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                      fill="currentFill"
+                    />
+                  </svg>
+                ) : (
+                  buttonText
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </>
   );
 }
 

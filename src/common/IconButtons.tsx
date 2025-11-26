@@ -177,7 +177,11 @@ export function AddOrFollowButton({ isAdded, isFollowing, onIsAlreadyAdded, onIs
                         data-testid="addorfollowbutton"
                         type='button'
                         onClick={filterKey === FilterKeys.SearchUsers || filterKey === FilterKeys.SearchPosts ? onIsAlreadyAdded : onIsAlreadyFollowing}
-                        className={`w-[2.5rem] h-[2.5rem] border rounded-full bg-[#55a8c2] p-2 hover:bg-[transparent]`}
+                        className={`
+                            w-[2.5rem] h-[2.5rem] border rounded-full bg-[#55a8c2] p-2 
+                            hover:bg-[transparent] text-gray-900 dark:text-gray-50
+                            flex justify-center items-center
+                        `}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -188,7 +192,11 @@ export function AddOrFollowButton({ isAdded, isFollowing, onIsAlreadyAdded, onIs
                     <button
                         type='button'
                         onClick={filterKey === FilterKeys.SearchUsers || filterKey === FilterKeys.SearchPosts ? onIsAlreadyAdded : onIsAlreadyFollowing}
-                        className='w-[2.5rem] h-[2.5rem] border rounded-full p-2 hover:bg-[#55a8c2] cursor-pointer'
+                        className={`
+                            w-[2.5rem] h-[2.5rem] border rounded-full p-2 
+                            hover:bg-[#55a8c2] cursor-pointer text-gray-900 dark:text-gray-50    
+                            flex justify-center items-center
+                        `}
                     >
                         {filterKey === FilterKeys.SearchUsers
                             ? (

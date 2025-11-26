@@ -1,10 +1,9 @@
 import React, { ReactElement, SVGProps, useMemo } from "react";
 import { nonRoutableTitles } from "@utils/index";
 import { CommonLink, CommonLinkProps } from "@common/Links";
-import { DELETE_YOUR_ACCOUNT, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
+import { DELETE_YOUR_ACCOUNT } from "@utils/constants";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
-import { LoginModal } from "@common/AuthModals";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@utils/supabase";
 
@@ -22,7 +21,6 @@ interface SidebarRowProps {
 
 const SIGN_OUT_TITLE = "Sign Out";
 const SIGN_IN_TITLE = "Sign In";
-const MORE_TITLE = "More";
 
 function SidebarRow({
   Icon,
@@ -31,37 +29,30 @@ function SidebarRow({
   active,
   isShow,
   onClick,
-  href,
-  overrideOnClick
+  href
 }: SidebarRowProps) {
-  const { authStore, modalStore } = useStore();
-  const { auth, currentSessionUser, setCurrentSessionUser } = authStore;
-  const { showModal } = modalStore;
+  const { authStore } = useStore();
+  const { resetAuthState } = authStore;
   const navigate = useNavigate();
-  const notLoggedIn = useMemo(() => !auth?.isLoggedIn(), [currentSessionUser]);
 
   const sidebarOnClick = async (e: React.MouseEvent) => {
     if (e)
       e.preventDefault();
 
-    if (!nonRoutableTitles.includes(title) && !overrideOnClick) {
-
-
-      if (notLoggedIn && ROUTES_USER_CANT_ACCESS.some(r => r.includes(href!)))
-        showModal(<LoginModal />)
-      else
-        navigate(href!);
-
-      if(onClick)
+    if (!nonRoutableTitles.includes(title)) {
+      if(onClick) {
         onClick(e);
+      } else {
+        navigate(href!);
+      }
     }
     else {
-      if (title === SIGN_IN_TITLE || title === MORE_TITLE || overrideOnClick) onClick!(e);
       if (title === SIGN_OUT_TITLE) {
+        resetAuthState();
         await supabase.auth.signOut();
-        auth?.clearUser();
-        setCurrentSessionUser(undefined);
-      };
+      }
+      else 
+        onClick!(e);
     }
 
   };

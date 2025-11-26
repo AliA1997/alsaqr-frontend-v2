@@ -14,7 +14,8 @@ import { leadingDebounce } from "@utils/common";
 import { ContentContainerWithRef } from "@common/Containers";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import PostComponent from "@components/posts/Post";
-import CustomPageLoader, { ModalLoader } from "@common/CustomLoader";
+import CustomPageLoader, { ModalLoader, SkeletonLoader } from "@common/CustomLoader";
+import { inTestMode } from "@utils/constants";
 
 interface Props {
   title?: string;
@@ -43,9 +44,10 @@ const Feed = observer(({
   postsAlreadyAddedByIds 
 }: Props) => {
   const { authStore, bookmarkFeedStore, exploreStore, feedStore, searchStore } = useStore();
-  const { auth, currentSessionUser } = authStore;
+  const { auth, currentSessionUser, processingUserCheck } = authStore;
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
 
@@ -115,16 +117,14 @@ const Feed = observer(({
   }, []);
 
   const loadPosts = async () => {
-    if (filterKey === FilterKeys.Explore)
-      return console.log("need to work on this");
-    else if(filterKey === FilterKeys.SearchPosts && userId) 
+    if(filterKey === FilterKeys.SearchPosts && userId) 
       await searchStore.loadSearchedPosts(userId);
     else if(filterKey === FilterKeys.MyBookmarks && userId) 
       await bookmarkFeedStore.loadBookmarkedPosts(userId);
     else if(filterKey === FilterKeys.Normal)
       await feedStore.loadPosts();
-    else
-      return console.log();
+
+    return;
   }
 
   async function getPosts() {
@@ -158,12 +158,12 @@ const Feed = observer(({
     await loadPosts();
   };
 
-
   useEffect(() => {
 
     if (!filterKey) return;
-
+    setMounted(true);
     getPosts(); 
+  
   }, []);
 
   const loadedPosts = useMemo(() => {
@@ -223,19 +223,25 @@ const Feed = observer(({
   }, []);
 
   const userId = useMemo(() => 
-     import.meta.env.VITE_PUBLIC_IS_TEST_MODE 
+      inTestMode()
       ? auth?.getUser()?.id : currentSessionUser ? currentSessionUser.id 
       : "", 
     [currentSessionUser?.id, auth?.getUser()?.id]);
+
+  if(!mounted && loading && !loadedPosts.length)
+    return <CustomPageLoader title="Loading" />;
+
   return (
     <div 
       className="col-span-7 text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800"
     >
       {title && <PageTitle>{title}</PageTitle>}
       <div>
-        {currentSessionUser && !hideTweetBox && (
+        {processingUserCheck 
+          ? <SkeletonLoader />
+          : currentSessionUser && !hideTweetBox && (
           <PostBox filterKey={filterKey ? filterKey : FilterKeys.Normal} />
-        )}
+          )}
       </div>
       <ContentContainerWithRef 
         classNames={`

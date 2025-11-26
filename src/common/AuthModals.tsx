@@ -10,7 +10,7 @@ import UsersFeed from "@components/users/UsersFeed";
 import { ReviewForm, ReviewUserHobbiesAndOtherInfo, ReviewUserPersonalInfo, ReviewUsersAdded } from "./ReviewForm";
 import { ProfileImagePreview } from "./Containers";
 import { supabase } from "@utils/supabase";
-import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
+import { OAUTH_OPTIONS, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { useLocation } from "react-router";
 
 
@@ -22,12 +22,15 @@ export const LoginModal = observer(() => {
 
   const handleDiscordSignIn = () => supabase.auth.signInWithOAuth({
     provider: "discord",
+    options: OAUTH_OPTIONS
   });
   const handleGoogleSignIn = () => supabase.auth.signInWithOAuth({
     provider: "google",
+    options: OAUTH_OPTIONS
   });
   const handleFacebookSignIn = () => supabase.auth.signInWithOAuth({
     provider: "facebook",
+    options: OAUTH_OPTIONS
   });
   
   return (
@@ -194,7 +197,6 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
                         filterKey={FilterKeys.Register}
                         onAddOrFollow={(u: UserItemToDisplay) => {
                             const userFoundIdx = values.followingUsers.findIndex(userItem => userItem.user.id === u.user.id);
-                            debugger;
                             if (userFoundIdx !== -1) {
                                 const newFollowingUsersArray = values.followingUsers.slice();
                                 newFollowingUsersArray.splice(userFoundIdx, 1);

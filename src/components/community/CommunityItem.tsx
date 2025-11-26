@@ -54,16 +54,15 @@ function CommunityItemComponent({
   const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.InviteRequested, [community.relationshipType, currentRelationshipType]);
   const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Joined || joined, [community.relationshipType, currentRelationshipType, joined]);
 
-  console.log('community:', community.relationshipType)
   return (
     <>
       <div
         className={`
           flex flex-col relative justify-between space-x-3 border-y border-gray-100 p-5 
-          hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] rounded-full 
+          hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] rounded-full hover:underline 
           p-2 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#0e1517] rounded-full
           w-full       /* Full width on mobile */
-          md:w-[23vw] 
+          mb-2
           lg:w-[49%]
           3xl:w-[30%]
           h-[7.5rem]
@@ -71,9 +70,9 @@ function CommunityItemComponent({
         data-testid="communitycard"
       >
         <div className="flex flex-col justify-between h-full space-x-3">
-          <div className="flex item-center justify-between space-x-1">
+          <div className="flex item-center justify-between space-x-1 ">
             <div 
-              className='flex hover:underline cursor-pointer' 
+              className='flex cursor-pointer' 
               data-testid='communitylink'
               onClick={(e) => stopPropagationOnClick(e, navigateToCommunity)}
             >
@@ -88,7 +87,7 @@ function CommunityItemComponent({
 
             {communityInfo.createdAt && (
               <TimeAgo
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-gray-500 dark:text-gray-400 hidden md:block"
                 date={convertDateToDisplay(communityInfo.createdAt)}
               />
             )}
@@ -102,14 +101,14 @@ function CommunityItemComponent({
                       : 'neutral'
             }
             size="sm"
-            className='mt-[-1rem] min-w-[3rem] max-w-fit self-end'
+            className='mt-[-1rem] min-w-[3rem] ml-1 max-w-fit self-end'
           >
             {requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType}
           </TagOrLabel>
           <TagOrLabel
             color={community.community.isPrivate ? 'danger' : 'info'}
             size="sm"
-            className='mt-[0.5rem] min-w-[3rem] max-w-fit self-end mr-3 md:mr-3'
+            className='mt-[0.5rem] min-w-[3rem] max-w-fit self-end ml-1 mr-3 md:mr-3'
           >
             {community.community.isPrivate ? 'Private' : 'Public'}
           </TagOrLabel>

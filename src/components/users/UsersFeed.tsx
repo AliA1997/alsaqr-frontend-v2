@@ -158,8 +158,7 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
       <div>
         {loggedInUserId && (
             <input 
-            className="bg-dim-700 h-10 px-10 pr-5 w-full rounded-full text-sm focus:outline-none bg-[#55a8c2]-white shadow border-0 dark:bg-gray-800 dark:text-gray-200"
-            
+              className="bg-dim-700 h-10 px-10 pr-5 w-full rounded-full text-sm focus:outline-none bg-[#55a8c2]-white shadow border-0 dark:bg-gray-800 dark:text-gray-200"
             />
 
         )}

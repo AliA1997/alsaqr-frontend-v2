@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DotsCircleHorizontalIcon,
   LoginIcon,
@@ -10,11 +10,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { observer } from "mobx-react-lite";
 import { LoginModal } from "@common/AuthModals";
 
-import { ROUTE_TO_SHOW_SETTINGS_SIDEBAR, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
+import { inTestMode, ROUTE_TO_SHOW_SETTINGS_SIDEBAR, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { SettingsTabs, SidebarTabs } from "@models/enums";
 import SidebarRow from "./SidebarRow";
 import DarkSwitch from "./DarkSwitch";
 import { UserProfileLink } from "@common/Links";
+import { SkeletonLoader } from "@common/CustomLoader";
 
 type SideBarProps = {};
 
@@ -22,14 +23,19 @@ const SideBar = ({ }: SideBarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { authStore, commonStore, modalStore, settingsStore } = useStore();
-  const { auth, currentSessionUser } = authStore;
+  const {
+    auth,
+    processingUserCheck,
+    currentSessionUser,
+    resetAuthState
+  } = authStore;
   const { currentTab, setCurrentTab } = commonStore;
   const { closeModal, showModal } = modalStore;
   const { currentTabIdx, setCurrentTabIdx } = settingsStore;
 
   const [mounted, setMounted] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
-  const notLoggedIn = useMemo(() => mounted && !auth?.isLoggedIn(), [auth?.isLoggedIn(), mounted]);
+
   const hideSidebar = useMemo(() => ROUTE_TO_SHOW_SETTINGS_SIDEBAR === location.pathname, [location.pathname]);
   const registrationNotCompleted = useMemo(() => !(currentSessionUser?.isCompleted ?? false), [mounted, currentSessionUser])
 
@@ -39,6 +45,21 @@ const SideBar = ({ }: SideBarProps) => {
     [isDropdownOpen]
   );
 
+  const checkIfNotLoggedIn = () => {
+    const notLoggedIn = mounted && !currentSessionUser; 
+    const showLoginModal = ROUTES_USER_CANT_ACCESS.some(r => location.pathname.includes(r));
+
+      if (notLoggedIn && showLoginModal) {
+        showModal(<LoginModal />);
+        return true;
+      }
+
+      if (!registrationNotCompleted && currentSessionUser)
+        closeModal();
+
+      return false;
+  }
+
   useEffect(() => {
     setMounted(true);
 
@@ -47,26 +68,16 @@ const SideBar = ({ }: SideBarProps) => {
     }
   }, []);
 
-  useLayoutEffect(() => {
-    const showLoginModal = ROUTES_USER_CANT_ACCESS.some(r => location.pathname.includes(r));
-
-    if (notLoggedIn && showLoginModal) {
-      showModal(<LoginModal />);
-    }
-
-    if (!registrationNotCompleted && currentSessionUser)
-      closeModal();
-
-  }, [currentSessionUser?.id, mounted]);
-
   const profileInfo = useMemo(() => {
-    if(import.meta.env.VITE_PUBLIC_IS_TEST_MODE && auth?.isLoggedIn()) 
+    if (inTestMode() && auth?.isLoggedIn())
       return auth.getUser();
-    else if(currentSessionUser && currentSessionUser.id)
+    else if (!inTestMode() && auth?.isTestUser())
+      resetAuthState();
+    else if (currentSessionUser && currentSessionUser.id)
       return currentSessionUser;
-    else
-      return null;
-  }, [auth]);
+
+    return null;
+  }, [auth, currentSessionUser]);
 
   return (
     <>
@@ -93,9 +104,9 @@ const SideBar = ({ }: SideBarProps) => {
           {hideSidebar
             ? (
               <>
-                <SidebarRow active={currentTabIdx === SettingsTabs.PersonalInfo} overrideOnClick={true} isShow={true} title="Personal Info" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalInfo)} />
-                <SidebarRow active={currentTabIdx === SettingsTabs.PersonalizeAccount} overrideOnClick={true} isShow={true} title="Peronalize Account" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalizeAccount)} />
-                <SidebarRow active={currentTabIdx === SettingsTabs.DeleteYourAccount} overrideOnClick={true} isShow={true} title="Delete Your Account" onClick={() => setCurrentTabIdx(SettingsTabs.DeleteYourAccount)} />
+                <SidebarRow active={currentTabIdx === SettingsTabs.PersonalInfo} isShow={true} title="Personal Info" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalInfo)} />
+                <SidebarRow active={currentTabIdx === SettingsTabs.PersonalizeAccount} isShow={true} title="Peronalize Account" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalizeAccount)} />
+                <SidebarRow active={currentTabIdx === SettingsTabs.DeleteYourAccount} isShow={true} title="Delete Your Account" onClick={() => setCurrentTabIdx(SettingsTabs.DeleteYourAccount)} />
               </>
             )
             : (
@@ -114,6 +125,7 @@ const SideBar = ({ }: SideBarProps) => {
                   href="/explore"
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Explore);
+                    navigate("/explore");
                   }}
                   active={currentTab === SidebarTabs.Explore}
                 />
@@ -131,6 +143,11 @@ const SideBar = ({ }: SideBarProps) => {
                   href="/notifications"
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Notifications);
+                    const notLoggedIn = checkIfNotLoggedIn();
+                    if(notLoggedIn)
+                      return;
+
+                    navigate("/notifications");
                   }}
                   active={currentTab === SidebarTabs.Notifications}
                 />
@@ -148,6 +165,11 @@ const SideBar = ({ }: SideBarProps) => {
                   href="/messages"
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Messages);
+                    const notLoggedIn = checkIfNotLoggedIn();
+                    if(notLoggedIn)
+                      return;
+
+                    navigate("/messages");
                   }}
                   active={currentTab === SidebarTabs.Messages}
                 />
@@ -165,6 +187,11 @@ const SideBar = ({ }: SideBarProps) => {
                   href="/bookmarks"
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Bookmarks);
+                    const notLoggedIn = checkIfNotLoggedIn();
+                    if(notLoggedIn)
+                      return;
+                    
+                    navigate("/bookmarks");
                   }}
                   active={currentTab === SidebarTabs.Bookmarks}
                 />
@@ -182,6 +209,11 @@ const SideBar = ({ }: SideBarProps) => {
                   href="/lists"
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Lists);
+                    const notLoggedIn = checkIfNotLoggedIn();
+                    if(notLoggedIn)
+                      return;
+                    
+                    navigate("/lists");
                   }}
                   active={currentTab === SidebarTabs.Lists}
                 />
@@ -199,6 +231,11 @@ const SideBar = ({ }: SideBarProps) => {
                   href="/communities"
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Communities);
+                    const notLoggedIn = checkIfNotLoggedIn();
+                    if(notLoggedIn)
+                      return;
+                    
+                    navigate("/communities");
                   }}
                   active={currentTab === SidebarTabs.Communities}
                 />
@@ -213,7 +250,6 @@ const SideBar = ({ }: SideBarProps) => {
                     </>
                   }
                   title="Marketplace"
-                  overrideOnClick={true}
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Zook);
                     window.location.href = `${import.meta.env.VITE_PUBLIC_ZOOK_URL}`;
@@ -231,7 +267,6 @@ const SideBar = ({ }: SideBarProps) => {
                     </>
                   }
                   title="Meetups"
-                  overrideOnClick={true}
                   onClick={() => {
                     setCurrentTab(SidebarTabs.Meetup);
                     window.location.href = `${import.meta.env.VITE_PUBLIC_MEETUP_URL}`;
@@ -267,12 +302,19 @@ const SideBar = ({ }: SideBarProps) => {
                               title="Settings"
                               isShow={true}
                               href="/settings"
+                              onClick={() => {
+                                const notLoggedIn = checkIfNotLoggedIn();
+                                if(notLoggedIn)
+                                  return;
+
+                                navigate("/settings");
+                              }}
                             />
-                            <SidebarRow Icon={LoginIcon} title="Sign Out" />
+                            <SidebarRow Icon={LogoutIcon} title="Sign Out" />
                           </>
                         ) : (
                           <SidebarRow
-                            Icon={LogoutIcon}
+                            Icon={LoginIcon}
                             title="Sign In"
                             onClick={openModal}
                           />
@@ -282,9 +324,11 @@ const SideBar = ({ }: SideBarProps) => {
                   )}
                 </div>
                 <DarkSwitch />
-                {profileInfo ? (
-                  <UserProfileLink profileInfo={profileInfo} />
-                ) : null}
+                {processingUserCheck
+                  ? <SkeletonLoader className='col-span-2' />
+                  : profileInfo ? (
+                    <UserProfileLink profileInfo={profileInfo} />
+                  ) : null}
               </>
             )}
         </>

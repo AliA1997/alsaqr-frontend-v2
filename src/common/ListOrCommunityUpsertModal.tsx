@@ -4,7 +4,7 @@ import { FilterKeys, useStore } from "@stores/index";
 import { Formik, FormikErrors } from "formik";
 import { motion } from "framer-motion";
 import { PagingParams } from "@models/common";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { CommonUpsertBoxTypes, CreateListOrCommunityForm, PostToDisplay, UserItemToDisplay } from "@typings";
 import { observer } from "mobx-react-lite";
@@ -12,8 +12,10 @@ import { ListOrCommunityFormInputs } from "./ListOrCommunityForm";
 import UsersFeed from "@components/users/UsersFeed";
 import { default as PostsFeed } from "@components/shared/Feed";
 import { ReviewForm, ReviewUpsertListOrCommunity, ReviewPostsAdded, ReviewUsersAdded } from "./ReviewForm";
-import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM, FALLBACK_POST_IMAGE_URL } from "@utils/constants";
+import { FALLBACK_POST_IMAGE_URL, inTestMode } from "@utils/constants";
 import { ModalFooterButtons } from "./Buttons";
+import { DangerAlert } from "./Alerts";
+import { OptimizedPostImage } from "./Image";
 
 interface Props {
     type: CommonUpsertBoxTypes;
@@ -23,40 +25,58 @@ interface Props {
 
 function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props) {
     const toastMessage = useMemo(
-                            () => type === CommonUpsertBoxTypes.List 
-                                ? 'New List Created' 
-                                : type === CommonUpsertBoxTypes.CommunityDiscussion
-                                    ? "Community Discussion Started" : 'New Community Found', 
-                            [type]
-                        );
+        () => type === CommonUpsertBoxTypes.List
+            ? 'New List Created'
+            : type === CommonUpsertBoxTypes.CommunityDiscussion
+                ? "Community Discussion Started" : 'New Community Found',
+        [type]
+    );
 
     const { modalStore, communityFeedStore, communityDiscussionFeedStore, listFeedStore } = useStore();
     const { closeModal } = modalStore;
+    const [nsfwAlert, setNsfwAlert] = useState<string>('');
+
 
     const currentStep = useMemo(() => {
         if (type === CommonUpsertBoxTypes.Community) return (communityFeedStore.currentStepInCommunityCreation ?? 0);
         else if (type === CommonUpsertBoxTypes.CommunityDiscussion) return (communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation ?? 0);
         else return (listFeedStore.currentStepInListCreation ?? 0);
     }, [
-        type, 
-        communityFeedStore.currentStepInCommunityCreation, 
-        communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation, 
-        listFeedStore.currentStepInListCreation
+        type,
+        communityFeedStore.currentStepInCommunityCreation,
+        communityFeedStore.setCurrentStepInCommunityCreation,
+        communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation,
+        communityDiscussionFeedStore.setCurrentStepInCommunityDiscussionCreation,
+        listFeedStore.currentStepInListCreation,
+        listFeedStore.setCurrentStepInListCreation,
     ]);
     const currentForm = useMemo(() => {
         if (type === CommonUpsertBoxTypes.Community) return communityFeedStore.communityCreationForm;
         else if (type === CommonUpsertBoxTypes.CommunityDiscussion) return (communityDiscussionFeedStore.communityDiscussionCreationForm ?? 0);
         else return listFeedStore.listCreationForm;
     }, [
-        type, 
-        communityFeedStore.currentStepInCommunityCreation, 
-        communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation, 
-        listFeedStore.currentStepInListCreation
+        type,
+        communityFeedStore.currentStepInCommunityCreation,
+        communityFeedStore.setCurrentStepInCommunityCreation,
+        communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation,
+        communityDiscussionFeedStore.setCurrentStepInCommunityDiscussionCreation,
+        listFeedStore.currentStepInListCreation,
+        listFeedStore.setCurrentStepInListCreation,
     ])
 
 
-    const setCurrentStep = (val: number, form: CreateListOrCommunityForm) => (e: any) => {
+    const setCurrentStep = (val: number, form: CreateListOrCommunityForm, setErrors?: (errs: any) => void) => (e: any) => {
         e.preventDefault();
+        const newErrors = validateForm(form);
+        const goingForward = currentStep < val;
+
+        if (hasErrors(newErrors) && goingForward) {
+            if (setErrors)
+                setErrors(newErrors)
+
+            return;
+        }
+
         if (type === CommonUpsertBoxTypes.Community) {
             communityFeedStore.setCommunityCreationForm(form);
             return communityFeedStore.setCurrentStepInCommunityCreation(val)
@@ -71,6 +91,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
         }
     };
 
+
     const resetPagingParams = useCallback(() => {
         if (type === CommonUpsertBoxTypes.Community)
             communityFeedStore.setPagingParams(new PagingParams(1, 10));
@@ -79,12 +100,12 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
         else
             listFeedStore.setPagingParams(new PagingParams(1, 10));
     }, [type]);
-    
+
     const upsert: (form: any, userId: string, communityId?: string) => Promise<void> = useCallback(
         (form: any, userId: string, communityId?: string) => {
-            if(type === CommonUpsertBoxTypes.Community)
+            if (type === CommonUpsertBoxTypes.Community)
                 return communityFeedStore.addCommunity(form, userId);
-            else if(type === CommonUpsertBoxTypes.CommunityDiscussion)
+            else if (type === CommonUpsertBoxTypes.CommunityDiscussion)
                 return communityDiscussionFeedStore.addCommunityDiscussion(form, userId, communityId!);
             else
                 return listFeedStore.addList(form, userId);
@@ -123,41 +144,26 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                 postsAdded: values.postsAdded
             };
 
-        if(type === CommonUpsertBoxTypes.CommunityDiscussion)
+        if (type === CommonUpsertBoxTypes.CommunityDiscussion)
             await upsert(infoToUpsert, loggedInUserId, communityId)
         else
             await upsert(infoToUpsert, loggedInUserId)
 
         resetPagingParams();
 
-        setCurrentStep(0, DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM);
-
-        closeModal();
-        
         toast(toastMessage, {
             icon: "🚀",
         });
 
-        await loadListsOrCommunities();
     };
-
-    
-    const loadListsOrCommunities = useCallback(
-        () => {
-            if (type === CommonUpsertBoxTypes.Community) return communityFeedStore.loadCommunities(loggedInUserId);
-            else if (type === CommonUpsertBoxTypes.CommunityDiscussion) return communityDiscussionFeedStore.loadCommunityDiscussions(loggedInUserId, communityId!);
-            else return listFeedStore.loadLists(loggedInUserId);
-        },
-        [type]
-    );
 
     const showAddPosts = useMemo(() => type === CommonUpsertBoxTypes.List ? currentStep === 1 : false, [currentStep]);
     const showAddUsers = useMemo(() => type === CommonUpsertBoxTypes.List ? currentStep === 2 : currentStep === 1, [currentStep]);
     const showReviewForm = useMemo(() => type === CommonUpsertBoxTypes.List ? currentStep === 3 : currentStep === 2, [currentStep]);
 
     const reviewInfoSectionTitle = useMemo(() => {
-        if(type === CommonUpsertBoxTypes.Community) return "Community Info";
-        else if(type === CommonUpsertBoxTypes.CommunityDiscussion) return "Community Discussion Info";
+        if (type === CommonUpsertBoxTypes.Community) return "Community Info";
+        else if (type === CommonUpsertBoxTypes.CommunityDiscussion) return "Community Discussion Info";
         else return "List Info";
     }, [type]);
 
@@ -170,26 +176,71 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
         } else if (!values.tags || !values.tags.length) {
             errors.tags = 'Tags is required'
         }
-        
-        if(setErrors)
+
+        if (setErrors)
             setErrors(errors);
 
         return errors;
     }
 
+    const title = useMemo(() => {
+        if (type === CommonUpsertBoxTypes.Community)
+            return 'Start a New Community';
+        else if (type === CommonUpsertBoxTypes.CommunityDiscussion)
+            return 'Start a New Discussion';
+        else
+            return 'Create your List'
+    }, [type])
+    const hasErrors = (err?: any) => err ? Object.values(err).some(v => !!v) : Object.values(err).some(v => !!v);
+
     return (
         <ModalPortal>
-            <ModalBody onClose={() => closeModal()}>
+            <ModalBody
+                headerChildren={(
+                    <div className='d-flex w-full'>
+                        <p className='font-bold text-3xl text-gray-900 dark:text-gray-50 w-full pl-[1.5rem]'>{title}</p>
+                        <button
+                            onClick={() => closeModal()}
+                            style={{ background: 'transparent' }}
+                            className="absolute right-6 top-0 text-gray-400 hover:text-gray-600 px-3 py-5 block float-right cursor-pointer"
+                        >
+                            <svg
+                                className="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                )}
+                onClose={() => closeModal()}
+                style={{ background: '#0e1517' }}
+            >
                 <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    className="flex space-x-2 p-5"
+                    className="flex flex-col space-x-2 p-5"
                 >
+                    {nsfwAlert && (
+                        <DangerAlert
+                            title="NSFW Photos Not Allowed"
+                            message={nsfwAlert}
+                            onClose={() => setNsfwAlert('')}
+                        />
+                    )}
                     <Formik
                         initialValues={{
                             name: currentForm?.name ?? '',
-                            avatarOrBannerImage: import.meta.env.VITE_PUBLIC_IS_TEST_MODE ?  FALLBACK_POST_IMAGE_URL : currentForm?.avatarOrBannerImage,
+                            avatarOrBannerImage: inTestMode() ? FALLBACK_POST_IMAGE_URL : currentForm?.avatarOrBannerImage,
                             isPrivate: currentForm?.isPrivate ?? 'public',
                             tags: currentForm?.tags && currentForm?.tags.length > 0 ? currentForm?.tags : [],
                             usersAdded: currentForm?.usersAdded && currentForm?.usersAdded.length > 0 ? currentForm?.usersAdded : [],
@@ -199,8 +250,13 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                             return validateForm(values);
                         }}
                         onSubmit={async (values, { setSubmitting }) => {
-                            await postRecord(values);
-                            setSubmitting(false);
+                            try {
+                                setSubmitting(true);
+                                setNsfwAlert(''); // Since we check before they review the list,community or communtiy discussion.
+                                await postRecord(values);
+                            } finally {
+                                setSubmitting(false);
+                            }
                         }}
                     >
                         {({
@@ -209,27 +265,27 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                             setErrors,
                             handleSubmit,
                             setFieldValue,
+                            setValues,
+                            isSubmitting
                         }) => (
-                            <form 
-                                onSubmit={handleSubmit} 
+                            <form
+                                onSubmit={handleSubmit}
                                 className="flex flex-1 flex-col"
                                 data-testid="modalform"
                             >
-                                {type === CommonUpsertBoxTypes.Community 
+                                {type === CommonUpsertBoxTypes.Community
                                     ? (
-                                        <img
+                                        <OptimizedPostImage
                                             src={values.avatarOrBannerImage ? values.avatarOrBannerImage : 'https://robohash.org/placeholder'}
                                             alt={values.name}
-                                            height={40}
-                                            width={40}
-                                            className='h-20 w-20 rounded-full'
+                                            classNames='h-20 w-20 rounded-full'
                                         />
                                     )
-                                    : type === CommonUpsertBoxTypes.List 
+                                    : type === CommonUpsertBoxTypes.List
                                         ? (
-                                            <motion.div 
-                                                className="flex justify-center items-center bg-gray-100 w-full h-[10em] relative" 
-                                                style={{ 
+                                            <motion.div
+                                                className="flex justify-center items-center bg-gray-100 w-full h-[10em] relative"
+                                                style={{
                                                     backgroundImage: `url('${values.avatarOrBannerImage}')`,
                                                     backgroundSize: 'cover',
                                                     backgroundRepeat: 'no-repeat'
@@ -327,12 +383,17 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                                         type={type}
                                     />
                                 )}
-                                <ModalFooterButtons 
+                                <ModalFooterButtons
                                     errors={errors}
                                     setErrors={setErrors}
-                                    validateForm={validateForm}
                                     values={values}
                                     modalType={type}
+                                    submitting={isSubmitting}
+                                    nsfwKeysToCheck={type === CommonUpsertBoxTypes.CommunityDiscussion ? [] : ['avatarOrBannerImage']}
+                                    setValues={(vals: any) => setValues(vals)}
+                                    nsfwAlert={nsfwAlert}
+                                    setNsfwAlert={(val: string) => setNsfwAlert(val)}
+                                    setCurrentStep={setCurrentStep}
                                 />
                             </form>
                         )}

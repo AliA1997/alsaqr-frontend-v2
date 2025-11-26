@@ -1,8 +1,11 @@
 import { useStore } from "@stores/index";
 import { observer } from "mobx-react-lite";
-import React, { MouseEventHandler, useMemo } from "react";
+import React, { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { CommonUpsertBoxTypes, CreateListOrCommunityForm } from "@typings";
 import { FormikErrors } from "formik";
+import { checkNsfwInImage, initializeClient } from "@utils/gradio";
+import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";
+import { ButtonLoader } from "./CustomLoader";
 
 type CommonButtonProps = {
     disabled?: boolean;
@@ -21,9 +24,14 @@ type OpenUpsertModalButtonProps = {
 type ModalFooterButtonsProps<T> = {
     errors: any;
     values: T;
+    nsfwKeysToCheck: string[];
+    setValues: (values: T) => void;
     modalType: CommonUpsertBoxTypes;
     setErrors: (errors: FormikErrors<CreateListOrCommunityForm>) => void;
-    validateForm:  (values: any, setErrors?: ((errorValues: any) => void) | undefined) => FormikErrors<any>;
+    nsfwAlert: string;
+    setNsfwAlert: (alert: string) => void;
+    submitting?: boolean;
+    setCurrentStep: (val: number, form: CreateListOrCommunityForm, setErrors?: (errs: any) => void) => (e: any) => void;
 }
 
 export function InfoButton({ classNames, disabled, onClick, children }: React.PropsWithChildren<InfoButtonProps>) {
@@ -127,29 +135,33 @@ export function OpenUpsertModalButton({ children, onClick, testId }: React.Props
     );
 }
 
-export const ModalFooterButtons = observer(
-    <T extends CreateListOrCommunityForm>({ errors, modalType, setErrors, validateForm, values }: ModalFooterButtonsProps<T>) => {
+export const ModalFooterButtons = observer(<T extends CreateListOrCommunityForm>({
+    errors,
+    modalType,
+    setErrors,
+    submitting,
+    values,
+    setValues,
+    nsfwKeysToCheck,
+    setNsfwAlert,
+    setCurrentStep
+}: ModalFooterButtonsProps<T>) => {
     const { communityFeedStore, communityDiscussionFeedStore, listFeedStore } = useStore();
+    const [nsfwCheckLoading, setNsfwCheckLoading] = useState<boolean>(false);
+    const [processNsfwCheck, setProcessNsfwCheck] = useState<boolean>(false);
 
-    
     const currentStep = useMemo(() => {
         if (modalType === CommonUpsertBoxTypes.Community) return (communityFeedStore.currentStepInCommunityCreation ?? 0);
         else if (modalType === CommonUpsertBoxTypes.CommunityDiscussion) return (communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation ?? 0);
         else return (listFeedStore.currentStepInListCreation ?? 0);
     }, [
-        modalType, 
-        communityFeedStore.currentStepInCommunityCreation, 
-        communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation, 
+        modalType,
+        communityFeedStore.currentStepInCommunityCreation,
+        communityDiscussionFeedStore.currentStepInCommunityDiscussionCreation,
         listFeedStore.currentStepInListCreation
     ]);
-    const setCurrentStep = (val: number, form: CreateListOrCommunityForm) => (e: any) => {
-        e.preventDefault();
-        const newErrors = validateForm(form, setErrors);
-        if(hasErrors(newErrors)) {
-            setErrors(newErrors)
-            return;
-        }
-        
+
+    const navigateAfterNsfwCheck = (val: number, form: CreateListOrCommunityForm) => {
         if (modalType === CommonUpsertBoxTypes.Community) {
             communityFeedStore.setCommunityCreationForm(form);
             return communityFeedStore.setCurrentStepInCommunityCreation(val)
@@ -164,20 +176,51 @@ export const ModalFooterButtons = observer(
         }
     };
 
+    useEffect(() => {
+        if (processNsfwCheck) {
 
-    // const feedLoadingInitial = useMemo(() => {
-    //     if(modalType === CommonUpsertBoxTypes.Community) return communityFeedStore.loadingInitial;
-    //     else if(modalType === CommonUpsertBoxTypes.CommunityDiscussion) return communityDiscussionFeedStore.loadingInitial;
-    //     else return listFeedStore.loadingInitial;
-    // }, [
-    //     communityFeedStore.loadingInitial,
-    //     communityDiscussionFeedStore.loadingInitial,
-    //     listFeedStore.loadingInitial
-    // ]);
+            initializeClient()
+                .then((gradioClient) => {
+                    const processedNsfwStatuses: any[] = [];
+
+                    for (let i = 0; i < nsfwKeysToCheck.length; i++) {
+                        const nsfwKey = nsfwKeysToCheck[i];
+                        processedNsfwStatuses.push(checkNsfwInImage(gradioClient, (values as any)[nsfwKey]))
+                    }
+                    return Promise.all(processedNsfwStatuses);
+                })
+                .then((resolvedNsfwStatuses: string[]) => {
+                    if (resolvedNsfwStatuses
+                        .some(status =>
+                            status === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit']
+                            || status === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit'])) {
+                        setNsfwAlert("Please choose a different photo — explicit images aren’t allowed in posts.");
+                        setValues({ ...values, avatarOrBannerImage: '' });
+                        navigateAfterNsfwCheck(0, { ...values, avatarOrBannerImage: '' });
+                    } else {
+                        navigateAfterNsfwCheck(currentStep + 1, values);
+                    }
+                })
+                .finally(() => {
+                    setProcessNsfwCheck(false);
+                    setNsfwCheckLoading(false);
+                });
+        }
+
+        return () => {}
+    }, [values, processNsfwCheck]);
+
+    const nsfwCheckBeforeReview = (e: any) => {
+        e.stopPropagation();
+        if (nsfwKeysToCheck.length) {
+            setNsfwCheckLoading(true);
+            setProcessNsfwCheck(true);
+        } 
+    };
 
     const upsertLoading = useMemo(() => {
-        if(modalType === CommonUpsertBoxTypes.Community) return communityFeedStore.loadingUpsert;
-        else if(modalType === CommonUpsertBoxTypes.CommunityDiscussion) return communityDiscussionFeedStore.loadingUpsert;
+        if (modalType === CommonUpsertBoxTypes.Community) return communityFeedStore.loadingUpsert;
+        else if (modalType === CommonUpsertBoxTypes.CommunityDiscussion) return communityDiscussionFeedStore.loadingUpsert;
         else return listFeedStore.loadingUpsert;
     }, [
         communityFeedStore.loadingUpsert,
@@ -187,17 +230,16 @@ export const ModalFooterButtons = observer(
 
     const lastStepBeforeReview = useMemo(() => modalType === CommonUpsertBoxTypes.List ? 2 : 1, [modalType]);
     const hasErrors = (err?: any) => err ? Object.values(err).some(v => !!v) : Object.values(errors).some(v => !!v);
-
     return (
         <div className="flex justify-between items-center mt-2 w-full space-x-2">
             {currentStep > 0 && (
                 <button
                     data-testid="modalbackbutton"
                     type="button"
-                    onClick={setCurrentStep(currentStep === 0 ? 0 : currentStep - 1, values)}
+                    onClick={setCurrentStep(currentStep === 0 ? 0 : currentStep - 1, values, setErrors)}
                     className={`
                         rounded-full bg-gray-200 px-5 py-2 font-bold text-gray-700
-                        hover:opacity-90 hover:cursor-pointer
+                        hover:opacity-90 cursor-pointer 
                     `}
                 >
                     Back
@@ -209,29 +251,14 @@ export const ModalFooterButtons = observer(
                     <button
                         data-testid="modalsubmitbutton"
                         type='submit'
-                        disabled={hasErrors() || upsertLoading}
+                        disabled={hasErrors() || upsertLoading || submitting}
                         className={`
                             rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40
                             hover:opacity-90 hover:cursor-pointer
                         `}
                     >
-                        {upsertLoading ? (
-                            <svg
-                                aria-hidden="true"
-                                className="inline w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-[#55a8c2]"
-                                viewBox="0 0 100 101"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                                    fill="currentFill"
-                                />
-                            </svg>
+                        {upsertLoading || (submitting ?? false) ? (
+                            <ButtonLoader />
                         ) : (
                             'Submit'
                         )}
@@ -241,20 +268,24 @@ export const ModalFooterButtons = observer(
                     <button
                         data-testid="modalreviewbutton"
                         type="button"
-                        onClick={setCurrentStep(currentStep + 1, values)}
-                        disabled={hasErrors()}
+                        onClick={modalType === CommonUpsertBoxTypes.CommunityDiscussion ? setCurrentStep(currentStep + 1, values, hasErrors) : nsfwCheckBeforeReview}
+                        disabled={hasErrors() || nsfwCheckLoading}
                         className={`
-                            rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40
-                            hover:opacity-90 hover:cursor-pointer
-                        `}
+                                rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40
+                                hover:opacity-90 hover:cursor-pointer
+                            `}
                     >
-                        Review
+                        {nsfwCheckLoading ? (
+                            <ButtonLoader />
+                        ) : (
+                            'Review'
+                        )}
                     </button>
                 ) : (
                     <button
                         data-testid="modalnextbutton"
                         type="button"
-                        onClick={setCurrentStep(currentStep + 1, values)}
+                        onClick={setCurrentStep(currentStep + 1, values, hasErrors)}
                         disabled={hasErrors()}
                         className={`
                             rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40
@@ -267,3 +298,4 @@ export const ModalFooterButtons = observer(
         </div>
     );
 })
+

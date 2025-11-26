@@ -142,7 +142,7 @@ const CommentFeed = observer(({
         const nextPage = currentPage + 1;
         const totalItemsOnNextPage = nextPage * itemsPerPage;
         const hasMoreItems = (totalItems > totalItemsOnNextPage);
-        debugger;
+
         if (firstEntry?.isIntersecting && !feedLoadingInitial && hasMoreItems) {
           fetchMoreItems(feedPagingParams.currentPage + 1);
         }

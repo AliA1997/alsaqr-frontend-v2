@@ -69,6 +69,7 @@ export const ListOrCommunityFormInputs = observer(({ type }: Props) => {
             />
             {!hideFileUpload && (
                 <FileUploadInput
+                    id='avatarOrBannerImageInput'
                     name="avatarOrBannerImage"
                     label={fileUploadLabel}
                     handleFileChange={handleFileChange}

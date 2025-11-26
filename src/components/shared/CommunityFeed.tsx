@@ -17,6 +17,7 @@ import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import CommunityItemComponent from "@components/community/CommunityItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
 import { useThrottle } from "@hooks/useThrottle";
+import { inTestMode } from "@utils/constants";
 
 interface Props {
 }
@@ -65,13 +66,13 @@ const CommunityFeed = observer(({ }: Props) => {
   };
   
   const loadFeedRecords = useThrottle(async () => {
-    const authUserId = import.meta.env.VITE_PUBLIC_IS_TEST_MODE ? auth?.getUser()?.id : currentSessionUser?.id;
+    const authUserId = inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
 
     await loadCommunities(authUserId ?? 'undefined');
   }, 30_000);
 
   useEffect(() => {
-    const isLoggedIn = import.meta.env.VITE_PUBLIC_IS_TEST_MODE ? auth?.isLoggedIn() : currentSessionUser?.id;
+    const isLoggedIn = inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
 
     if(isLoggedIn) {
       getRecords();
@@ -128,6 +129,9 @@ const CommunityFeed = observer(({ }: Props) => {
   const commonUpsertBoxType = useMemo(() => CommonUpsertBoxTypes.Community, [])
 
   const noRecordsTitle = useMemo(() => 'You are not part of any communities', []);
+
+  if(!mounted && loadingInitial && !communities.length)
+    return <CustomPageLoader title="Loading" />
 
   return (
     <div className="col-span-7  text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">

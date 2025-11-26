@@ -1,5 +1,6 @@
 import { User } from "typings";
 import Cookies from "universal-cookie";
+import { testAuthUser } from "./testData";
 
 export default class Auth {
     private cookie: Cookies;
@@ -37,6 +38,9 @@ export default class Auth {
     }
     isLoggedIn() {
         return !!this.cookie.get('user')
+    }
+    isTestUser() {
+        return (this.isLoggedIn() && this.getUser()?.email === testAuthUser.email)
     }
     clearUser() {
         return this.cookie.remove('user');

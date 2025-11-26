@@ -5,15 +5,15 @@ import { LikedCommentParams, RePostCommentParams } from "@models/posts";
 
 export const commentApiClient = {
     addComment: (values: CommentForm) =>
-        axiosRequests.post(`/api/comments`, { values }).then(axiosResponseBody),
+        axiosRequests.post(`/api/Comments`, { values }).then(axiosResponseBody),
     getCommentsForPost: (params: URLSearchParams | undefined, postId: string) =>
-        axios.get(`/api/posts/${postId}/comments`, { params }).then(axiosResponseBody),
+        axios.get(`/api/Posts/${postId}/comments`, { params }).then(axiosResponseBody),
     getCommentsById: (commentId: string) =>
-        axios.get(`/api/comments/${commentId}`).then(axiosResponseBody),
+        axios.get(`/api/Comments/${commentId}`).then(axiosResponseBody),
     likedComment: (commentId: string, values: LikedCommentParams) =>
-        axiosRequests.patch(`/api/comments/${commentId}/liked`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/Comments/${commentId}/liked`, { values }).then(axiosResponseBody),
     rePostComment: (commentId: string, values: RePostCommentParams) =>
-        axiosRequests.patch(`/api/comments/${commentId}/repost`, { values }).then(axiosResponseBody),
+        axiosRequests.patch(`/api/Comments/${commentId}/repost`, { values }).then(axiosResponseBody),
     deleteComment: (commentId: string) =>
-        axiosRequests.del(`/api/comments/${commentId}`).then(axiosResponseBody),
+        axiosRequests.del(`/api/Comments/${commentId}`).then(axiosResponseBody),
 };

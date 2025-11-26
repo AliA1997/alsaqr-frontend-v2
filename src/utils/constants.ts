@@ -410,3 +410,14 @@ export const EXPLORE_SOURCES = [
     testId: 'sabqtab'
   },
 ]
+
+export const NOT_ALLOWED_NSFW_CHECKER_RESULTS = {
+  "Somewhat Explicit": 'Somewhat Explicit',
+  'Very Explicit': 'Very Explicit'
+};
+
+export const inTestMode = () => import.meta.env.VITE_PUBLIC_IS_TEST_MODE == true;
+
+export const OAUTH_OPTIONS = {
+  redirectTo: import.meta.env.VITE_PUBLIC_BASE_URL
+}

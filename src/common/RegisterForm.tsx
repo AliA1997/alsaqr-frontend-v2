@@ -64,11 +64,13 @@ export const PersonalInfoFormInputs = observer(({}: PersonalInfoFormInputsProps)
                 />
             </div>
             <FileUploadInput
+                id="avatar"
                 name="avatar"
                 label="Avatar"
                 handleFileChange={handleFileChange}
             />
             <FileUploadInput
+                id="bgThumbnail"
                 name="bgThumbnail"
                 label="Profile Background"
                 handleFileChange={handleFileChange}

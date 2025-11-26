@@ -25,7 +25,6 @@ export default class SettingsStore {
         this.currentUserUpdateForm = val;
     }
     setCurrentTabIdx = (val: SettingsTabs) => {
-        debugger;
         this.currentTabIdx = val;
     }
 
