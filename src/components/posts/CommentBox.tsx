@@ -4,7 +4,7 @@ import { faker } from "@faker-js/faker";
 import { XIcon } from "@heroicons/react/solid";
 import { useStore } from "@stores/index";
 import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";
-import { checkNsfwInImage, initializeClient } from "@utils/gradio";
+import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
@@ -125,7 +125,9 @@ export default observer(function CommentBox({
                             data-testid="postcommentbutton"
                             disabled={!input || submitting}
                             type="submit"
-                            className={`rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white cursor-pointer
+                            className={`
+                                rounded-full bg-[#55a8c2] px-5 py-2 
+                                font-bold text-white cursor-pointer
                                 disabled:opacity-40`}
                         >
                             {submitting ? (

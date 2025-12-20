@@ -129,7 +129,7 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
       },
       {
         root: containerRef.current,
-        rootMargin: '0px',
+        rootMargin: '10px',
         threshold: 0.1
       }
     );
@@ -171,7 +171,7 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
           `}
           innerRef={containerRef} 
         >
-            {loading ? (
+            {loading && (!loadedUsers || !loadedUsers.length) ? (
               <ModalLoader />
             ) : (
               <>

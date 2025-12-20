@@ -5,9 +5,9 @@ import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import { ContentContainerWithRef } from "@common/Containers";
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import NotificationItemComponent from "./NotificationItem";
-import { leadingDebounce } from "@utils/common";
+import { leadingDebounce } from "@utils/api/agent";
 
 interface Props { }
 
@@ -126,7 +126,7 @@ const NotificationFeed = observer(({ }: Props) => {
         ref={containerRef}
       >
         {loadingInitial ? (
-          <CustomPageLoader title="Loading" />
+          <SkeletonLoader count={4} />
         ) : (
           <>
             {notifications && notifications.length

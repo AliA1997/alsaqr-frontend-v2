@@ -1,17 +1,15 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { CreateListOrCommunityForm, CreateListOrCommunityFormDto, RelationshipType } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-import agent from "@utils/common";
+import agent from "@utils/api/agent";
 import type { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionToDisplay } from "@models/community";
 import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
 import { store } from ".";
-import { makePersistable } from "mobx-persist-store";
 
 export default class CommunityDiscussionFeedStore {
 
     constructor() {
         makeAutoObservable(this);
-        makePersistable(this, { name: 'CommunityDiscussionFeedStore', properties: ['communityDiscussionsRegistry'], storage: window.localStorage });
 
         reaction(
             () => this.predicate.keys(),

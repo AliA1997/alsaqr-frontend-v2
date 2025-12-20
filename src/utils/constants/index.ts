@@ -421,3 +421,7 @@ export const inTestMode = () => import.meta.env.VITE_PUBLIC_IS_TEST_MODE == true
 export const OAUTH_OPTIONS = {
   redirectTo: import.meta.env.VITE_PUBLIC_BASE_URL
 }
+
+export const DEFAULT_SMALL_ITEMS_PERPAGE = "10";
+
+export const DEFAULT_MEDIUM_ITEMS_PERPAGE = "25";

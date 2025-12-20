@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { 
+import {
   CommonUpsertBoxTypes,
 } from '@models/enums';
 import type {
@@ -13,7 +13,7 @@ import { PagingParams } from "@models/common";
 import { NoRecordsTitle, PageTitle } from '@common/Titles';
 import { ContentContainerWithRef } from "@common/Containers";
 import ListItemComponent from "@components/list/ListItem";
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import { OpenUpsertModalButton } from "@common/Buttons";
 import { useThrottle } from "@hooks/useThrottle";
@@ -22,13 +22,13 @@ import { inTestMode } from "@utils/constants";
 interface Props {
 }
 
-const ListFeed = observer(({}: Props) => {
+const ListFeed = observer(({ }: Props) => {
   const { authStore, modalStore, listFeedStore } = useStore();
   const { auth, currentSessionUser } = authStore;
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
   const [mounted, setMounted] = useState<boolean>(false);
-  const { 
+  const {
     setPagingParams,
     pagingParams,
     setPredicate,
@@ -55,7 +55,7 @@ const ListFeed = observer(({}: Props) => {
       setPredicate('searchTerm', paramsFromQryString.searchTerm);
     }
 
-    if(!lists.length)
+    if (!lists.length)
       await loadFeedRecords();
 
   }
@@ -64,16 +64,16 @@ const ListFeed = observer(({}: Props) => {
     setPagingParams(new PagingParams(pageNum, 25))
     await loadFeedRecords();
   };
-  const loadFeedRecords = useThrottle( async () => {
-    const authUserId =  inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
+  const loadFeedRecords = useThrottle(async () => {
+    const authUserId = inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
 
     await loadLists(authUserId ?? 'undefined');
-  }, 30_000);
+  }, 5_000);
 
   useEffect(() => {
-    const isLoggedIn =  inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
+    const isLoggedIn = inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
 
-    if(isLoggedIn) {
+    if (isLoggedIn) {
       getRecords();
       setMounted(true);
     }
@@ -130,38 +130,35 @@ const ListFeed = observer(({}: Props) => {
 
   const noRecordsTitle = useMemo(() => 'You don\'t have any lists', []);
 
-  if(!mounted && !lists.length)
-    return <CustomPageLoader title="Loading" />;
-
   return (
     <div className="text-left col-span-7 scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
       <PageTitle>Lists</PageTitle>
       <OpenUpsertModalButton
-        testId="createlistbutton" 
+        testId="createlistbutton"
         onClick={() => modalStore.showModal(
-                                <ListOrCommunityUpsertModal 
-                                  loggedInUserId={currentSessionUser?.id!} 
-                                  type={commonUpsertBoxType}
-                                />
-                )}
+          <ListOrCommunityUpsertModal
+            loggedInUserId={currentSessionUser?.id!}
+            type={commonUpsertBoxType}
+          />
+        )}
       >
         Create List
       </OpenUpsertModalButton>
       {loadingInitial || !mounted ? (
-        <CustomPageLoader title="Loading" />
+        <SkeletonLoader count={8} />
       ) : (
         <ContentContainerWithRef
           classNames='flex flex-wrap min-h-100 md:justify-start px-5'
           innerRef={containerRef}
         >
           <>
-            {lists && lists.length 
+            {lists && lists.length
               ? lists.map((record: ListToDisplay, recordKey) => (<ListItemComponent
-                                                                    key={record.list.id ?? recordKey}
-                                                                    listToDisplay={record}
-                                                                  />))
-                : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}
-              <LoadMoreTrigger />
+                key={record.list.id ?? recordKey}
+                listToDisplay={record}
+              />))
+              : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}
+            <LoadMoreTrigger />
           </>
         </ContentContainerWithRef>
       )}

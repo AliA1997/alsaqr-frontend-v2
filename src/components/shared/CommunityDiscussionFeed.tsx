@@ -12,7 +12,7 @@ import { NoRecordsTitle, PageTitle } from '@common/Titles';
 
 import type { CommunityDiscussionToDisplay } from "@models/community";
 import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import { ContentContainerWithRef } from "@common/Containers";
 import CommunityDiscussionItemComponent from "@components/community/CommunityDiscussionItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
@@ -134,7 +134,7 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   const noRecordsTitle = useMemo(() =>  'You are not part of any discussions', []);
 
   if(!mounted && loadingInitial && !loadedRecords.length)
-    return <CustomPageLoader title="Loading" />
+    return <SkeletonLoader count={8} />
 
   return (
     <div className="col-span-7 text-left scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
@@ -152,7 +152,7 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
         Create Community Discussion
       </OpenUpsertModalButton>
       {loadingInitial || !mounted ? (
-        <CustomPageLoader title="Loading" />
+        <SkeletonLoader count={8} />
       ) : (
         <ContentContainerWithRef
           classNames='flex flex-wrap min-h-100 md:justify-start'

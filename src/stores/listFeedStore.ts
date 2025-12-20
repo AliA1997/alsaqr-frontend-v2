@@ -1,17 +1,15 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { CreateListOrCommunityForm, CreateListOrCommunityFormDto, ListToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-import agent from "@utils/common";
+import agent from "@utils/api/agent";
 import { ListItemToDisplay } from "@models/list";
 import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
-import { makePersistable } from "mobx-persist-store";
 import { store } from ".";
 
 export default class ListFeedStore {
 
     constructor() {
         makeAutoObservable(this);
-        makePersistable(this, { name: 'ListFeedStore', properties: ['listsRegistry'], storage: window.localStorage });
 
         reaction(
             () => this.predicate.keys(),

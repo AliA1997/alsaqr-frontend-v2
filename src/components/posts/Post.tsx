@@ -1,5 +1,5 @@
 
-import { PlusCircleIcon, UploadIcon } from "@heroicons/react/outline";
+import { PlusCircleIcon } from "@heroicons/react/outline";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ import {
   AddOrFollowButton,
   BookmarkedIconButton,
   CommentIconButton,
+  DownloadPdfButton,
   LikesIconButton,
   RePostedIconButton
 } from "@common/IconButtons";
@@ -35,10 +36,9 @@ import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import CommentFeed from "@components/shared/CommentFeed";
 import { TagOrLabel } from "@common/Titles";
 import { usePDF } from "react-to-pdf";
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import PostPDF from "@components/pdf/PostPdf";
 import { OptimizedImage, OptimizedPostImage } from "@common/Image";
 import CommentBox from "./CommentBox";
+import { generateAndDownloadPdf } from "@utils/workerFunctions/generatePdf";
 
 
 interface Props {
@@ -347,7 +347,7 @@ function PostComponent({
               return stopPropagationOnClick(e, navigateToTweetUser)
           }}
         />
-        <div className='text-left'>
+        <div className='text-left w-full'>
           <div className="flex item-center space-x-1">
             <p
               data-testid="usernamelink"
@@ -395,7 +395,7 @@ function PostComponent({
             />
           </div>
           <p data-testid="postcardtext" className="pt-1 text-black dark:text-gray-50">{postInfo.text}</p>
-          <div style={{ display: 'flex', gap: '4px', }} className="my-5">
+          <div className="flex flex-wrap w-full gap-[4px] my-5">
             {postInfo.tags.map((tag, index) => (
               <span
                 key={index}
@@ -411,7 +411,7 @@ function PostComponent({
             ))}
           </div>
           {postInfo.image && (
-            <div className="w-[300px] h-[200px] overflow-hidden flex justify-center items-center">
+            <div className=" w-[200px] h-[150px] md:w-[300px] md:h-[200px] overflow-hidden flex justify-center items-center">
               <OptimizedPostImage
                 src={postInfo.image}
                 alt="img/post"
@@ -475,22 +475,21 @@ function PostComponent({
                   >
                     {postInfo.createdAt
                       ? (
-                        <PDFDownloadLink
-                          fileName={`${postInfo.id}.pdf`}
-                          document={
-                            <PostPDF
-                              postToDisplay={postToDisplay}
-                              showLabel={showLabel ?? false}
-                              userId={currentSessionUser?.id ?? ''}
-                              createdAt={formatTimeAgo(convertDateToDisplay(postInfo.createdAt))}
-                            />
-                          }>
-                          <UploadIcon className="h-5 w-5" />
-                        </PDFDownloadLink>
+                        <DownloadPdfButton 
+                            onClick={() => 
+                              generateAndDownloadPdf(
+                                'post', 
+                                {
+                                  postToDisplay: JSON.parse(JSON.stringify(postToDisplay)),
+                                  showLabel: showLabel ?? false,
+                                  userId: currentSessionUser?.id ?? '',
+                                  createdAt: formatTimeAgo(convertDateToDisplay(postInfo.createdAt)),
+                                }, 
+                                postInfo.id)
+                            }
+                        />
                       )
-                      : (
-                        <UploadIcon className="h-5 w-5" />
-                      )}
+                      : null}
                   </motion.div>
                 </div>
               </div>

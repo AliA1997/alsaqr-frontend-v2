@@ -2,7 +2,7 @@ import { NoRecordsTitle } from '@common/Titles';
 import { convertDateToDisplay } from '@utils/index';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import TimeAgo from "react-timeago";
-import CustomPageLoader from '@common/CustomLoader';
+import { SkeletonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
 import { MessageFormDto, MessageType, User } from 'typings.d';
 import { ModalBody, ModalPortal } from './Modal';
@@ -132,7 +132,7 @@ const MessageModal = ({
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {loadingInitial ? (
-                            <CustomPageLoader title="Loading" />
+                            <SkeletonLoader />
                         ) : (
                             <>
                                 {directMessages && directMessages.length

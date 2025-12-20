@@ -5,7 +5,7 @@ import { MultiSelect } from "./MultiSelect";
 import { useCallback, useMemo } from "react";
 import { CommonUpsertBoxTypes } from "@typings";
 import { observer } from "mobx-react-lite";
-import { TAG_OPTIONS } from "@utils/tagOptions";
+import { TAG_OPTIONS } from "@utils/constants/tagOptions";
 
 interface Props {
     type: CommonUpsertBoxTypes;

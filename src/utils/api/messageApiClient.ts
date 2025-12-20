@@ -1,6 +1,6 @@
 import axios from "axios";
 import { MessageFormDto } from "typings";
-import { axiosResponseBody } from "./common";
+import { axiosResponseBody } from "./agent";
 
 
 export const messageApiClient = {

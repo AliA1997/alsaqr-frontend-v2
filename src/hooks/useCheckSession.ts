@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { supabase } from "@utils/supabase";
-import { userApiClient } from "@utils/userApiClient";
+import { supabase } from "@utils/infrastructure/supabase";
+import { userApiClient } from "@utils/api/userApiClient";
 import { User } from "typings";
 import { useLocation } from "react-router";
-import { testAuthUser } from "@utils/testData";
+import { testAuthUser } from "@utils/testing/testData";
 import { inTestMode } from "@utils/constants";
 
 export function useCheckSession(setState: Function, sessionUser: User | undefined | null, resetAuthState: () => void) {

@@ -7,7 +7,7 @@ import { convertQueryStringToObject } from "@utils/index";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
-import { leadingDebounce } from "@utils/common";
+import { leadingDebounce } from "@utils/api/agent";
 import CommentComponent from "@components/posts/Comment";
 import { ContentContainerWithRef } from "@common/Containers";
 import { ModalLoader } from "@common/CustomLoader";

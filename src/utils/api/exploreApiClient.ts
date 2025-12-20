@@ -1,5 +1,5 @@
 import axios from "axios";
-import { axiosResponseBody } from "./common";
+import { axiosResponseBody } from "./agent";
 import { ExploreTabs } from "typings";
 
 export const exploreApiClient = {

@@ -19,7 +19,12 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".", // Add this line
     "paths": {
-      // Add this block
+      "@animatedIcons/*": [
+        "./src/animated-icons/*"
+      ],
+      "@webWorkers/*": [
+        "./src/webWorkers/*"
+      ],
       "@utils/*": [
         "./src/utils/*"
       ],

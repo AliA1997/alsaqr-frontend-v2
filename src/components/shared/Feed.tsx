@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // import { RefreshIcon } from "@heroicons/react/outline";
 import type {
   PostToDisplay,
@@ -10,11 +10,11 @@ import { convertQueryStringToObject } from "@utils/index";
 import { observer } from "mobx-react-lite";
 import { FilterKeys, useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
-import { leadingDebounce } from "@utils/common";
+import { leadingDebounce } from "@utils/api/agent";
 import { ContentContainerWithRef } from "@common/Containers";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import PostComponent from "@components/posts/Post";
-import CustomPageLoader, { ModalLoader, SkeletonLoader } from "@common/CustomLoader";
+import { ModalLoader, SkeletonLoader } from "@common/CustomLoader";
 import { inTestMode } from "@utils/constants";
 
 interface Props {
@@ -47,7 +47,7 @@ const Feed = observer(({
   const { auth, currentSessionUser, processingUserCheck } = authStore;
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [mounted, setMounted] = useState<boolean>(false);
+  const [_, setMounted] = useState<boolean>(false);
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
 
@@ -153,11 +153,6 @@ const Feed = observer(({
     }, 10000);
   }
 
-  const fetchMoreItems = async (pageNum: number) => {
-    setFeedPagingParams(new PagingParams(pageNum, 10))
-    await loadPosts();
-  };
-
   useEffect(() => {
 
     if (!filterKey) return;
@@ -177,13 +172,26 @@ const Feed = observer(({
     else
       return feedStore.posts;
 
-  }, [searchStore.searchedPosts, feedStore.posts, exploreStore.explorePosts, bookmarkFeedStore.bookmarkedPosts]);
+  }, [
+    feedPagination?.currentPage,
+    feedPagination?.itemsPerPage,
+    feedPagination?.totalItems,
+    filterKey
+  ]);
 
+  const fetchMoreItems = useCallback(
+    async (pageNum: number) => {
+      alert("TEST FETCHMORE ITEMS")
+      setFeedPagingParams(new PagingParams(pageNum, 10))
+      await loadPosts();
+    },
+    [feedPagingParams?.currentPage, filterKey]
+  );
 
   const LoadMoreTrigger = () => {
     return (
-      <div ref={loaderRef} style={{ height: '20px' }}>
-        {feedLoadingInitial && <div>Loading more posts...</div>}
+      <div className=" dark:text-gray-500 italic" ref={loaderRef} style={{ height: '20px' }}>
+        {feedLoadingInitial && feedPagination?.currentPage == 1 ? <SkeletonLoader /> : null}
       </div>
     );
   };
@@ -199,6 +207,7 @@ const Feed = observer(({
         const nextPage = currentPage + 1;
         const totalItemsOnNextPage = nextPage * itemsPerPage;
         const hasMoreItems = (totalItems >= totalItemsOnNextPage);
+        alert(firstEntry.isIntersecting)
         if (firstEntry?.isIntersecting && !feedLoadingInitial && hasMoreItems) {
           fetchMoreItems(feedPagingParams.currentPage + 1);
         }
@@ -228,8 +237,6 @@ const Feed = observer(({
       : "", 
     [currentSessionUser?.id, auth?.getUser()?.id]);
 
-  if(!mounted && loading && !loadedPosts.length)
-    return <CustomPageLoader title="Loading" />;
 
   return (
     <div 
@@ -251,11 +258,9 @@ const Feed = observer(({
         innerRef={containerRef}
         data-testid="feedcontaineritems"
       >
-        {loading ? (
-          <>
-            {filterKey === FilterKeys.SearchPosts ? <ModalLoader /> : <CustomPageLoader title="Loading" />}
-          </>
-        ) : (
+        {loading && filterKey === FilterKeys.SearchPosts 
+          ? <ModalLoader /> 
+          : (
           <>
             {loadedPosts && loadedPosts.length 
               ? loadedPosts.map((postRec, postKey) => (
@@ -269,7 +274,7 @@ const Feed = observer(({
                 />
               ))
               : <NoRecordsTitle>No Posts to show</NoRecordsTitle>}
-            <LoadMoreTrigger />
+              <LoadMoreTrigger />
           </>
         )}
       </ContentContainerWithRef>

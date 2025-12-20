@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
 /* 
 @theme {
   --color-maydanDark: #1d2a2e;
@@ -48,40 +49,36 @@ h1 {
 
 @keyframes wave {
   0% {
-    clip-path: polygon(
-      0% 38%,
-      21% 40%,
-      38% 51%,
-      54% 57%,
-      75% 57%,
-      100% 52%,
-      100% 100%,
-      0 100%
-    );
+    clip-path: polygon(0% 38%,
+        21% 40%,
+        38% 51%,
+        54% 57%,
+        75% 57%,
+        100% 52%,
+        100% 100%,
+        0 100%);
   }
+
   50% {
-    clip-path: polygon(
-      0% 49%,
-      16% 56%,
-      33% 55%,
-      55% 50%,
-      75% 42%,
-      100% 40%,
-      100% 100%,
-      0 100%
-    );
+    clip-path: polygon(0% 49%,
+        16% 56%,
+        33% 55%,
+        55% 50%,
+        75% 42%,
+        100% 40%,
+        100% 100%,
+        0 100%);
   }
+
   100% {
-    clip-path: polygon(
-      0% 38%,
-      21% 40%,
-      38% 51%,
-      54% 57%,
-      75% 57%,
-      100% 52%,
-      100% 100%,
-      0 100%
-    );
+    clip-path: polygon(0% 38%,
+        21% 40%,
+        38% 51%,
+        54% 57%,
+        75% 57%,
+        100% 52%,
+        100% 100%,
+        0 100%);
   }
 }
 
@@ -113,19 +110,6 @@ h1 {
   /*   clip-path: polygon(0 50%, 100% 50%, 100% 0, 0 0); */
   animation: wave 2s ease-in-out infinite;
 }
-/* 
-
-@media screen and (min-width: 600px) {
-  .wave {
-    width: 150px;
-    height: 150px;
-  }
-
-  .wave h2 {
-    line-height: 125px;
-    font-size: 75px;
-  }
-} */
 
 @media screen and (min-width: 768px) {
   .wave {
@@ -139,7 +123,7 @@ h1 {
     font-size: 80px;
     padding-left: 0rem;
   }
-  
+
 }
 
 
@@ -150,7 +134,7 @@ h1 {
   width: 2.5rem;
 }
 
-#footer-img > .sidebarLogo {
+#footer-img>.sidebarLogo {
   content: url('https://res.cloudinary.com/aa1997/image/upload/v1751518818/new-desktop-logo_ocwyft.svg');
   height: 2.5rem;
   width: 5rem;
@@ -165,7 +149,7 @@ h1 {
     padding-left: 1em;
   }
 
-  #footer-img > .sidebarLogo {
+  #footer-img>.sidebarLogo {
     content: url('https://res.cloudinary.com/aa1997/image/upload/v1751518818/new-desktop-logo_ocwyft.svg');
     height: 5rem;
     width: 7rem;
@@ -186,3 +170,24 @@ h1 {
 #widgets.hidden {
   display: none !important;
 }
+
+    @keyframes moveAndScaleClippedSmooth {
+      /* Start position: Far left, scaled down, fully off-screen */
+      0% { transform: translateX(-260px) scale(0.1); opacity: 0.1; }
+      /* Middle: Center, full size (foreground) */
+      50% { transform: translateX(0px) scale(1.0); opacity: 1; }
+      /* End position: Far right, scaled down, fully off-screen */
+      100% { transform: translateX(260px) scale(0.1); opacity: 0.1; }
+    }
+
+    .wind-shape-clipped-smooth {
+      animation-name: moveAndScaleClippedSmooth;
+      animation-duration: 4s;
+      animation-timing-function: ease-in-out; 
+      animation-iteration-count: infinite;
+      /* Origin set to the center of the 230x230 viewbox */
+      transform-origin: 115px 115px; 
+    }
+
+    .delay-short { animation-delay: 0.5s; }
+    .delay-long { animation-delay: 1.5s; } 

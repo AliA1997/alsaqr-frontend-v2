@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { BookmarkIcon, HeartIcon } from "@heroicons/react/outline";
-import { BookmarkIcon as BookmarkFillIcon, HeartIcon as HeartFillIcon } from "@heroicons/react/solid";
+import { BookmarkIcon as BookmarkFillIcon, HeartIcon as HeartFillIcon, UploadIcon } from "@heroicons/react/solid";
 import { FilterKeys } from "@stores/index";
 import { useNavigate } from "react-router-dom";
 
@@ -32,6 +32,9 @@ interface GoBackButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
 interface MoreButtonProps extends React.ButtonHTMLAttributes<HTMLDivElement> {
     containerClassNames?: string;
 }
+
+
+interface DownloadPdfButtonProps extends React.ButtonHTMLAttributes<HTMLDivElement> {}
 
 export function CommentIconButton({ onClick, numberOfComments, classNames, disabled }: CommentIconButtonProps) {
     if (disabled)
@@ -267,6 +270,24 @@ export function MoreButton({ onClick, containerClassNames }: MoreButtonProps) {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
             </svg>
+        </motion.div>
+    );
+}
+
+
+
+export function DownloadPdfButton({ onClick }: DownloadPdfButtonProps) {
+    return (
+        <motion.div
+            data-testid="downloadpdfbutton"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className={`
+              flex cursor-pointer item-center space-x-3 text-gray-400 hover:text-[#55a8c2]
+            `}
+            onClick={onClick}
+        >
+            <UploadIcon className="h-5 w-5" />
         </motion.div>
     );
 }

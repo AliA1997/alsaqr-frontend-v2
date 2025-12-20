@@ -12,7 +12,7 @@ import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
 import { NoRecordsTitle, PageTitle } from '@common/Titles';
 import { ContentContainerWithRef } from "@common/Containers";
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import CommunityItemComponent from "@components/community/CommunityItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
@@ -69,7 +69,7 @@ const CommunityFeed = observer(({ }: Props) => {
     const authUserId = inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
 
     await loadCommunities(authUserId ?? 'undefined');
-  }, 30_000);
+  }, 5_000);
 
   useEffect(() => {
     const isLoggedIn = inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
@@ -130,8 +130,8 @@ const CommunityFeed = observer(({ }: Props) => {
 
   const noRecordsTitle = useMemo(() => 'You are not part of any communities', []);
 
-  if(!mounted && loadingInitial && !communities.length)
-    return <CustomPageLoader title="Loading" />
+  if(loadingInitial && !communities.length)
+    return <SkeletonLoader count={10} />
 
   return (
     <div className="col-span-7  text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
@@ -147,9 +147,6 @@ const CommunityFeed = observer(({ }: Props) => {
       >
         Create Community
       </OpenUpsertModalButton>
-      {loadingInitial || !mounted ? (
-        <CustomPageLoader title="Loading" />
-      ) : (
         <ContentContainerWithRef
           classNames='flex flex-wrap min-h-100 md:justify-start'
           innerRef={containerRef}
@@ -164,7 +161,6 @@ const CommunityFeed = observer(({ }: Props) => {
               <LoadMoreTrigger />
           </>
         </ContentContainerWithRef>
-      )}
     </div>
   );
 });

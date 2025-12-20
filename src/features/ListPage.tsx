@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import SavedListItemsFeed from "@components/list/SavedListItemsFeed";
 import { useStore } from "@stores/index";
-import CustomPageLoader from "@common/CustomLoader";
 import { useParams } from "react-router";
+import { SuspenseLoader } from "@common/CustomLoader";
 
 
 const ListPage = () => {
@@ -24,7 +24,7 @@ const ListPage = () => {
       <SavedListItemsFeed listId={list_id!} />
     );
   
-  return <CustomPageLoader title="Loading..." />
+  return <SuspenseLoader />
 };
 
 

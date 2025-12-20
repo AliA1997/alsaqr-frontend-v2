@@ -97,7 +97,10 @@ const SideBar = ({ }: SideBarProps) => {
           `}
             alt=""
             style={{ maxWidth: "unset" }}
-            onClick={() => navigate("/")}
+            onClick={() => {
+              setCurrentTab(undefined);
+              navigate("/")
+            }}
           />
         </div>
         <>

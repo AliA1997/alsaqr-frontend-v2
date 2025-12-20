@@ -1,5 +1,5 @@
 import axios from "axios";
-import { axiosRequests, axiosResponseBody } from "./common";
+import { axiosRequests, axiosResponseBody } from "./agent";
 import { PostRecord } from "typings";
 
 export const postApiClient = {

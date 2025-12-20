@@ -1,8 +1,4 @@
 import { createBrowserRouter, RouteObject } from "react-router-dom";
-// import AccessDenied from '../features/AccessDenied';
-// import NotFound from '../features/NotFound';
-// import ServerError from '../features/ServerError';
-// import ValidationError from '../features/ValidationError';
 
 import App from '../App';
 import HomePage from "@features/Home";

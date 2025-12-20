@@ -2,7 +2,7 @@ import { InfoCardContainer } from "@common/Containers";
 import { PersonalInfoFormInputs } from "@common/RegisterForm";
 import { Select } from "@common/Select";
 import { useStore } from "@stores/index";
-import { COUNTRY_OPTIONS } from "@utils/countriesOptions";
+import { COUNTRY_OPTIONS } from "@utils/constants/countriesOptions";
 import { Formik, FormikErrors } from "formik";
 import { observer } from "mobx-react-lite";
 import { PersonalInfoForm } from "@models/settings";

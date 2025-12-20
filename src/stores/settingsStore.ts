@@ -1,10 +1,10 @@
-import agent from '@utils/common';
+import agent from '@utils/api/agent';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { UpdateUserForm, UpdateUserFormDto } from '@models/users';
 import { store } from '.';
 import { SettingsTabs } from '@models/enums';
 import { User } from 'typings';
-import { supabase } from '@utils/supabase';
+import { supabase } from '@utils/infrastructure/supabase';
 
 export default class SettingsStore {
     constructor() {

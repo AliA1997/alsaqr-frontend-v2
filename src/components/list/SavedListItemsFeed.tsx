@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
@@ -95,7 +95,7 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
       <PageTitle>{listInfoForSavedListItems?.name ?? ""}</PageTitle>
       <ContentContainerWithRef testId='savedlistfeed' innerRef={containerRef} style={{ minHeight: '100vh' }}>
         {loadingListItems ? (
-          <CustomPageLoader title="Loading" />
+          <SkeletonLoader count={8} />
         ) : (
           <>
             {savedListItems && savedListItems.length

@@ -5,7 +5,7 @@ import { DELETE_YOUR_ACCOUNT } from "@utils/constants";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@utils/supabase";
+import { supabase } from "@utils/infrastructure/supabase";
 
 interface SidebarRowProps {
   Icon?: (props: SVGProps<SVGSVGElement>) => JSX.Element;

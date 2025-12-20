@@ -5,10 +5,14 @@ import { router } from './router/index.tsx'
 import './index.css'
 import { store } from '@stores/index.ts'
 import { ThemeProvider } from './ThemeProvider.tsx'
-import { supabase } from '@utils/supabase.ts'
-import { userApiClient } from '@utils/userApiClient.ts'
+import { supabase } from '@utils/infrastructure/supabase.ts'
+import { userApiClient } from '@utils/api/userApiClient.ts'
+import { prefetchUserData } from '@utils/workerFunctions/prefetchUserData.ts'
 
-store.authStore.initializeFromStorage().then(() => console.log("Welcome to alsaqr"));
+store.authStore.initializeFromStorage().then(() => {
+  console.log("Welcome to alsaqr")
+});
+
 supabase.auth.getSession()
   .then(async sessionInfo => {
     if (sessionInfo && sessionInfo.data.session) {
@@ -19,6 +23,7 @@ supabase.auth.getSession()
       if (checkData) {
         store.authStore.setCurrentSessionUser(checkData.result);
         if(store.authStore.auth) store.authStore.auth?.setUser(checkData.result);
+        prefetchUserData(checkData.result.id);      
       }
     } else {
       store.authStore.resetAuthState();

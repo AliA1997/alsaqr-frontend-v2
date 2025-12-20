@@ -1,7 +1,7 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { Comment, CommentToDisplay, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-import agent from "@utils/common";
+import agent from "@utils/api/agent";
 import { BookmarkParams } from "@models/posts";
 
 export default class BookmarkFeedStore {

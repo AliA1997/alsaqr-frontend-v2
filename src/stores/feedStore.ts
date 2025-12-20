@@ -1,15 +1,13 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { Comment, CommentToDisplay, PostRecord, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
-import agent from "@utils/common";
+import agent from "@utils/api/agent";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
-import { makePersistable } from "mobx-persist-store";
 
 export default class FeedStore {
 
     constructor() {
         makeAutoObservable(this);
-        makePersistable(this, { name: 'FeedStore', properties: ['postsRegistry'], storage: window.localStorage });
         
         reaction(
             () => this.predicate.keys(),

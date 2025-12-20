@@ -1,9 +1,10 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import CommunityDiscussionMessageRoom from "@components/community/CommunityDiscussionMessageRoom";
 import { useStore } from "@stores/index";
-import CustomPageLoader from "@common/CustomLoader";
 import { useParams } from "react-router-dom";
+import { SkeletonLoader } from "@common/CustomLoader";
+const CommunityDiscussionMessageRoom = React.lazy(() => import("@components/community/CommunityDiscussionMessageRoom"))
 
 
 const CommunityDiscussionForumPage = () => {
@@ -32,7 +33,7 @@ const CommunityDiscussionForumPage = () => {
             <div>You need to be logged in to access this chat.</div>
         );
     else
-        return <CustomPageLoader title="Loading..." />
+        return <SkeletonLoader count={6} />
 
 };
 

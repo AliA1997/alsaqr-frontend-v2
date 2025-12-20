@@ -6,7 +6,7 @@ import { MultiSelect } from "./MultiSelect";
 import { RadioCard } from "./RadioBoxes";
 import { HOBBIES_OPTIONS, MARITAL_STATUS_OPTIONS, RELIGION_OPTIONS } from "@utils/constants";
 import { Select } from "./Select";
-import { COUNTRY_OPTIONS } from "@utils/countriesOptions";
+import { COUNTRY_OPTIONS } from "@utils/constants/countriesOptions";
 
 interface PersonalInfoFormInputsProps {}
 

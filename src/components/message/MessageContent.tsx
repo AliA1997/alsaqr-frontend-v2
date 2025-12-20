@@ -1,4 +1,4 @@
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import { MessageToDisplay } from "typings";
 import MessageItem from "./MessageItem";
 import { NoRecordsTitle } from "@common/Titles";
@@ -21,7 +21,7 @@ function MessageContent({
     return (
         <div className="flex-1 p-4 overflow-y-auto">
             {loading ? (
-                <CustomPageLoader title="Loading" /> 
+                <SkeletonLoader count={8} /> 
             ) : showMessages && loggedInUserId
                 ? messages.map((dirMessage, idx) => (
                     <MessageItem 

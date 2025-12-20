@@ -1,4 +1,4 @@
-import agent from '@utils/common';
+import agent from '@utils/api/agent';
 import { makeAutoObservable, action, runInAction } from 'mobx';
 import { PagingParams } from '@models/common';
 import { FollowUserFormDto, UnFollowUserFormDto } from '@models/users';

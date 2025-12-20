@@ -3,15 +3,15 @@ import { OptimizedImage } from '@common/Image';
 import UpsertBoxIconButton from '@common/UpsertBoxIconButtons';
 import { XIcon } from '@heroicons/react/outline';
 import { ArrowLeftIcon } from '@heroicons/react/solid';
-import agent from '@utils/common';
-import { communityApiClient } from '@utils/communityApiClient';
+import agent from '@utils/api/agent';
+import { communityApiClient } from '@utils/api/communityApiClient';
 import { convertDateToDisplay } from '@utils/index';
 import { motion } from 'framer-motion';
 import { Pagination } from '@models/common';
 import { CommunityDiscussionAdminInfo, CommunityDiscussionInfoForMessageRoom, CommunityDiscussionMessageDto, CommunityDiscussionMessageToDisplay } from '@models/community';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import TimeAgo from "react-timeago";
-import CustomPageLoader, { ButtonLoader } from '@common/CustomLoader';
+import { ButtonLoader, SkeletonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
 import CommunityDiscussionAdminView from './CommunityDiscussionAdminView';
 import { useNavigate } from 'react-router';
@@ -190,7 +190,7 @@ const CommunityDiscussionMessageRoom = ({
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {loadingMessages ? (
-          <CustomPageLoader title="Loading" />
+          <SkeletonLoader count={8} />
         ) : (
           <>
             {messages && messages.length

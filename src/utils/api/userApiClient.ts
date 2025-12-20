@@ -1,5 +1,5 @@
 import axios from "axios";
-import { axiosRequests, axiosResponseBody } from "./common";
+import { axiosRequests, axiosResponseBody } from "./agent";
 import { UserRegisterFormDto } from "typings";
 import { FollowUserFormDto, UnFollowUserFormDto, UpdateUserFormDto } from "@models/users";
 

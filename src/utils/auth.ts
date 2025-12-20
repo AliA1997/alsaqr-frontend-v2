@@ -1,6 +1,6 @@
 import { User } from "typings";
 import Cookies from "universal-cookie";
-import { testAuthUser } from "./testData";
+import { testAuthUser } from "./testing/testData";
 
 export default class Auth {
     private cookie: Cookies;

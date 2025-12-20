@@ -1,11 +1,11 @@
 
 import React, { useLayoutEffect, useRef } from "react";
-import SideBar from "./Sidebar";
+const SideBar = React.lazy(() => import('./Sidebar'));
 import Widgets from "./Widgets";
 import { useStore } from "@stores/index";
 import { observer } from "mobx-react-lite";
 import {  RegisterModal } from "@common/AuthModals";
-import { leadingDebounce } from "@utils/common";
+import { leadingDebounce } from "@utils/api/agent";
 
 type PageContainerProps = {
   title?: string;

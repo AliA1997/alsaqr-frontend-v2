@@ -1,5 +1,5 @@
 import axios from "axios";
-import { axiosRequests, axiosResponseBody } from "./common";
+import { axiosRequests, axiosResponseBody } from "./agent";
 import { CreateListOrCommunityFormDto } from "typings";
 import { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionMessageDto, CommunityInviteConfirmationDto, UpdateCommunityFormDto } from "@models/community";
 

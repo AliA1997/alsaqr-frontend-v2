@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import Tabs from "@common/Tabs";
 import PostComponent from "../posts/Post";
 import UserHeader from "./UserHeader";
@@ -118,7 +118,7 @@ const MainProfile = () => {
       </div>
   );
 
-  return <CustomPageLoader title="Loading..." />;
+  return <SkeletonLoader count={5} />;
 
 };
 export default observer(MainProfile);

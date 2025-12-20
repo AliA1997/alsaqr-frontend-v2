@@ -1,7 +1,7 @@
 import Auth from '@utils/auth';
-import agent from '@utils/common';
+import agent from '@utils/api/agent';
 import { DEFAULT_USER_REGISTRATION_FORM, inTestMode } from '@utils/constants';
-import { testAuthUser } from '@utils/testData';
+import { testAuthUser } from '@utils/testing/testData';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { User, UserRegisterForm, UserRegisterFormDto } from 'typings';
 
@@ -17,7 +17,7 @@ export default class AuthStore {
   initializeFromStorage = async () => {
     if (!this.auth)
       this.auth = new Auth();
-
+    debugger;
     if(inTestMode()) {
         this.auth.setUser(testAuthUser)
         this.setCurrentSessionUser(testAuthUser);
@@ -26,11 +26,15 @@ export default class AuthStore {
       return;      
     } else {
       const loggedInUser = this.auth?.getUser();
+
       if (loggedInUser) {
         this.setCurrentSessionUser(loggedInUser);
+        return loggedInUser.id;
       }
+      return this.currentSessionUser?.id;
     }
   }
+
   loadingRegistration: boolean = false;
   loadingUpsert: boolean = false;
   currentStepInUserRegistration: number | undefined = 0;

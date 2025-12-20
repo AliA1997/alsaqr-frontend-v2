@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { ContentContainerWithRef } from "@common/Containers";
-import CustomPageLoader from "@common/CustomLoader";
+import { SkeletonLoader, SuspenseLoader } from "@common/CustomLoader";
 import PostComponent from "@components/posts/Post";
 import CommentComponent from "@components/posts/Comment";
 
@@ -48,7 +48,7 @@ const StatusPage = () => {
       <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
         <ContentContainerWithRef innerRef={containerRef} style={{ minHeight: '100vh' }}>
           {isLoading ? (
-            <CustomPageLoader title="Loading" />
+            <SkeletonLoader count={4} />
           ) : (
             <>
               {isComment && loadedComment
@@ -72,7 +72,7 @@ const StatusPage = () => {
       </div>
     );
 
-  return <CustomPageLoader title='Loading...' />
+  return <SuspenseLoader />
 };
 
 

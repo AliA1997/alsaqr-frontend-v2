@@ -1,5 +1,5 @@
 import axios from "axios";
-import { axiosResponseBody } from "./common";
+import { axiosResponseBody } from "./agent";
 
 export const notificationApiClient = {
     getNotifications: (userId: string, params: URLSearchParams | undefined) =>

@@ -1,4 +1,4 @@
-import { axiosRequests } from "./common";
+import { axiosRequests } from "./agent";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
 
 export const mutatePostApiClient = {

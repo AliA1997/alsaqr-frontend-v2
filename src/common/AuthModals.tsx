@@ -9,7 +9,7 @@ import { HobbiesAndOptionalInfoFormInputs, PersonalInfoFormInputs } from "./Regi
 import UsersFeed from "@components/users/UsersFeed";
 import { ReviewForm, ReviewUserHobbiesAndOtherInfo, ReviewUserPersonalInfo, ReviewUsersAdded } from "./ReviewForm";
 import { ProfileImagePreview } from "./Containers";
-import { supabase } from "@utils/supabase";
+import { supabase } from "@utils/infrastructure/supabase";
 import { OAUTH_OPTIONS, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { useLocation } from "react-router";
 
