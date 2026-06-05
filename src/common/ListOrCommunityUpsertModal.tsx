@@ -302,7 +302,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                                         hideTweetBox={true}
                                         filterKey={FilterKeys.SearchPosts}
                                         onAdd={(p: PostToDisplay) => {
-                                            const postFoundIdx = values.postsAdded.findIndex(pst => pst.post.id === p.post.id);
+                                            const postFoundIdx = values.postsAdded.findIndex(pst => pst.postId === p.postId);
 
                                             if (postFoundIdx !== -1) {
                                                 const newPostsAddedArray = values.postsAdded.slice();
@@ -313,7 +313,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                                                 setFieldValue('postsAdded', distinctPosts);
                                             }
                                         }}
-                                        postsAlreadyAddedByIds={values.postsAdded.map(pst => pst.post.id)}
+                                        postsAlreadyAddedByIds={values.postsAdded.map(pst => pst.postId)}
                                     />
                                 )}
                                 {showAddUsers && (
@@ -322,7 +322,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                                         loggedInUserId={loggedInUserId}
                                         filterKey={FilterKeys.SearchUsers}
                                         onAddOrFollow={(u: UserItemToDisplay) => {
-                                            const userFoundIdx = values.usersAdded.findIndex(user => user.user.id === u.user.id);
+                                            const userFoundIdx = values.usersAdded.findIndex(user => user.id === u.id);
 
                                             if (userFoundIdx !== -1) {
                                                 const newUsersAddedArray = values.usersAdded.slice();
@@ -333,7 +333,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                                                 setFieldValue('usersAdded', distinctUsers);
                                             }
                                         }}
-                                        usersAlreadyAddedOrFollowedByIds={values.usersAdded.map(u => u.user.id)}
+                                        usersAlreadyAddedOrFollowedByIds={values.usersAdded.map(u => u.id)}
                                     />
                                 )}
                                 {showReviewForm && (

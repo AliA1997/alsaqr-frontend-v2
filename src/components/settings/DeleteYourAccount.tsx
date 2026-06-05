@@ -6,8 +6,7 @@ import { Formik, FormikErrors } from "formik";
 import { observer } from "mobx-react-lite";
 
 const DeleteYourAccount = observer(() => {
-    const { authStore, settingsStore, modalStore } = useStore();
-    const { currentSessionUser } = authStore;
+    const {  settingsStore, modalStore } = useStore();
     const { loadingUpsert, deleteYourAccount } = settingsStore;
     const { showModal, closeModal } = modalStore;
     return (
@@ -33,7 +32,7 @@ const DeleteYourAccount = observer(() => {
                                 confirmButtonClassNames="bg-red-700"
                                 confirmFunc={async () => {
                                     if (values.agreeToTerms)
-                                        await deleteYourAccount(currentSessionUser?.id!);
+                                        await deleteYourAccount();
                                 }}
                                 declineButtonText="Cancel"
                                 confirmButtonText="Permanently Delete"

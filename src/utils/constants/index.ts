@@ -39,31 +39,25 @@ export const MARITAL_STATUS_OPTIONS = [
 ];
 
 export const RELIGION_OPTIONS = [
-  {
-    label: "Muslim",
-    value: 'Muslim',
-  },
-  {
-    label: "Christian",
-    value: 'Christian',
-  },
-  {
-    label: "Atheist",
-    value: 'Atheist',
-  },
-  {
-    label: "Agnostic",
-    value: 'Agnostic',
-  },
-  {
-    label: "Jew",
-    value: 'Jew',
-  },
-  {
-    label: "Prefer Not To Disclose",
-    value: 'Prefer Not To Disclose',
-  }
-]
+  { label: "Muslim", value: "Muslim" },
+  { label: "Christian", value: "Christian" },
+  { label: "Hindu", value: "Hindu" },
+  { label: "Buddhist", value: "Buddhist" },
+  { label: "Jewish", value: "Jewish" },
+  { label: "Sikh", value: "Sikh" },
+  { label: "Baháʼí", value: "Bahai" },
+  { label: "Jain", value: "Jain" },
+  { label: "Shinto", value: "Shinto" },
+  { label: "Taoist", value: "Taoist" },
+  { label: "Zoroastrian", value: "Zoroastrian" },
+  { label: "Pagan / Wiccan", value: "Pagan" },
+  { label: "Indigenous / Traditional", value: "Indigenous" },
+  { label: "Atheist", value: "Atheist" },
+  { label: "Agnostic", value: "Agnostic" },
+  { label: "Spiritual but not religious", value: "Spiritual" },
+  { label: "Other", value: "Other" },
+  { label: "Prefer Not To Disclose", value: "Prefer Not To Disclose" },
+];
 
 export const HOBBIES_OPTIONS = [
   // Creative & Artistic

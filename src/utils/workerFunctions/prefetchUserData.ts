@@ -16,13 +16,13 @@ export type PrefetchPayloadMessageEvent = {
 
 function setNotifications(notifications: NotificationToDisplay[], notificationsPagination: Pagination) {
     notifications.forEach((notification: NotificationToDisplay) => {
-        store.notificationStore.setNotification(notification.notification.id, notification);
+        store.notificationStore.setNotification(notification.notificationId, notification);
     });
     store.notificationStore.setPagination(notificationsPagination);
 }
 function setBookmarks(bookmarks: PostToDisplay[], bookmarksPagination: Pagination) {
     bookmarks.forEach((post: PostToDisplay) => {
-        store.bookmarkFeedStore.setBookmarkedPost(post.post.id, post);
+        store.bookmarkFeedStore.setBookmarkedPost(post.postId, post);
     });
     store.bookmarkFeedStore.setPagination(bookmarksPagination);
 }

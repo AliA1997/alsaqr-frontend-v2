@@ -121,8 +121,8 @@ export default class ListFeedStore {
                 name: newList.name,
                 avatarOrBannerImage: newList.avatarOrBannerImage,
                 tags: newList.tags,
-                usersAdded: newList.usersAdded.map(u => u.user.id),
-                postsAdded: newList.postsAdded.map(p => p.post.id),
+                usersAdded: newList.usersAdded.map(u => u.id),
+                postsAdded: newList.postsAdded.map(p => p.postId),
                 isPrivate: 'private'
             };
             await agent.listApiClient.addList(newListDto, userId)

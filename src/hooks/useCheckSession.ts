@@ -17,7 +17,7 @@ export function useCheckSession(setState: Function, sessionUser: User | undefine
       supabase.auth.getSession()
         .then(async sessionInfo => {
           if (sessionInfo && sessionInfo.data.session) {
-            await userApiClient.sessionSignin(sessionInfo.data.session.user.email!);
+            await userApiClient.sessionSignin(sessionInfo.data.session.user);
             const checkData = await userApiClient.sessionCheck(sessionInfo.data.session.user.email!);
 
             if (checkData)

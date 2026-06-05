@@ -25,7 +25,7 @@ const PersonalInfo = observer(() => {
         };
 
         if(currentSessionUser) {
-            await updateYourAccount(currentSessionUser?.id!, infoToUpsert);
+            await updateYourAccount(infoToUpsert);
 
             toast("Updated your account", {
                 icon: "🚀",

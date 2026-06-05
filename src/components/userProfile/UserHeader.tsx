@@ -39,40 +39,40 @@ const UserHeader = ({
   const { followUser, unFollowUser, loadingFollow } = userStore;
   const { setCurrentProfileToMessage } = messageStore;
   const { currentSessionUser } = authStore;
-  const { showModal, closeModal } = modalStore;
+  // const { showModal, closeModal } = modalStore;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
 
-  const profileIsLoggedInUser = useMemo(() => profileInfo.user.username === (currentSessionUser?.username ?? ""), [currentSessionUser, profileInfo]);
-  const isFollowingUser = useMemo(() => currentSessionUser?.followingUsers?.some((fU: any) => fU.id === profileInfo.user.id) ?? false, [profileInfo, currentSessionUser]);
+  const profileIsLoggedInUser = useMemo(() => profileInfo.username === (currentSessionUser?.username ?? ""), [currentSessionUser, profileInfo]);
+  const isFollowingUser = useMemo(() => currentSessionUser?.following?.some((fU: any) => fU.id === profileInfo.userId) ?? false, [profileInfo, currentSessionUser]);
   const handleDropdownEnter = useCallback(
       () => setIsDropdownOpen(!isDropdownOpen),
       [isDropdownOpen]
     );
 
-  const handleOnMessage = useCallback(
-    () => {
-      setCurrentProfileToMessage(profileInfo);
-      if(currentSessionUser)
-        showModal(
-          <MessageModal
-            loggedInUser={currentSessionUser!}
-            usersInMessageModal={defineUsersMessagesArray(currentSessionUser!, profileInfo.user)}
-          />
-        );
-    },
-    [currentSessionUser, profileInfo]
-  );
+  // const handleOnMessage = useCallback(
+  //   () => {
+  //     setCurrentProfileToMessage(profileInfo);
+  //     if(currentSessionUser)
+  //       showModal(
+  //         <MessageModal
+  //           loggedInUser={currentSessionUser!}
+  //           usersInMessageModal={defineUsersMessagesArray(currentSessionUser!, profileInfo)}
+  //         />
+  //       );
+  //   },
+  //   [currentSessionUser, profileInfo]
+  // );
 
   const onFollow = useCallback(async () => {
     if(isFollowingUser)
-      await unFollowUser(currentSessionUser?.id ?? "", profileInfo.user.id)
+      await unFollowUser(profileInfo.userId)
     else
-      await followUser(currentSessionUser?.id ?? "", profileInfo.user.id)
+      await followUser(profileInfo.userId)
 
     await refreshProfileInfo();
 
 
-    toast(isFollowingUser ? `${profileInfo.user.username} unfollowed` : `${profileInfo.user.username} followed`, {
+    toast(isFollowingUser ? `${profileInfo.username} unfollowed` : `${profileInfo.username} followed`, {
       icon: "🚀",
     });
   }, [profileInfo, isFollowingUser]);
@@ -85,7 +85,7 @@ const UserHeader = ({
           <GoBackButton />
           <div className="mx-2 py-2.5">
             <h2 className="mb-0 text-xl font-bold text-gray-600 dark:text-gray-200">
-              {profileInfo.user.username}
+              {profileInfo.username}
             </h2>
             <p className="mb-0 w-48 text-xs text-gray-400 dark:text-gray-300">
               {numberOfPosts ?? 0} Tweets
@@ -100,7 +100,7 @@ const UserHeader = ({
           className="w-full bg-cover bg-no-repeat bg-center"
           style={{
             height: "200px",
-            backgroundImage: `url(${profileInfo.user.bgThumbnail ?? faker.image.city()})`,
+            backgroundImage: `url(${profileInfo.bgThumbnail ?? faker.image.city()})`,
           }}
         >
         </div>
@@ -113,8 +113,8 @@ const UserHeader = ({
                   className="md rounded-full relative avatar"
                 >
                   <OptimizedImage
-                      src={profileInfo.user.avatar}
-                      alt={profileInfo.user.username}
+                      src={profileInfo.avatar ?? ''}
+                      alt={profileInfo.username}
                       loadedHeight={150}
                       loadedWidth={150}
                       classNames="md rounded-full relative border-4 border-gray-900 h-[9rem] w-[9rem]"
@@ -139,13 +139,13 @@ const UserHeader = ({
                   )
                   : (
                     <>
-                      <CommonLink
+                      {/* <CommonLink
                         onClick={handleOnMessage}
                         animatedLink={false}
                         classNames='border border-[0.1rem]'
                       >
                         <MailIcon className="h-6 w-6"/>
-                      </CommonLink>
+                      </CommonLink> */}
                       <CommonLink
                         onClick={handleDropdownEnter}
                         animatedLink={false}
@@ -186,7 +186,7 @@ const UserHeader = ({
                 aria-orientation="vertical"
                 aria-labelledby="options-menu"
               >
-                <SidebarRow 
+                {/* <SidebarRow 
                   Icon={UserAddIcon} 
                   title="Add to List"
                   onClick={() => {
@@ -194,7 +194,7 @@ const UserHeader = ({
                       <SaveToListModal
                         relatedEntityType="user"
                         info={{
-                          user: profileInfo.user,
+                          user: profileInfo as any,
                           followers: profileInfo.followers,
                           following: profileInfo.following
                         }}
@@ -208,7 +208,7 @@ const UserHeader = ({
                     )
                   }}
                   overrideOnClick={true}
-                />
+                /> */}
               </div>
             </div>
           )}
@@ -216,17 +216,17 @@ const UserHeader = ({
           <div className="space-y-1 justify-center w-full mt-3 ml-3">
             <div>
               <h2 data-testid="userheaderusername" className="text-xl leading-6 font-bold text-gray-800 dark:text-white">
-                {profileInfo.user.username}
+                {profileInfo.username}
               </h2>
               <p className="text-sm leading-5 font-medium text-gray-600 dark:text-gray-400">
-                @{profileInfo.user.username}
+                @{profileInfo.username}
               </p>
             </div>
 
             <div className="mt-3">
               <p className="text-gray-500 leading-tight mb-2 dark:text-gray-300">
                 {/* Company & Employment Information Version 2 */}
-                {profileInfo.user?.bio ?? ''}
+                {profileInfo?.bio ?? ''}
               </p>
               <div className="text-gray-600 flex dark:text-gray-400">
                 <span className="flex mr-2">
@@ -254,7 +254,7 @@ const UserHeader = ({
                     Joined{" "}
                     <TimeAgo
                       className="leading-5"
-                      date={convertDateToDisplay(profileInfo.user.createdAt)}
+                      date={convertDateToDisplay(profileInfo.createdAt)}
                     />
                   </span>
                 </span>

@@ -132,7 +132,7 @@ const NotificationFeed = observer(({ }: Props) => {
             {notifications && notifications.length
               ? notifications.map((notificationRecord, notificationKey) => (
                 <NotificationItemComponent
-                  key={notificationRecord.notification.id ?? notificationKey}
+                  key={notificationRecord.notificationId ?? notificationKey}
                   notificationToDisplay={notificationRecord}
                 />
               ))

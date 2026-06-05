@@ -67,8 +67,8 @@ export const isPostSearchAMatch = (
   searchQry: string
 ): boolean => {
   return (
-    pst.post.text.includes(searchQry) ||
-    pst.post.id === searchQry ||
+    pst.content.includes(searchQry) ||
+    pst.postId === searchQry ||
     pst.commenters.some((c) => c.username === searchQry)
   );
 };

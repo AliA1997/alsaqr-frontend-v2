@@ -17,13 +17,13 @@ export type PrefetchPayloadMessageEvent = {
 
 function setUsersToAdd(usersToAdd: UserItemToDisplay[], usersToAddPagination: Pagination) {
     usersToAdd.forEach((userItem: UserItemToDisplay) => {
-        store.searchStore.setSearchedUser(userItem.user.id, userItem);
+        store.searchStore.setSearchedUser(userItem.id, userItem);
     });
     store.searchStore.setSearchedUsersPagination(usersToAddPagination);
 }
 function setPostsToAdd(postsToAdd: PostToDisplay[], postsToAddPagination: Pagination) {
     postsToAdd.forEach((postItem: PostToDisplay) => {
-        store.searchStore.setSearchedPost(postItem.post.id, postItem);
+        store.searchStore.setSearchedPost(postItem.postId, postItem);
     });
     store.searchStore.setSearchedPostsPagination(postsToAddPagination);
 }

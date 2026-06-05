@@ -16,6 +16,7 @@ import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import PostComponent from "@components/posts/Post";
 import { ModalLoader, SkeletonLoader } from "@common/CustomLoader";
 import { inTestMode } from "@utils/constants";
+// import toast from "react-hot-toast";
 
 interface Props {
   title?: string;
@@ -181,20 +182,11 @@ const Feed = observer(({
 
   const fetchMoreItems = useCallback(
     async (pageNum: number) => {
-      alert("TEST FETCHMORE ITEMS")
       setFeedPagingParams(new PagingParams(pageNum, 10))
       await loadPosts();
     },
     [feedPagingParams?.currentPage, filterKey]
   );
-
-  const LoadMoreTrigger = () => {
-    return (
-      <div className=" dark:text-gray-500 italic" ref={loaderRef} style={{ height: '20px' }}>
-        {feedLoadingInitial && feedPagination?.currentPage == 1 ? <SkeletonLoader /> : null}
-      </div>
-    );
-  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -206,8 +198,8 @@ const Feed = observer(({
 
         const nextPage = currentPage + 1;
         const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = (totalItems >= totalItemsOnNextPage);
-        alert(firstEntry.isIntersecting)
+        const hasMoreItems = totalItems >= totalItemsOnNextPage;
+
         if (firstEntry?.isIntersecting && !feedLoadingInitial && hasMoreItems) {
           fetchMoreItems(feedPagingParams.currentPage + 1);
         }
@@ -215,7 +207,7 @@ const Feed = observer(({
       {
         root: containerRef.current,
         rootMargin: '10px',
-        threshold: 0.2
+        threshold: 0.1
       }
     );
 
@@ -229,7 +221,7 @@ const Feed = observer(({
         observer.unobserve(currentLoader);
       }
     };
-  }, []);
+  }, [feedPagination, feedLoadingInitial, fetchMoreItems]);
 
   const userId = useMemo(() => 
       inTestMode()
@@ -237,6 +229,14 @@ const Feed = observer(({
       : "", 
     [currentSessionUser?.id, auth?.getUser()?.id]);
 
+
+  const LoadMoreTrigger = () => {
+    return (
+      <div className=" dark:text-gray-500 italic" ref={loaderRef} style={{ height: '20px' }}>
+        {feedLoadingInitial && feedPagination?.currentPage == 1 ? <SkeletonLoader /> : null}
+      </div>
+    );
+  };
 
   return (
     <div 
@@ -266,7 +266,7 @@ const Feed = observer(({
               ? loadedPosts.map((postRec, postKey) => (
                 <PostComponent
                   filterKey={filterKey}
-                  key={postRec.post.id ?? postKey}
+                  key={postRec.postId ?? postKey}
                   postToDisplay={postRec}
                   onAdd={onAdd}
                   canAdd={canAdd}

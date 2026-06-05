@@ -53,10 +53,12 @@ export default class AuthStore {
     this.currentStepInUserRegistration = val;
   }
   setCurrentRegistrationForm = (val: UserRegisterForm) => {
+    console.log("setCurrentRegistrationForm value:", val);
     this.currentRegistrationForm = val;
   }
 
   setCurrentSessionUser = (currentUserPayload: User | undefined) => {
+    console.log("CURRENT USER PAYLOAD", currentUserPayload)
     this.currentSessionUser = currentUserPayload;
     if(currentUserPayload)
       this.auth?.setUser(currentUserPayload);
@@ -79,7 +81,7 @@ export default class AuthStore {
 
       this.setLoadingRegistration(true);
       try {
-        const registerFormDto: UserRegisterFormDto = {...registerForm, followingUsers: registerForm.followingUsers.map(u => u.user.id)};
+        const registerFormDto: UserRegisterFormDto = {...registerForm, followingUsers: registerForm.followingUsers.map(u => u.id)};
 
         await agent.userApiClient.completeRegistration(userId, registerFormDto) ?? {};
 

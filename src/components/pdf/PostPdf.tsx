@@ -1,4 +1,5 @@
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer';
+import { capitalize } from 'lodash';
 import { PostToDisplay } from 'typings';
 
 type PdfProps = {
@@ -88,14 +89,14 @@ const styles = StyleSheet.create({
 });
 
 const PostPDF = ({ postToDisplay,  userId, showLabel = true, createdAt }: PdfProps) => {
-    const postInfo = postToDisplay.post;
+    const postInfo = postToDisplay;
     return (
   <Document>
     <Page size="A4" style={{ padding: 40 }}>
       <View style={styles.container}>
-        {showLabel && (
+        {showLabel && postInfo.postType && (
           <View style={styles.tagLabel}>
-            <Text>Post</Text>
+            <Text>{capitalize(postInfo.postType)}</Text>
           </View>
         )}
         
@@ -119,11 +120,11 @@ const PostPDF = ({ postToDisplay,  userId, showLabel = true, createdAt }: PdfPro
               </Text>
             </View>
             
-            <Text style={styles.postText}>{postInfo.text}</Text>
+            <Text style={styles.postText}>{postInfo.content}</Text>
             
-            {postInfo.tags?.length > 0 && (
+            {postInfo.postTags?.length > 0 && (
               <View style={styles.tagsContainer}>
-                {postInfo.tags.map((tag, index) => (
+                {postInfo.postTags.map((tag, index) => (
                   <Text key={index} style={styles.tag}>
                     {tag}
                   </Text>
@@ -131,10 +132,10 @@ const PostPDF = ({ postToDisplay,  userId, showLabel = true, createdAt }: PdfPro
               </View>
             )}
             
-            {postInfo.image && (
+            {postInfo.postBannerImage && (
               <Image
                 style={styles.postImage}
-                src={postInfo.image}
+                src={postInfo.postBannerImage}
               />
             )}
           </View>

@@ -28,12 +28,12 @@ export default class SettingsStore {
         this.currentTabIdx = val;
     }
 
-    updateYourAccount = async (userId: string, updateUserForm: UpdateUserForm) => {
+    updateYourAccount = async (updateUserForm: UpdateUserForm) => {
         this.setLoadingUpsert(true);
         try {
             const updateUserFormDto: UpdateUserFormDto = updateUserForm;
 
-            await agent.userApiClient.updateUser(userId, updateUserFormDto) ?? {};
+            await agent.userApiClient.updateUser(updateUserFormDto) ?? {};
 
             runInAction(() => {
                 store.authStore.setCurrentSessionUser(updateUserForm as User);
@@ -46,11 +46,11 @@ export default class SettingsStore {
         }
     }
 
-    deleteYourAccount = async (userId: string) => {
+    deleteYourAccount = async () => {
         this.setLoadingUpsert(true);
         try {
 
-            await agent.userApiClient.deleteUser(userId) ?? {};
+            await agent.userApiClient.deleteUser() ?? {};
 
             await supabase.auth.signOut();
 

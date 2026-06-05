@@ -45,7 +45,7 @@ const MainProfile = () => {
   const renderer = useCallback(
     (postToDisplay: DashboardPostToDisplay) => (
       <PostComponent
-        key={postToDisplay.post.id}
+        key={postToDisplay.postId}
         postToDisplay={postToDisplay}
       />
     ),

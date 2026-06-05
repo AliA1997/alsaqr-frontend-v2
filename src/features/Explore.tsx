@@ -1,6 +1,6 @@
+import React from "react";
 import { SkeletonLoader } from "@common/CustomLoader";
 const ExploreTabs = React.lazy(() => import("@components/explore/ExploreTabs"));
-import React from "react";
 
 export default function ExplorePage() {
     return (

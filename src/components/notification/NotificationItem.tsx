@@ -1,5 +1,4 @@
-
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import {
   useLayoutEffect,
   useRef,
@@ -18,7 +17,7 @@ function NotificationItemComponent({
 }: Props) {
   const { authStore } = useStore();
   const { currentSessionUser } = authStore;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const initiallyBooleanValues = useRef<{
     read: boolean;
@@ -26,7 +25,7 @@ function NotificationItemComponent({
     read: false,
   });
 
-  const notificationInfo = notificationToDisplay.notification;
+  const notificationInfo = notificationToDisplay;
 
   useLayoutEffect(() => {
     if (currentSessionUser?.id) {
@@ -39,8 +38,8 @@ function NotificationItemComponent({
 
 
   const navigateToNotification = () => {
-    if(notificationInfo.notificationType.toString().includes('post'))
-        navigate(notificationInfo.link ?? `/status/${notificationInfo.relatedEntityId}`);
+    // if(notificationInfo.notificationType.toString().includes('post'))
+    //     navigate(notificationInfo.link ?? `/status/${notificationInfo.relatedEntityId}`);
   }
 
   return (
@@ -63,7 +62,7 @@ function NotificationItemComponent({
             <img
                 className="h-10 w-10 rounded-full object-cover "
                 src={notificationInfo.image}
-                alt={notificationInfo.message}
+                alt={notificationInfo.notificationMessage}
             />
         )}
           <div className="flex justify-between item-center space-x-1">
@@ -71,12 +70,12 @@ function NotificationItemComponent({
               className='text-sm' 
               data-testid="notificationtext"
             >
-              {notificationInfo.message}
+              {notificationInfo.notificationMessage}
             </p>
-            {notificationInfo.createdAt && (
+            {notificationInfo.notificationCreatedAt && (
               <TimeAgo
                 className="text-sm text-gray-500 dark:text-gray-400"
-                date={convertDateToDisplay(notificationInfo.createdAt)}
+                date={convertDateToDisplay(notificationInfo.notificationCreatedAt)}
               />
             )}
           </div>

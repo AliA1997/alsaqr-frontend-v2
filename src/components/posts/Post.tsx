@@ -11,7 +11,7 @@ import {
 } from "react";
 import TimeAgo from "react-timeago";
 
-import type { PostToDisplay, User } from "@typings";
+import type { PostToDisplay, PostUserInfoDto } from "@typings";
 import {
   getPercievedNumberOfRecord,
   stopPropagationOnClick,
@@ -39,6 +39,7 @@ import { usePDF } from "react-to-pdf";
 import { OptimizedImage, OptimizedPostImage } from "@common/Image";
 import CommentBox from "./CommentBox";
 import { generateAndDownloadPdf } from "@utils/workerFunctions/generatePdf";
+import { capitalize } from "lodash";
 
 
 interface Props {
@@ -99,7 +100,7 @@ function PostComponent({
 
   const numberOfRetweets = useMemo(
     () =>
-      getPercievedNumberOfRecord<User>(
+      getPercievedNumberOfRecord<PostUserInfoDto>(
         isRePosted,
         initiallyBooleanValues.current?.retweeted,
         postToDisplay.reposters ?? [],
@@ -110,7 +111,7 @@ function PostComponent({
   );
   const numberOfLikes = useMemo(
     () =>
-      getPercievedNumberOfRecord<User>(
+      getPercievedNumberOfRecord<PostUserInfoDto>(
         isLiked,
         initiallyBooleanValues.current?.liked,
         postToDisplay.likers ?? [],
@@ -123,8 +124,8 @@ function PostComponent({
     return postToDisplay.comments.length;
   }, [postToDisplay, addComment, commentBoxOpen]);
 
-  const postInfo = postToDisplay.post;
-  const { targetRef } = usePDF({ filename: `${postInfo.id}.pdf` })
+  const postInfo = postToDisplay;
+  const { targetRef } = usePDF({ filename: `${postInfo.postId}.pdf` })
 
   const checkUserIsLoggedInBeforeUpdatingTweet = async (
     callback: () => Promise<void>
@@ -145,17 +146,17 @@ function PostComponent({
 
       const twtAlreadyLiked =
         postAlreadyLiked ||
-        (likedPosts?.some((likedPost: string) => likedPost === postInfo.id) ?? false);
+        (likedPosts?.some((likedPost: string) => likedPost === postInfo.postId) ?? false);
 
       const twtAlreadyRetweeted =
         postAlreadyReposted ||
-        (reposts?.some((repost: string) => repost === postInfo.id) ?? false);
+        (reposts?.some((repost: string) => repost === postInfo.postId) ?? false);
 
       const twtAlreadyBookmarked =
-        (currentSessionUser as any).bookmarks?.some((bk: string) => bk === postInfo.id) ?? false;
+        (currentSessionUser as any).bookmarks?.some((bk: string) => bk === postInfo.postId) ?? false;
 
       if (postsAlreadyAddedByIds)
-        setIsAdded(postsAlreadyAddedByIds.some(pstId => pstId === postInfo.id));
+        setIsAdded(postsAlreadyAddedByIds.some(pstId => pstId === postInfo.postId));
 
       initiallyBooleanValues.current = {
         liked: twtAlreadyLiked,
@@ -179,7 +180,7 @@ function PostComponent({
   };
 
   const navigateToTweet = () => {
-    navigate(`/status/${postInfo.id}`);
+    navigate(`/status/${postInfo.postId}`);
   };
 
   const onLikeTweet = async () => {
@@ -188,7 +189,7 @@ function PostComponent({
       await checkUserIsLoggedInBeforeUpdatingTweet(async () => {
         setIsLiked(!isLiked);
         await likedPost({
-          statusId: postInfo.id,
+          statusId: postInfo.postId,
           userId: userId!,
           liked: isLiked
         });
@@ -205,7 +206,7 @@ function PostComponent({
         setIsRePosted(!isRePosted);
 
         await rePost({
-          statusId: postInfo.id,
+          statusId: postInfo.postId,
           userId: userId!,
           reposted: isRePosted
         });
@@ -221,7 +222,7 @@ function PostComponent({
       await checkUserIsLoggedInBeforeUpdatingTweet(async () => {
         setIsBookmarked(!isBookmarked);
         await bookmarkPost({
-          statusId: postInfo.id,
+          statusId: postInfo.postId,
           userId: userId!,
           bookmarked: isBookmarked
         });
@@ -280,7 +281,7 @@ function PostComponent({
               onClose={() => closeModal()}
               declineButtonText="Cancel"
               confirmFunc={async () => {
-                await deleteYourPost(postInfo.id);
+                await deleteYourPost(postInfo.postId);
                 closeModal();
               }}
               confirmMessage="Are you sure you want to delete this post forever?"
@@ -298,7 +299,7 @@ function PostComponent({
       });
 
     return defaultOpts;
-  }, [postInfo.id]);
+  }, [postInfo.postId]);
 
   return (
     <div
@@ -309,14 +310,14 @@ function PostComponent({
       ref={targetRef}
       data-testid="postcard"
     >
-      {showLabel && (
+      {showLabel && postInfo.postType && (
         <TagOrLabel
           testId="posttag"
           color="postGradient"
           size="md"
           className="absolute top-0 right-0"
         >
-          Post
+          {capitalize(postInfo.postType)}
         </TagOrLabel>
       )}
       {canAdd && (
@@ -338,7 +339,7 @@ function PostComponent({
         />
         <OptimizedImage
           classNames="h-10 w-10 rounded-full object-cover z-50 hover:bg-blue-200"
-          src={postToDisplay.profileImg}
+          src={postToDisplay.profileImg ?? ''}
           alt={postToDisplay.username}
           onClick={(e) => {
             if (onlyDisplay)
@@ -391,12 +392,12 @@ function PostComponent({
             </p>
             <TimeAgo
               className="text-sm text-gray-500 dark:text-gray-400"
-              date={convertDateToDisplay(postInfo?.createdAt)}
+              date={convertDateToDisplay(postInfo?.postCreatedAt)}
             />
           </div>
-          <p data-testid="postcardtext" className="pt-1 text-black dark:text-gray-50">{postInfo.text}</p>
+          <p data-testid="postcardtext" className="pt-1 text-black dark:text-gray-50">{postInfo.content}</p>
           <div className="flex flex-wrap w-full gap-[4px] my-5">
-            {postInfo.tags.map((tag, index) => (
+            {(postInfo.postTags ?? []).map((tag, index) => (
               <span
                 key={index}
                 style={{
@@ -410,10 +411,10 @@ function PostComponent({
               </span>
             ))}
           </div>
-          {postInfo.image && (
+          {postInfo.postBannerImage && (
             <div className=" w-[200px] h-[150px] md:w-[300px] md:h-[200px] overflow-hidden flex justify-center items-center">
               <OptimizedPostImage
-                src={postInfo.image}
+                src={postInfo.postBannerImage}
                 alt="img/post"
                 classNames="m-5 ml-0 w-full h-full object-cover shadow-sm"
               />
@@ -429,7 +430,7 @@ function PostComponent({
             <>
               <MoreSection
                 moreOptions={moreOptions}
-                moreOptionClassNames={`${showLabel ? 'right-10' : ''}`}
+                moreOptionClassNames={`${showLabel ? postInfo.postType == 'post' ? 'right-10' : 'right-20' : ''}`}
               />
               <div className="mt-5 flex justify-between">
                 <CommentIconButton
@@ -473,7 +474,7 @@ function PostComponent({
                         return stopPropagationOnClick(e, () => console.log('stopped propagation'));
                     }}
                   >
-                    {postInfo.createdAt
+                    {postInfo.postCreatedAt
                       ? (
                         <DownloadPdfButton 
                             onClick={() => 
@@ -483,9 +484,9 @@ function PostComponent({
                                   postToDisplay: JSON.parse(JSON.stringify(postToDisplay)),
                                   showLabel: showLabel ?? false,
                                   userId: currentSessionUser?.id ?? '',
-                                  createdAt: formatTimeAgo(convertDateToDisplay(postInfo.createdAt)),
+                                  createdAt: formatTimeAgo(convertDateToDisplay(postInfo.postCreatedAt)),
                                 }, 
-                                postInfo.id)
+                                postInfo.postId)
                             }
                         />
                       )
@@ -502,7 +503,7 @@ function PostComponent({
         <>
           {userId && (
             <CommentBox 
-              postId={postInfo.id}
+              postId={postInfo.postId}
               userId={postInfo.userId!}
               setCommentBoxOpen={setCommentBoxOpen}
             />
@@ -511,7 +512,7 @@ function PostComponent({
       )}
       {!isSearchedPosts && commentBoxOpen && (
         <>
-          <CommentFeed postId={postInfo.id} />
+          <CommentFeed postId={postInfo.postId} />
         </>
       )}
     </div>

@@ -3,13 +3,12 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
-import { PostRecord } from "@typings";
+import type { CreatePostForm } from "@typings";
 import {
   defaultSearchParams
 } from "@utils/index";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
-import { faker } from "@faker-js/faker";
 import { FilterKeys } from "@stores/index";
 import { XIcon } from "@heroicons/react/solid"; // Import the XMarkIcon
 
@@ -20,8 +19,8 @@ import ListFeedStore from "@stores/listFeedStore";
 import CommunityFeedStore from "@stores/communityFeedStore";
 import agent from "@utils/api/agent";
 import { OptimizedImage } from "@common/Image";
-import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
-import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";
+// import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
+// import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";po
 import { DangerAlert } from "@common/Alerts";
 import { CommonBoxButton } from "@common/Buttons";
 
@@ -90,20 +89,14 @@ function PostBox({ filterKey }: Props) {
   );
 
   const postNewPost = async () => {
-    const postInfo: PostRecord = {
-      id: faker.datatype.uuid(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      _rev: "",
-      _type: "post",
-      blockTweet: true,
+    const createPostForm: CreatePostForm = {
       text: input,
       image: image,
-      userId: currentSessionUser?.id,
       tags: hashtags ?? []
     };
 
-    await agent.postApiClient.addPost(postInfo);
+    console.log('createNewPost', createPostForm);
+    await agent.postApiClient.addPost(createPostForm);
 
     setSearchQry(defaultSearchParams.search_term);
     await loadData(storeToUse);
@@ -118,17 +111,17 @@ function PostBox({ filterKey }: Props) {
       e.preventDefault();
       setSubmitting(true);
       try {
-        const gradioClient = await initializeClient();
-        debugger;
-        if(!!image.trim()) {
-          const nsfwStatus = await checkNsfwInImage(gradioClient, image);
-          if (nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
-            setNsfwAlert("Please choose a different photo — explicit images aren’t allowed in posts.");
-            setImage('');
-            setSubmitting(false);
-            return;
-          }
-        }
+        // const gradioClient = await initializeClient();
+        // debugger;
+        // if(!!image.trim()) {
+        //   const nsfwStatus = await checkNsfwInImage(gradioClient, image);
+        //   if (nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
+        //     setNsfwAlert("Please choose a different photo — explicit images aren’t allowed in posts.");
+        //     setImage('');
+        //     setSubmitting(false);
+        //     return;
+        //   }
+        // }
 
         await postNewPost();
 

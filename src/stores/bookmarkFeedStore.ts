@@ -84,7 +84,7 @@ export default class BookmarkFeedStore {
 
             runInAction(() => {
                 items.forEach((pst: PostToDisplay) => {
-                    this.setBookmarkedPost(pst.post.id, pst);
+                    this.setBookmarkedPost(pst.postId, pst);
                 });
             });
 

@@ -12,6 +12,7 @@ import { ProfileImagePreview } from "./Containers";
 import { supabase } from "@utils/infrastructure/supabase";
 import { OAUTH_OPTIONS, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { useLocation } from "react-router";
+import { PageTitleNoPadding } from "./Titles";
 
 
 export const LoginModal = observer(() => {
@@ -133,7 +134,35 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
 
   return (
     <ModalPortal className='h-15'>
-      <ModalBody onClose={() => {
+      <ModalBody 
+      headerChildren={
+        <div className='flex flex-1 w-full justify-between items-start'>
+          <PageTitleNoPadding>Complete your Account</PageTitleNoPadding>
+          <button
+            onClick={() => {
+              closeModal();
+            }}
+            className="text-gray-400 hover:text-gray-600 block float-right cursor-pointer"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+          
+      }
+      onClose={() => {
         closeModal();
       }}>
         <motion.div
@@ -150,13 +179,13 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
               bio: currentRegistrationForm.bio ? currentRegistrationForm.bio : userInfo?.bio ?? '',
               email: currentRegistrationForm.email ? currentRegistrationForm.email : userInfo?.email ?? '',
               firstName: currentRegistrationForm.firstName ? currentRegistrationForm.firstName : userInfo?.firstName ?? '',
-              lastName: currentRegistrationForm.lastName ? currentRegistrationForm.lastName : '',
+              lastName: currentRegistrationForm.lastName ? userInfo?.lastName : '',
               dateOfBirth: currentRegistrationForm.dateOfBirth ? currentRegistrationForm.dateOfBirth : userInfo?.dateOfBirth,
               countryOfOrigin: currentRegistrationForm.countryOfOrigin ? currentRegistrationForm.countryOfOrigin : userInfo?.countryOfOrigin ?? '',
               hobbies: currentRegistrationForm.hobbies ? currentRegistrationForm.hobbies : userInfo?.hobbies ?? [],
               maritalStatus: currentRegistrationForm.maritalStatus ? currentRegistrationForm.maritalStatus : userInfo?.maritalStatus ?? "single",
               religion: currentRegistrationForm.religion ? currentRegistrationForm.religion : userInfo?.religion ??  "Prefer Not To Disclose",
-              followingUsers: currentRegistrationForm.followingUsers ? currentRegistrationForm.followingUsers : []
+              followingUsers: currentRegistrationForm.followingUsers ? userInfo?.following : []
             } as UserRegisterForm}
             validate={_ => {
               const errors: FormikErrors<any> = {};
@@ -196,7 +225,7 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
                         loggedInUserId={loggedInUserId}
                         filterKey={FilterKeys.Register}
                         onAddOrFollow={(u: UserItemToDisplay) => {
-                            const userFoundIdx = values.followingUsers.findIndex(userItem => userItem.user.id === u.user.id);
+                            const userFoundIdx = values.followingUsers.findIndex(userItem => userItem.id === u.id);
                             if (userFoundIdx !== -1) {
                                 const newFollowingUsersArray = values.followingUsers.slice();
                                 newFollowingUsersArray.splice(userFoundIdx, 1);
@@ -206,7 +235,7 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
                                 setFieldValue('followingUsers', distinctUsers);
                             }
                         }}
-                        usersAlreadyAddedOrFollowedByIds={values.followingUsers.map(u => u.user.id)}
+                        usersAlreadyAddedOrFollowedByIds={(values.followingUsers ?? []).map(u => u.id)}
                     />
                 )}
                 

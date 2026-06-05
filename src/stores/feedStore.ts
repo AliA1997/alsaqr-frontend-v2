@@ -1,5 +1,5 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { Comment, CommentToDisplay, PostRecord, PostToDisplay } from "@typings";
+import { Comment, CommentToDisplay, CreatePostForm, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
@@ -94,8 +94,9 @@ export default class FeedStore {
             const { items, pagination } = await agent.postApiClient.getPosts(this.axiosParams) ?? [];
             
             runInAction(() => {
+                console.log("items:", items);
                 items.forEach((pst: PostToDisplay) => {
-                    this.setPost(pst.post.id, pst);
+                    this.setPost(pst.postId, pst);
                 });
                 
                 this.setPagination(pagination);
@@ -108,7 +109,7 @@ export default class FeedStore {
 
     }
 
-    addPost = async (newPost: PostRecord) => {
+    addPost = async (newPost: CreatePostForm) => {
 
         this.setLoadingInitial(true);
         try {

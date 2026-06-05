@@ -48,7 +48,7 @@ export default class UserStore {
         let profile;
         try {
             const user = await agent.userApiClient.getUserProfile(username);
-
+            
             runInAction(() => {
                 this.setCurrentUserProfile(user);
             });
@@ -76,26 +76,26 @@ export default class UserStore {
         window.location.href = `${import.meta.env.VITE_PUBLIC_BASE_URL}/`;
     });
 
-    followUser = async (userId: string, followedUserId: string) => {
+    followUser = async (followedUserId: string) => {
         this.setLoadingFollow(true);
         try {
             const followUserDto: FollowUserFormDto = {
                 userToFollowId: followedUserId
             };
-            await agent.userApiClient.followUser(userId, followUserDto);
+            await agent.userApiClient.followUser(followUserDto);
 
         } finally {
             this.setLoadingFollow(false);
         }
     }
 
-    unFollowUser = async (userId: string, unFollowedUserId: string) => {
+    unFollowUser = async (unFollowedUserId: string) => {
         this.setLoadingFollow(true);
         try {
             const unFollowUserDto: UnFollowUserFormDto = {
                 userToUnFollowId: unFollowedUserId
             };
-            await agent.userApiClient.unFollowUser(userId, unFollowUserDto);
+            await agent.userApiClient.unFollowUser(unFollowUserDto);
 
         } finally {
             this.setLoadingFollow(false);

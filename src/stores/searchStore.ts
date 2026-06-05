@@ -94,9 +94,10 @@ export default class SearchStore {
             
             const { items, pagination } = await agent.userApiClient.getUsersToAdd(userId, this.searchUsersAxiosParams) ?? [];
 
+            console.log("usersToAdd:", items);
             runInAction(() => {
                 items.forEach((userItem: UserItemToDisplay) => {
-                    this.setSearchedUser(userItem.user.id, userItem);
+                    this.setSearchedUser(userItem.id, userItem);
                 });
             });
 
@@ -118,7 +119,7 @@ export default class SearchStore {
 
             runInAction(() => {
                 items.forEach((postItem: PostToDisplay) => {
-                    this.setSearchedPost(postItem.post.id, postItem);
+                    this.setSearchedPost(postItem.postId, postItem);
                 });
             });
 

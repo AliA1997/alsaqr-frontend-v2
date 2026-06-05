@@ -204,8 +204,8 @@ export default class CommunityFeedStore {
         try {
             const newCommunityDto: CreateListOrCommunityFormDto = {
                 ...newCommunity,
-                usersAdded: newCommunity.usersAdded.map(u => u.user.id),
-                postsAdded: newCommunity.postsAdded.map(p => p.post.id)
+                usersAdded: newCommunity.usersAdded.map(u => u.id),
+                postsAdded: newCommunity.postsAdded.map(p => p.postId)
             };
             await agent.communityApiClient.addCommunity(newCommunityDto, userId)
 

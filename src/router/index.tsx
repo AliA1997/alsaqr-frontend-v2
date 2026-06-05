@@ -1,3 +1,4 @@
+import 'react';
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 
 import App from '../App';

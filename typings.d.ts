@@ -59,17 +59,40 @@ export type CommonRecordBody = {
 // followedUser - [:FOLLOWED] -> user
 // on unfollow -> delete FOLLOW_USER and FOLLOWED relationship
 export interface ProfileUser {
-  user: User;
+  userId: string;
+  username: string;
+  avatar?: string;
+  bgThumbnail?: string;
+  bio?: string;
+  createdAt: Date;
+  updatedAt?: Date;
   bookmarks: string[];
-  following?: User[];
-  followers?: User[];
+  bookmarkCount: number;
+  following?: object[];
+  followingCount: number;
+  followers?: object[];
+  followerCount: number;
 }
 
 
 export interface UserItemToDisplay {
-  user: User;
-  following?: User[];
-  followers?: User[];
+  id: string;
+  username: string;
+  avatar?: string;
+  bgThumbnail?: string;
+  bio?: string;
+  firstName?: string;
+  lastName?: string;
+  bannerImage?: string;
+  countryOfOrigin?: string;
+  preferredMadhab?: string;
+  hobbies: string[];
+  favoriteQuranReciters: string[];
+  favoriteIslamicScholars: string[];
+  islamicStudyTopics: string[];
+  followingCount: number;
+  followerCount: number;
+  totalItems: number;
 }
 
 export interface UserRegisterFormDto extends UserRegisterForm {
@@ -97,14 +120,19 @@ export interface User extends UserInfo {
   geoId?: string;
   maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed';
   hobbies?: string[];
-  religion?: "Christian" | "Muslim" | "Atheist" | "Agnostic" | "Jew" | "Prefer Not To Disclose";
-  preferredMadhab?: 'Hanafi' | "Shafi'i" | 'Maliki' | 'Hanbali' | "Salafi" | "Prefer Not To Disclose";
+  religion?: string;
+  preferredMadhab?: string;
   frequentMasjid?: string;
   favoriteQuranReciters?: string[];
   favoriteIslamicScholars?: string[];
   islamicStudyTopics?: string[];
-  followingUsers: string[];
-  followedByUsers: string[];
+  following: Record<string, unknown>[];
+  followingCount: number;
+  followers: Record<string, unknown>[];
+  followerCount: number;
+  bookmarks: string[];
+  reposts: string[];
+  likedPosts: string[];
   isCompleted: boolean;
   verified: boolean;
 }
@@ -127,21 +155,24 @@ export interface UserProfileDashboardPosts {
   likedPosts: DashboardPostToDisplay[];
   repostedPosts: DashboardPostToDisplay[];
   repliedPosts: DashboardPostToDisplay[];
-  success: boolean;
 }
 
 export interface DashboardPostToDisplay extends PostToDisplay {
   type: string;
 }
 
-export interface PostToDisplay {
-  post: PostRecord,
-  username: string;
-  profileImg: string;
-  comments: Comment[],
-  commenters: User[],
-  reposters: User[],
-  likers: User[]
+export interface PostToDisplay extends PostRecord {
+  comments: PostCommentDto[];
+  commenters: PostUserInfoDto[];
+
+  reposters: PostUserInfoDto[];
+  repostCount: number;
+
+  likers: PostUserInfoDto[];
+  likeCount: number;
+
+  bookmarkers: PostUserInfoDto[];
+  bookmarkCount: number;
 }
 
 export interface SavedPostItem {
@@ -151,15 +182,25 @@ export interface SavedPostItem {
 }
 
 export interface PostRecord extends CommonRecordBody {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  _rev: string;
-  _type: "post";
-  blockTweet: boolean;
-  tags: string[];
-  likes?: string[];
+  postId: string;
+  content: string;
+  postTags: string[];
+  postCreatedAt: string;
+  postUpdatedAt: string;
   userId?: string;
+  username: string;
+  profileImg?: string;
+  authorBio?: string;
+  postType?: string;
+  relatedPostId?: string | null;
+  postAvatar?: string | null;
+  postBannerImage?: string | null;
+}
+
+export interface CreatePostForm {
+  text: string;
+  image?: string;
+  tags: string[];
 }
 
 export interface CommentForm extends Comment {
@@ -174,6 +215,23 @@ export interface Comment extends CommonRecordBody {
   text: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface PostCommentDto {
+  id: string;
+  postId: string;
+  userId: string;
+  content: string;
+  username?: string;
+  profileImg?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PostUserInfoDto {
+  id: string;
+  username: string;
+  profileImg?: string;
 }
 
 export interface CommentToDisplay extends Comment {
@@ -283,21 +341,21 @@ export interface CommunityAdminInfo {
 //  RETURN count(*)', 
 // {phase: 'after'})
 export interface NotificationRecord extends CommonRecordBody {
-  id: string;
-  message: string;
-  read: boolean;
+  notificationId: string;
+  userId: string;
+  notificationMessage: string;
+  isRead: boolean;
   relatedEntityId?: string;
   link?: string;
-  createdAt: string;
-  updatedAt: string;
-  _rev: string;
-  _type: "notification";
-  notificationType: NotificationType;
+  notificationCreatedAt: string;
+  notificationUpdatedAt: string;
+  postId?: string;
+  communityId?: string;
+  communityDiscussionId?: string;
 }
 
-export interface NotificationToDisplay {
-  notification: NotificationRecord,
-}
+
+export interface NotificationToDisplay extends NotificationRecord {}
 
 export interface ServerError {
   statusCode: number;

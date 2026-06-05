@@ -28,9 +28,9 @@ function SavedListItem({
 
   const navigateToRelatedEntity = () => {
     if (savedListItemToDisplay.label === "Post")
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/status/${(savedListItemToDisplay.relatedEntity as PostToDisplay).post.id}`, "_blank");
+      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/status/${(savedListItemToDisplay.relatedEntity as PostToDisplay).postId}`, "_blank");
     else if (savedListItemToDisplay.label === "User")
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/users/${(savedListItemToDisplay.relatedEntity as UserItemToDisplay).user.username}`), "_blank";
+      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/users/${(savedListItemToDisplay.relatedEntity as UserItemToDisplay).username}`), "_blank";
     else if (savedListItemToDisplay.label === "Community")
       window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${({ community: savedListItemToDisplay.relatedEntity } as CommunityToDisplay).community.id}`, "_blank")
     else if (savedListItemToDisplay.label === "Community Discussion") {

@@ -146,7 +146,6 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
     };
   }, []);
 
-
   return (
     <div 
       className={`
@@ -177,7 +176,7 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
               <>
                 {(loadedUsers ?? []).map((userRec: UserItemToDisplay, userKey) => (
                   <UserItemComponent
-                    key={userRec.user.id ?? userKey}
+                    key={userRec.id ?? userKey}
                     loggedInUserId={loggedInUserId}
                     filterKey={filterKey}
                     userItemToDisplay={userRec}

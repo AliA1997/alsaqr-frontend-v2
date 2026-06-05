@@ -41,7 +41,7 @@ function UserItemComponent({
     const { modalStore } = useStore();
     const { showModal, closeModal } = modalStore;
 
-    const userItemInfo = userItemToDisplay.user;
+    const userItemInfo = userItemToDisplay;
     const [isFollowing, setIsFollowing] = useState<boolean>(false);
     // For cases such as adding users to communities or lists.
     const [isAdded, setIsAdded] = useState<boolean>(false);
@@ -132,7 +132,7 @@ function UserItemComponent({
                     <div className="flex justify-items-start items-end align-items-end space-x-2 text-gray-900 dark:text-gray-50">
                         <OptimizedImage
                             classNames="h-10 w-10 rounded-full object-cover"
-                            src={userItemInfo.avatar}
+                            src={userItemInfo.avatar ?? ''}
                             alt={userItemInfo.username}
                             onClick={(e) => stopPropagationOnClick(e, navigateToUser)}
                         />
@@ -145,10 +145,10 @@ function UserItemComponent({
                             </p>
                             <div className='flex item-center justify-items-start space-x-3'>
                                 <p className='italic text-gray-400 text-sm'>
-                                    {(userItemToDisplay.following ?? []).length} Following
+                                    {userItemToDisplay.followingCount} Following
                                 </p>
                                 <p className='italic text-gray-400 text-sm'>
-                                    {(userItemToDisplay.followers ?? []).length} Followers
+                                    {userItemToDisplay.followerCount} Followers
                                 </p>
                             </div>
 

@@ -42,12 +42,12 @@ export const SaveToListModal = observer(({
         if (relatedEntityType === "post") {
             castedRecord = info as PostToDisplay;
          
-            await savePostToList(castedRecord.post.id, currentSessionUser?.id!, listId);
+            await savePostToList(castedRecord.postId, currentSessionUser?.id!, listId);
         }
         if (relatedEntityType === "user") {
             castedRecord = info as UserItemToDisplay;
 
-            await saveUserToList(castedRecord.user.id, currentSessionUser?.id!, listId);
+            await saveUserToList(castedRecord.id, currentSessionUser?.id!, listId);
         }
     }
 
