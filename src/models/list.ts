@@ -25,7 +25,55 @@ export interface ListItem {
 export interface ListItemRecord extends ListItem {}
 
 export interface ListItemToDisplay {
-  listItem: ListItem;
-  relatedEntity: any;
-  label: "Post" | "Community" | "Community Discussion" | "Community Discussion Message" | "List" | "User";
+    listItemId: string;
+    listId: string;
+    itemType: string;
+    savedAt: Date;
+    //Post Fields
+    postId?: string;
+    postContent?: string;
+    postType?: string;
+    postTags?: string[];
+    postCreatedAt?: Date;
+    postUsername?: string;
+    postAvatar?: string;
+    postBannerImage?: string;
+
+    // Community fields
+    communityId?: string;
+    communityName?: string;
+    communityDescription?: string;
+    communityAvatar?: string;
+    communityBannerImage?: string;
+    communityTags?: string[];
+    communityFounderUsername?: string;
+    communityFounderAvatar?: string;
+    communityCreatedAt?: Date;
+    communityTotalMembers?: number;
+
+
+    // Saved User Fields
+    savedUserId?: string;
+    savedUserUsername?: string;
+    savedUserAvatar?: string;
+    savedUserBio?: string;
+    
+    // Saved Community Discussion Fields
+    communityDiscussionId?: string;
+    communityDiscussionTitle?: string;
+    communityDiscussionContent?: string;
+    communityDiscussionCreatedAt?: Date;
+    communityDiscussionUsername?: string;
+    communityDiscussionAvatar?: string;
+    
+    // Saved Community Discussion Message Fields
+    communityDiscussionMessageId?: string;
+    communityDiscussionMessageContent?: string;
+    communityDiscussionMessageMedia?: string;
+    communityDiscussionMessageCreatedAt?: Date;
+    communityDiscussionMessageUsername?: string;
+    communityDiscussionMessageAvatar?: string;
+    label: "Post" | "Community" | "Community Discussion" | "Community Discussion Message" | "List" | "User";
+
+    relatedEntity: object;
 }

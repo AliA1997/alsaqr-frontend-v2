@@ -151,7 +151,7 @@ export default class CommunityFeedStore {
             await agent.communityApiClient.joinCommunity(joinCommunityDto, userId, communityId)
 
             runInAction(() => {
-                this.updateCommunityRelationship(communityId, RelationshipType.Joined);
+                this.updateCommunityRelationship(communityId, RelationshipType.Member);
             });
         } finally {
             this.setLoadingJoinCommunity(false);
@@ -171,7 +171,7 @@ export default class CommunityFeedStore {
             await agent.communityApiClient.requestToJoinCommunity(joinCommunityDto, userId, communityId)
 
             runInAction(() => {
-                this.updateCommunityRelationship(communityId, RelationshipType.InviteRequested);
+                this.updateCommunityRelationship(communityId, RelationshipType.Requested);
             });
         } finally {
             this.setLoadingJoinCommunity(false);
@@ -234,7 +234,7 @@ export default class CommunityFeedStore {
 
             runInAction(() => {
                 items.forEach((community: CommunityToDisplay) => {
-                    this.setCommunity(community.community.id, community)
+                    this.setCommunity(community.communityId, community)
                 });
             });
 

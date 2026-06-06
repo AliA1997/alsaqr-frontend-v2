@@ -57,8 +57,8 @@ export const SaveToListModal = observer(({
     }, [currentSessionUser])
 
     const listOptions = useMemo(() => lists.map(list => ({
-        value: list.list.id,
-        label: list.list.name
+        value: list.listId,
+        label: list.listName
     })), [lists])
 
     return (

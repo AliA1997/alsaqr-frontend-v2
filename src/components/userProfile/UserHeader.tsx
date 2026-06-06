@@ -9,16 +9,16 @@ import { CommonLink } from "@common/Links";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 
-import { MailIcon, UserAddIcon } from "@heroicons/react/outline";
+// import { MailIcon, UserAddIcon } from "@heroicons/react/outline";
 import { ButtonLoader } from "@common/CustomLoader";
 import toast from "react-hot-toast";
-import MessageModal from "@common/MessageModal";
+// import MessageModal from "@common/MessageModal";
 import { GoBackButton } from "@common/IconButtons";
-import { defineUsersMessagesArray } from "@utils/index";
-import { SaveToListModal } from "@components/list/ListModal";
-import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
+// import { defineUsersMessagesArray } from "@utils/index";
+// import { SaveToListModal } from "@components/list/ListModal";
+// import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { OptimizedImage } from "@common/Image";
-import SidebarRow from "../../layout/SidebarRow";
+// import SidebarRow from "../../layout/SidebarRow";
 
 type UserHeaderProps = {
   profileInfo: ProfileUser;
@@ -35,9 +35,14 @@ const UserHeader = ({
   followingCount
 }: UserHeaderProps) => {
   const navigate = useNavigate();
-  const { authStore, userStore, messageStore, modalStore } = useStore();
+  const { 
+    authStore, 
+    userStore, 
+    // messageStore, 
+    // modalStore 
+  } = useStore();
   const { followUser, unFollowUser, loadingFollow } = userStore;
-  const { setCurrentProfileToMessage } = messageStore;
+  // const { setCurrentProfileToMessage } = messageStore;
   const { currentSessionUser } = authStore;
   // const { showModal, closeModal } = modalStore;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);

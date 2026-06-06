@@ -170,7 +170,7 @@ export default class ListFeedStore {
             const { items, pagination } = await agent.listApiClient.getLists(this.axiosParams, userId);
             runInAction(() => {
                 items.forEach((list: ListToDisplay) => {
-                    this.setList(list.list.id, list)
+                    this.setList(list.listId, list)
                 });
             });
 
@@ -205,7 +205,7 @@ export default class ListFeedStore {
 
             runInAction(() => {
                 result.data.forEach((listItem: ListItemToDisplay) => {
-                    this.setSavedListItem(listItem.listItem.id, listItem)
+                    this.setSavedListItem(listItem.listItemId, listItem)
                 });
                 this.setSavedListItemsPagination(result.pagination);
 

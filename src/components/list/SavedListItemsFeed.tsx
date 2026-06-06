@@ -4,7 +4,6 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import { ContentContainerWithRef } from "@common/Containers";
-import { PagingParams } from "@models/common";
 import SavedListItem from "./SavedListItem";
 
 interface Props {
@@ -19,14 +18,10 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
     savedListItems,
     listInfoForSavedListItems,
     loadSavedListItems,
-    loadingListItems,
-    savedListItemsPagingParams,
-    savedListItemsPagination,
-    setSavedListItemsPagingParams
+    loadingListItems
   } = listFeedStore;
   const { currentSessionUser } = authStore;
   const containerRef = useRef(null);
-  const loaderRef = useRef(null);
 
   async function getListItems() {
     setLoading(true);
@@ -38,57 +33,11 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
     }
   }
 
-  const fetchMoreItems = async (pageNum: number) => {
-    setSavedListItemsPagingParams(new PagingParams(pageNum, 10))
-    await loadSavedListItems(currentSessionUser?.id!, listId);
-  };
-
   useEffect(() => {
     if (currentSessionUser?.id)
       getListItems();
   }, [currentSessionUser])
 
-  const LoadMoreTrigger = () => {
-    return (
-      <div ref={loaderRef} style={{ height: '20px' }}>
-        {loadingListItems && <div>Loading more list items...</div>}
-      </div>
-    );
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = savedListItemsPagination?.currentPage ?? 1;
-        const itemsPerPage = savedListItemsPagination?.itemsPerPage ?? 10;
-        const totalItems = savedListItemsPagination?.totalItems ?? 10;
-
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = (totalItems > totalItemsOnNextPage);
-        if (firstEntry?.isIntersecting && !loadingListItems && hasMoreItems) {
-          fetchMoreItems(savedListItemsPagingParams.currentPage + 1);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '10px',
-        threshold: 0.2
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
-  }, []);
 
   return (
     <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-7 dark:border-gray-800">
@@ -101,10 +50,9 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
             {savedListItems && savedListItems.length
               ?
               savedListItems.map((savedListItem) => (
-                <SavedListItem key={savedListItem.listItem.id} savedListItemToDisplay={savedListItem} />
+                <SavedListItem key={savedListItem.listItemId} savedListItemToDisplay={savedListItem} />
               ))
               : <NoRecordsTitle>No saved items for this list.</NoRecordsTitle>}
-            <LoadMoreTrigger />
           </>
         )}
       </ContentContainerWithRef>

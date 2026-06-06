@@ -1,6 +1,6 @@
 import { FilterKeys, useStore } from "@stores/index";
 import { ModalBody, ModalPortal } from "./Modal";
-import { User, UserItemToDisplay } from "@typings";
+import { User } from "@typings";
 import { useRef } from "react";
 import { ContentContainerWithRef } from "@common/Containers";
 import { PageTitle } from "@common/Titles";
@@ -48,7 +48,7 @@ function RequestedInvitesModal({
                         {(invitedUsers ?? []).map((invitedUser: User, invitedUserKey) => (
                             <UserInviteItemComponent
                                 key={invitedUser.id ?? invitedUserKey}
-                                userItemToDisplay={{user: invitedUser} as UserItemToDisplay}
+                                userItemToDisplay={{user: invitedUser} as any}
                                 entityInvitedToId={entityInvitedToId}
                                 childEntityInviteToId={childEntityInviteToId}
                                 filterKey={filterKey}

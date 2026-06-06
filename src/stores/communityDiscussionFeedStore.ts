@@ -118,7 +118,7 @@ export default class CommunityDiscussionFeedStore {
             await agent.communityApiClient.joinCommunityDiscussion(joinCommunityDto, userId, communityId, communityDiscussionId)
 
             runInAction(() => {
-                this.updateCommunityDiscussionRelationship(communityDiscussionId, RelationshipType.Joined);
+                this.updateCommunityDiscussionRelationship(communityDiscussionId, RelationshipType.Member);
             });
         } finally {
             this.setLoadingJoinCommunityDiscussion(false);
@@ -138,7 +138,7 @@ export default class CommunityDiscussionFeedStore {
             await agent.communityApiClient.requestToJoinCommunityDiscussion(joinCommunityDto, userId, communityId, communityDiscussionId)
 
             runInAction(() => {
-                this.updateCommunityDiscussionRelationship(communityDiscussionId, RelationshipType.InviteRequested);
+                this.updateCommunityDiscussionRelationship(communityDiscussionId, RelationshipType.Requested);
             });
         } finally {
             this.setLoadingJoinCommunityDiscussion(false);
@@ -174,7 +174,7 @@ export default class CommunityDiscussionFeedStore {
             const newCommunityDiscussionDto: CreateListOrCommunityFormDto = {
                 ...newCommunityDiscussion,
                 postsAdded: [],
-                usersAdded: newCommunityDiscussion.usersAdded.map(u => u.user.id)
+                usersAdded: newCommunityDiscussion.usersAdded.map(u => u.id)
             };
 
             await agent.communityApiClient.addCommunityDiscussion(newCommunityDiscussionDto, userId, communityId);
@@ -197,9 +197,11 @@ export default class CommunityDiscussionFeedStore {
         this.setLoadingInitial(true);
         try {
             const { items, pagination } = await agent.communityApiClient.getCommunityDiscussions(this.axiosParams, userId, communityId) ?? [];
+            console.log("communitydiscussion items:", items);
+
             runInAction(() => {
                 items.forEach((communityDiscussion: CommunityDiscussionToDisplay) => {
-                    this.setCommunityDiscussion(communityDiscussion.communityDiscussion.id, communityDiscussion)
+                    this.setCommunityDiscussion(communityDiscussion.communityDiscussionId, communityDiscussion)
                 });
             });
 

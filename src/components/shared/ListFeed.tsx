@@ -154,7 +154,7 @@ const ListFeed = observer(({ }: Props) => {
           <>
             {lists && lists.length
               ? lists.map((record: ListToDisplay, recordKey) => (<ListItemComponent
-                key={record.list.id ?? recordKey}
+                key={record.listId ?? recordKey}
                 listToDisplay={record}
               />))
               : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}

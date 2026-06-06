@@ -41,7 +41,7 @@ const CommunityPage = observer(() => {
         [currentSessionUser]
     );
 
-    if (loading)
+    if (loading && currentSessionUser)
         return <SkeletonLoader count={8} />
     else
         return (

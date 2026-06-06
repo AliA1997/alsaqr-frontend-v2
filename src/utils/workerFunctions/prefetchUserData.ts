@@ -28,13 +28,13 @@ function setBookmarks(bookmarks: PostToDisplay[], bookmarksPagination: Paginatio
 }
 function setCommunities(communities: CommunityToDisplay[], communityPagination: Pagination) {
     communities.forEach((community: CommunityToDisplay) => {
-        store.communityFeedStore.setCommunity(community.community.id, community)
+        store.communityFeedStore.setCommunity(community.communityId, community)
     });
     store.communityFeedStore.setPagination(communityPagination);
 }
 function setLists(lists: ListToDisplay[], listPagination: Pagination) {
     lists.forEach((list: ListToDisplay) => {
-        store.listFeedStore.setList(list.list.id, list)
+        store.listFeedStore.setList(list.listId, list)
     });
     store.listFeedStore.setPagination(listPagination);
 }

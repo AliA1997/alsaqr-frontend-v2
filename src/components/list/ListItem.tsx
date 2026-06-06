@@ -40,8 +40,8 @@ function ListItemComponent({
   });
 
 
-  const listInfo = listToDisplay.list;
-  const founder = listToDisplay.savedBy;
+  const listInfo = listToDisplay;
+  const founder = listToDisplay.owner;
 
   useLayoutEffect(() => {
     
@@ -49,7 +49,7 @@ function ListItemComponent({
       const savedLists: any[] = [];
 
       const listAlreadySaved =
-        savedLists?.some((listSavedById: string) => listSavedById === listToDisplay.list.id) ?? false;
+        savedLists?.some((listSavedById: string) => listSavedById === listToDisplay.listId) ?? false;
 
       initiallyBooleanValues.current = {
         alreadySaved: listAlreadySaved,
@@ -63,7 +63,7 @@ function ListItemComponent({
   };
 
   const navigateToList = () => {
-    navigate(`/lists/${listInfo.id}`);
+    navigate(`/lists/${listInfo.listId}`);
   };
 
   const userId = useMemo(() => currentSessionUser ? currentSessionUser.id : "", [currentSessionUser]);
@@ -71,7 +71,7 @@ function ListItemComponent({
   const moreOptions = useMemo(() => {
     const defaultOpts = [];
 
-    if (listInfo.userId === currentSessionUser?.id)
+    if (listInfo.owner?.userId === currentSessionUser?.id)
       defaultOpts.push({
         title: 'Delete Your List',
         onClick: async () => {
@@ -82,7 +82,7 @@ function ListItemComponent({
               onClose={() => closeModal()}
               declineButtonText="Cancel"
               confirmFunc={async () => {
-                await deleteList(listInfo.userId, listInfo.id);
+                await deleteList(listInfo.owner?.userId, listInfo.listId);
                 closeModal();
               }}
               confirmMessage="Are you sure you want to delete this list forever?"
@@ -99,7 +99,7 @@ function ListItemComponent({
       });
 
     return defaultOpts;
-  }, [listInfo.id]);
+  }, [listInfo.listId]);
 
   return (
     <>
@@ -108,7 +108,7 @@ function ListItemComponent({
           flex flex-col relative justify-between space-x-3 border-y border-gray-100 mr-[1rem]
           p-5 mr-1 mb-2 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] h-[8.5rem] w-[30rem] lg:w-[20rem]
           hover:cursor-pointer`}
-        style={{ backgroundImage: `url('${listInfo.bannerImage}')`, objectFit: "scale-down" }}
+        style={{ backgroundImage: `url('${listInfo.listBannerImage}')`, objectFit: "scale-down" }}
         data-testid='listcard'
       >
         <div className="absolute m-0 inset-0 bg-gradient-to-t from-gray-900/40 to-gray-900/20"></div>
@@ -116,12 +116,12 @@ function ListItemComponent({
           <div className="flex item-center w-full space-x-1 z-10 relative">
             <OptimizedImage
               classNames="h-10 w-10 rounded-full object-cover hover:underline"
-              src={founder.avatar}
-              alt={founder.username}
+              src={founder.ownerAvatar}
+              alt={founder.ownerUsername}
               onClick={(e) => stopPropagationOnClick(e, navigateToTweetUser)}
 
             />
-            {userId === listInfo.listCreator && (
+            {userId === listInfo.owner?.userId && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -139,19 +139,19 @@ function ListItemComponent({
               className={`font-bold text-gray-100 mr-1 hover:underline`}
               onClick={(e) => stopPropagationOnClick(e, navigateToTweetUser)}
             >
-              {founder.username}
+              {founder.ownerUsername}
             </p>
             <p
               className="hidden text-sm text-gray-100 sm:inline dark:text-gray-400 hover:underline"
               onClick={(e) => stopPropagationOnClick(e, navigateToTweetUser)}
             >
               @
-              {founder.username ? founder.username.replace(/\s+/g, "") : ""}
+              {founder.ownerUsername ? founder.ownerUsername.replace(/\s+/g, "") : ""}
               .
             </p>
             <TimeAgo
               className="text-sm text-gray-500 dark:text-gray-400"
-              date={convertDateToDisplay(listInfo.createdAt)}
+              date={convertDateToDisplay(listInfo.listCreatedAt)}
             />
             {moreOptions.length ?
               (
@@ -168,7 +168,7 @@ function ListItemComponent({
             className="pt-1 text-gray-100 text-2xl hover:underline  z-10" 
             onClick={e => stopPropagationOnClick(e, navigateToList)}
           >
-              {listInfo.name}
+              {listInfo.listName}
           </p>
         </div>
       </div>

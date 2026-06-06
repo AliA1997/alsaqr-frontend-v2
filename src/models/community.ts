@@ -1,4 +1,4 @@
-import { CommunityRecord, RelationshipType, User, UserInfo } from "@typings";
+import type { CommunityRecord, User, UserInfo } from "@typings";
 
 // communityDiscussion - [:POSTED_DISCUSSION_ON] -> community
 export interface CommunityDiscussion {
@@ -33,10 +33,33 @@ export interface CommunityDiscussionInfoForMessageRoom {
 }
 
 export interface CommunityDiscussionToDisplay {
-  communityDiscussion: CommunityDiscussionRecord;
-  relationshipType: RelationshipType;
-  invitedUsers: User[];
-  joinedUsers: User[];
+  communityDiscussionId: string;
+  communityId: string;
+  communityDiscussionTitle: string;
+  communityDiscussionContent: string;
+  communityDiscussionCreatedAt: Date;
+  communityDiscussionUpdatedAt?: Date;
+  creatorId: string;
+  creatorUsername: string;
+  creatorAvatar: string;
+  userId: string;
+  userRole: string;
+  userJoinedAt?: Date;
+  relationshipType: string;
+  joinedUsers: object[];
+  moderatorUsers: object[];
+  invitedUsers: object[];
+  requestedUsers: object[];
+  memberCount: number;
+  moderatorCount: number;
+  invitedCount: number;
+  requestedCount: number;
+  totalMemberCount: number;
+  lastMessageId?: string;
+  lastMessageCreatorId?: string;
+  lastMessageContent?: string;
+  lastMessageAt?: Date;
+  isPrivate?: boolean;
 }
 
 // Relationship when posting is 

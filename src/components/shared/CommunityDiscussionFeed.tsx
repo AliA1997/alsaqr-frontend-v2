@@ -161,7 +161,7 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
           <>
             {loadedRecords && loadedRecords.length 
               ? loadedRecords.map((record: CommunityDiscussionToDisplay, recordKey) => <CommunityDiscussionItemComponent
-                                                                                            key={record.communityDiscussion.id ?? recordKey}
+                                                                                            key={record.communityDiscussionId ?? recordKey}
                                                                                             communityDiscussionToDisplay={record}
                                                                                         />)
                 : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}

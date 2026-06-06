@@ -110,7 +110,7 @@ const CommunityFeed = observer(({ }: Props) => {
       {
         root: containerRef.current,
         rootMargin: '10px',
-        threshold: 0.2
+        threshold: 0.1
       }
     );
 
@@ -154,7 +154,7 @@ const CommunityFeed = observer(({ }: Props) => {
           <>
             {communities && communities.length 
               ? communities.map((record: CommunityToDisplay, recordKey) => <CommunityItemComponent
-                                                                                key={record.community.id ?? recordKey}
+                                                                                key={record.communityId ?? recordKey}
                                                                                 community={record}
                                                                             />)
                 : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}

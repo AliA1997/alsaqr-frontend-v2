@@ -31,10 +31,10 @@ const CommunityDiscussionItemComponent = observer(({
     requestToJoinPrivateCommunityDiscussion,
   } = communityDiscussionFeedStore;
 
-  const communityDiscussionInfo = communityDiscussionToDisplay.communityDiscussion;
+  const communityDiscussionInfo = communityDiscussionToDisplay;
 
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(communityDiscussionToDisplay.relationshipType)
+  const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(communityDiscussionToDisplay.relationshipType as RelationshipType)
   const [joined, setJoined] = useState<boolean>(false);
 
   const communityDiscussionUsers = useMemo(() => {
@@ -47,15 +47,15 @@ const CommunityDiscussionItemComponent = observer(({
   ]);
 
   const navigateToCommunityDiscussion = () => {
-    navigate(`/communities/${communityDiscussionInfo.communityId}/${communityDiscussionInfo.id}`);
+    navigate(`/communities/${communityDiscussionInfo.communityId}/${communityDiscussionInfo.communityDiscussionId}`);
   };
 
   const hasToRequestPermissionToJoin = useMemo(() => {
     return (communityDiscussionInfo.isPrivate && currentRelationshipType === RelationshipType.None)
   }, [currentRelationshipType, communityDiscussionToDisplay.relationshipType])
   const hasToJoin = useMemo(() => currentRelationshipType === RelationshipType.None, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
-  const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.InviteRequested, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
-  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Joined || joined, [currentRelationshipType, communityDiscussionToDisplay.relationshipType, joined]);
+  const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.Requested, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
+  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Member || joined, [currentRelationshipType, communityDiscussionToDisplay.relationshipType, joined]);
 
   return (
     <>
@@ -80,7 +80,7 @@ const CommunityDiscussionItemComponent = observer(({
           >
             <div className='flex flex-col'>
               <h6 data-testid="communitydiscussiontext" className='text-sm text-black dark:text-gray-50'>
-                {communityDiscussionInfo.name}
+                {communityDiscussionInfo.communityDiscussionTitle}
               </h6>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {communityDiscussionUsers.length} Users
@@ -89,7 +89,7 @@ const CommunityDiscussionItemComponent = observer(({
             <div className="flex space-x-2">
               {
                 communityDiscussionUsers.slice(0, 3).map((user, index) => (
-                  <MessagesImagePreview key={index} user={user} index={index} />
+                  <MessagesImagePreview key={index} user={user as any} index={index} />
                 ))}
             </div>
           </div>
@@ -97,16 +97,16 @@ const CommunityDiscussionItemComponent = observer(({
           <div className='flex justify-start'>
             <TagOrLabel
               color={
-                currentRelationshipType === RelationshipType.Founder ? 'gold'
-                  : currentRelationshipType === RelationshipType.Invited ? 'success'
-                    : currentRelationshipType === RelationshipType.Joined ? 'primary'
-                      : currentRelationshipType === RelationshipType.InviteRequested ? 'secondary'
+                (currentRelationshipType as RelationshipType) === RelationshipType.Founder ? 'gold'
+                  : (currentRelationshipType as RelationshipType) === RelationshipType.Invited ? 'success'
+                    : (currentRelationshipType as RelationshipType) === RelationshipType.Member ? 'primary'
+                      : (currentRelationshipType as RelationshipType) === RelationshipType.Requested ? 'secondary'
                         : 'neutral'
               }
               size="sm"
               className='w-full max-w-fit self-end self-[unset]'
             >
-              {requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType}
+              {requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType.toUpperCase()}
             </TagOrLabel>
             <TagOrLabel
               color={communityDiscussionInfo.isPrivate ? 'danger' : 'info'}
@@ -125,17 +125,17 @@ const CommunityDiscussionItemComponent = observer(({
                   e.stopPropagation();
                   setSubmitting(true);
                   if (hasToRequestPermissionToJoin) {
-                    await requestToJoinPrivateCommunityDiscussion(communityDiscussionInfo.communityId, communityDiscussionInfo.id);
-                    setCurrentRelationshipType(RelationshipType.InviteRequested);
+                    await requestToJoinPrivateCommunityDiscussion(communityDiscussionInfo.communityId, communityDiscussionInfo.communityDiscussionId);
+                    setCurrentRelationshipType(RelationshipType.Requested);
                   }
                   else if (canUnJoin) {
-                    await unjoinPublicCommunityDiscussion(communityDiscussionInfo.communityId, communityDiscussionInfo.id);
+                    await unjoinPublicCommunityDiscussion(communityDiscussionInfo.communityId, communityDiscussionInfo.communityDiscussionId);
                     setCurrentRelationshipType(RelationshipType.None);
                     setJoined(false);
                   }
                   else {
-                    await joinPublicCommunityDiscussion(communityDiscussionInfo.communityId, communityDiscussionInfo.id);
-                    setCurrentRelationshipType(RelationshipType.Joined);
+                    await joinPublicCommunityDiscussion(communityDiscussionInfo.communityId, communityDiscussionInfo.communityDiscussionId);
+                    setCurrentRelationshipType(RelationshipType.Member);
                     setJoined(true);
                   }
                   setSubmitting(false);

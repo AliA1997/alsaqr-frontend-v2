@@ -2,17 +2,14 @@ import {
   useMemo,
 } from "react";
 import TimeAgo from "react-timeago";
-import { CommunityToDisplay, PostToDisplay, UserItemToDisplay } from "@typings";
+import type { CommunityToDisplay } from "@typings";
 import { useStore } from "@stores/index";
 import { ListItemToDisplay } from "@models/list";
-import PostComponent from "@components/posts/Post";
-import UserItemComponent from "@components/users/UserItem";
-import CommunityDiscussionItemComponent from "@components/community/CommunityDiscussionItem";
-import { CommunityDiscussionToDisplay } from "@models/community";
 import CommunityItemComponent from "@components/community/CommunityItem";
 import { convertDateToDisplay } from "@utils/index";
 import { TagOrLabel } from "@common/Titles";
 import { ConfirmModal } from "@common/Modal";
+import { SavedCommunityDiscussionItem, SavedCommunityDiscussionMessageItem, SavedPostItem, SavedUserItem } from "./EntityItems";
 
 
 interface Props {
@@ -27,39 +24,39 @@ function SavedListItem({
   const { loadingUpsert, deleteSavedListItem, loadSavedListItems, listInfoForSavedListItems } = listFeedStore;
 
   const navigateToRelatedEntity = () => {
-    if (savedListItemToDisplay.label === "Post")
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/status/${(savedListItemToDisplay.relatedEntity as PostToDisplay).postId}`, "_blank");
-    else if (savedListItemToDisplay.label === "User")
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/users/${(savedListItemToDisplay.relatedEntity as UserItemToDisplay).username}`), "_blank";
-    else if (savedListItemToDisplay.label === "Community")
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${({ community: savedListItemToDisplay.relatedEntity } as CommunityToDisplay).community.id}`, "_blank")
-    else if (savedListItemToDisplay.label === "Community Discussion") {
-      const cmtyDisc = (savedListItemToDisplay.relatedEntity as CommunityDiscussionToDisplay).communityDiscussion;
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${cmtyDisc.communityId}/${cmtyDisc.id}`, "_blank")
+    if (savedListItemToDisplay.postId)
+      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/status/${savedListItemToDisplay.postId}`, "_blank");
+    else if (savedListItemToDisplay.savedUserId)
+      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/users/${savedListItemToDisplay.savedUserUsername}`), "_blank";
+    else if (savedListItemToDisplay.communityId && !savedListItemToDisplay.communityDiscussionId)
+      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${savedListItemToDisplay.communityId}`, "_blank")
+    else if (savedListItemToDisplay.communityDiscussionId) {
+      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${savedListItemToDisplay.communityId}/${savedListItemToDisplay.communityDiscussionId}`, "_blank")
     }
   };
 
   const RelatedEntityNode = () => {
-    if (savedListItemToDisplay.label === "Post")
-      return <PostComponent onlyDisplay={true} postToDisplay={savedListItemToDisplay.relatedEntity as PostToDisplay} />;
-    else if (savedListItemToDisplay.label === "User")
-      return <UserItemComponent
-        userItemToDisplay={savedListItemToDisplay.relatedEntity as UserItemToDisplay}
-        usersAlreadyFollowedOrAddedIds={[]}
-        loggedInUserId={authStore.currentSessionUser?.id ?? ''}
-        canAddOrFollow={false}
-        onModal={true}
-        justDisplay={true}
-      />;
-    else if (savedListItemToDisplay.label === "Community")
+    if (savedListItemToDisplay.postId)
+      return <SavedPostItem listItem={savedListItemToDisplay} />;
+    else if (savedListItemToDisplay.savedUserId)
+      return <SavedUserItem listItem={savedListItemToDisplay} />;
+    else if (savedListItemToDisplay.communityId)
       return <CommunityItemComponent
-        community={{ community: savedListItemToDisplay.relatedEntity } as CommunityToDisplay}
+        community={{
+          communityId: savedListItemToDisplay.communityId,
+          communityName: savedListItemToDisplay.communityName,
+          communityAvatar: savedListItemToDisplay.communityDescription,
+          communityBannerImage: savedListItemToDisplay.communityBannerImage,
+          communityCreatedAt: savedListItemToDisplay.communityCreatedAt,
+          founderUsername: savedListItemToDisplay.communityFounderUsername,
+          founderAvatar: savedListItemToDisplay.communityFounderAvatar,
+          totalMembers: savedListItemToDisplay.communityTotalMembers
+        } as CommunityToDisplay}
       />;
-    else if (savedListItemToDisplay.label === "Community Discussion")
-      return <CommunityDiscussionItemComponent
-        communityDiscussionToDisplay={savedListItemToDisplay.relatedEntity as CommunityDiscussionToDisplay}
-      />;
-
+    else if (savedListItemToDisplay.communityDiscussionId)
+      return <SavedCommunityDiscussionItem listItem={savedListItemToDisplay} />;
+    else if (savedListItemToDisplay.communityDiscussionMessageId)
+      return <SavedCommunityDiscussionMessageItem listItem={savedListItemToDisplay} />;
     else
       return <div>{JSON.stringify(savedListItemToDisplay.relatedEntity)}</div>
   }
@@ -83,7 +80,7 @@ function SavedListItem({
           <TimeAgo
 
             className="text-sm text-gray-500 dark:text-gray-400"
-            date={convertDateToDisplay(savedListItemToDisplay.listItem.savedAt)}
+            date={convertDateToDisplay(savedListItemToDisplay.savedAt)}
           />
         </div>
 
@@ -112,7 +109,7 @@ function SavedListItem({
               confirmMessage=""
               confirmButtonClassNames="bg-red-700"
               confirmFunc={async () => {
-                await deleteSavedListItem(authStore.currentSessionUser?.id!, savedListItemToDisplay.listItem?.listId!, savedListItemToDisplay.listItem?.id);
+                await deleteSavedListItem(authStore.currentSessionUser?.id!, savedListItemToDisplay?.listId!, savedListItemToDisplay.listItemId);
                 closeModal();
                 await loadSavedListItems(authStore.currentSessionUser?.id!, listInfoForSavedListItems.id!)
               }}

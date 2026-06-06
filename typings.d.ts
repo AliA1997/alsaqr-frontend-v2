@@ -275,8 +275,32 @@ export interface ListRecord {
 // }
 
 export interface ListToDisplay {
-  list: ListRecordToDisplay,
-  savedBy: UserInfo
+  listId: string;
+  listName: string;
+  listDescription?: string;
+  listAvatar?: string;
+  listBannerImage?: string;
+  listTags?: string[];
+  listCreatedAt: Date;
+  listUpdatedAt?: Date;
+  owner: {
+    userId: string;
+    ownerUsername: string;
+    ownerAvatar: string;
+  };
+  itemCounts: {
+    totalItems: number;
+    userItems: number;
+    postItems: number;
+    communityItems: number;
+    discussionItems: number;
+    messageItems: number;
+  };
+  lastSavedItems: {
+    lastItemId: string;
+    lastItemType: string;
+    lastSavedAt: Date;
+  };
 }
 
 export interface CommunityRecord {
@@ -299,18 +323,33 @@ export interface CommunityRecordToDisplay extends CommunityRecord {
 }
 
 export enum  RelationshipType {
-  Joined = 'JOINED',
-  Invited = 'INVITED',
-  Founder = 'FOUNDER',
-  InviteRequested = 'INVITE_REQUESTED',
+  	// founder, moderator, member, requested, invited
+  Member = 'member',
+  Invited = 'invited',
+  Moderator = 'moderator',
+  Founder = 'founder',
+  Requested = 'requested',
   InviteRequestedForCommunityDiscussion = 'INVITE_REQUESTED_FOR_DISCUSSION',
-  None = 'NONE'
+  None = 'none'
 };
 
 export interface CommunityToDisplay {
-  community: CommunityRecordToDisplay,
-  founder: UserInfo,
-  relationshipType: RelationshipType,
+  communityId: string;
+  communityName: string;
+  communityDescription?: string;
+  communityAvatar?: string;
+  communityBannerImage?: string;
+  communityCreatedAt: Date;
+  communityUpdatedAt?: Date;
+  founderId: string;
+  founderUsername: string;
+  founderAvatar: string;
+  userId: string;
+  userRole?: string;
+  userJoinedAt?: Date;
+  relationshipType?: string;
+  totalMembers: number;
+  isPrivate?: boolean;
 }
 
 export interface CommunityAdminInfo {
@@ -349,9 +388,13 @@ export interface NotificationRecord extends CommonRecordBody {
   link?: string;
   notificationCreatedAt: string;
   notificationUpdatedAt: string;
+  relatedUserId?: string;
   postId?: string;
   communityId?: string;
   communityDiscussionId?: string;
+  communityDiscussionMessageId?: string;
+  listId?: string;
+  listItemId?: string;
 }
 
 

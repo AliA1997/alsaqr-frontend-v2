@@ -186,9 +186,10 @@ export const ModalFooterButtons = observer(<T extends CreateListOrCommunityForm>
 
     useEffect(() => {
         if (processNsfwCheck) {
-
+            debugger;
             initializeClient()
                 .then((gradioClient) => {
+                    console.log("HIT GRADIO CLINENT", gradioClient);
                     const processedNsfwStatuses: any[] = [];
 
                     for (let i = 0; i < nsfwKeysToCheck.length; i++) {
@@ -198,16 +199,23 @@ export const ModalFooterButtons = observer(<T extends CreateListOrCommunityForm>
                     return Promise.all(processedNsfwStatuses);
                 })
                 .then((resolvedNsfwStatuses: string[]) => {
+                    console.log('resolvedNsfwStatuses', resolvedNsfwStatuses);
                     if (resolvedNsfwStatuses
                         .some(status =>
                             status === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit']
                             || status === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit'])) {
-                        setNsfwAlert("Please choose a different photo — explicit images aren’t allowed in posts.");
+                                
+                        setNsfwAlert(`Please choose a different photo — explicit images aren’t allowed in ${modalType == CommonUpsertBoxTypes.CommunityDiscussion ? 'community discussions' : modalType == CommonUpsertBoxTypes.Community 
+                                                                                                                ? 'communities' : modalType == CommonUpsertBoxTypes.List 
+                                                                                                                ? 'lists' : 'posts' }.`);
                         setValues({ ...values, avatarOrBannerImage: '' });
                         navigateAfterNsfwCheck(0, { ...values, avatarOrBannerImage: '' });
                     } else {
                         navigateAfterNsfwCheck(currentStep + 1, values);
                     }
+                })
+                .catch(err => {
+                    console.log("Error:", err);
                 })
                 .finally(() => {
                     setProcessNsfwCheck(false);

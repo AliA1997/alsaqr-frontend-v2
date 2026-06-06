@@ -36,23 +36,23 @@ function CommunityItemComponent({
   } = communityFeedStore;
 
 
-  const communityInfo = community.community;
+  const communityInfo = community;
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(community.relationshipType)
+  const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(communityInfo.relationshipType as RelationshipType)
   const [joined, setJoined] = useState<boolean>(false);
-
+  console.log("CURRENT RELATIONSHIP TYPE:", currentRelationshipType)
   const navigateToCommunity = () => {
     setNavigateCommunity(community);
-    navigate(`/communities/${communityInfo.id}`);
+    navigate(`/communities/${communityInfo.communityId}`);
   };
 
   const hasToRequestPermissionToJoin = useMemo(() => {
-    return (community.community.isPrivate && currentRelationshipType === RelationshipType.None)
+    return ((community.isPrivate ?? false) && currentRelationshipType === RelationshipType.None)
   }, [community.relationshipType, currentRelationshipType])
 
   const hasToJoin = useMemo(() => currentRelationshipType === RelationshipType.None, [community.relationshipType, currentRelationshipType]);
-  const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.InviteRequested, [community.relationshipType, currentRelationshipType]);
-  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Joined || joined, [community.relationshipType, currentRelationshipType, joined]);
+  const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.Requested, [community.relationshipType, currentRelationshipType]);
+  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Member || joined, [community.relationshipType, currentRelationshipType, joined]);
 
   return (
     <>
@@ -77,40 +77,40 @@ function CommunityItemComponent({
               onClick={(e) => stopPropagationOnClick(e, navigateToCommunity)}
             >
               <OptimizedImage
-                src={communityInfo.avatar}
-                alt={communityInfo.name}
+                src={communityInfo.communityAvatar ?? ''}
+                alt={communityInfo.communityName}
               />
               <p  data-testid="communitytext" className='text-sm ml-2 text-black dark:text-gray-50'>
-                {communityInfo.name}
+                {communityInfo.communityName}
               </p>
             </div>
 
-            {communityInfo.createdAt && (
+            {communityInfo.communityCreatedAt && (
               <TimeAgo
                 className="text-xs text-gray-500 dark:text-gray-400 hidden md:block"
-                date={convertDateToDisplay(communityInfo.createdAt)}
+                date={convertDateToDisplay(communityInfo.communityCreatedAt)}
               />
             )}
           </div>
           <TagOrLabel
             color={
-              currentRelationshipType === RelationshipType.Founder ? 'gold'
-                : currentRelationshipType === RelationshipType.Invited ? 'success'
-                  : currentRelationshipType === RelationshipType.Joined ? 'primary'
-                    : currentRelationshipType === RelationshipType.InviteRequested ? 'secondary'
+              (currentRelationshipType as RelationshipType) === RelationshipType.Founder ? 'gold'
+                : (currentRelationshipType as RelationshipType) === RelationshipType.Invited ? 'success'
+                  : (currentRelationshipType as RelationshipType) === RelationshipType.Member ? 'primary'
+                    : (currentRelationshipType as RelationshipType) === RelationshipType.Invited ? 'secondary'
                       : 'neutral'
             }
             size="sm"
             className='mt-[-1rem] min-w-[3rem] ml-1 max-w-fit self-end'
           >
-            {requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType}
+            {requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType.toUpperCase()}
           </TagOrLabel>
           <TagOrLabel
-            color={community.community.isPrivate ? 'danger' : 'info'}
+            color={(community.isPrivate ?? false) ? 'danger' : 'info'}
             size="sm"
             className='mt-[0.5rem] min-w-[3rem] max-w-fit self-end ml-1 mr-3 md:mr-3'
           >
-            {community.community.isPrivate ? 'Private' : 'Public'}
+            {(community.isPrivate) ? 'Private' : 'Public'}
           </TagOrLabel>
         </div>
         {(hasToJoin || canUnJoin) && (
@@ -121,17 +121,17 @@ function CommunityItemComponent({
                 e.stopPropagation();
                 setSubmitting(true);
                 if (hasToRequestPermissionToJoin) {
-                  await requestToJoinPrivateCommunity(community.community.id);
-                  setCurrentRelationshipType(RelationshipType.InviteRequested);
+                  await requestToJoinPrivateCommunity(communityInfo.communityId);
+                  setCurrentRelationshipType(RelationshipType.Requested);
                 }
                 else if (canUnJoin) {
-                  await unjoinPublicCommunity(community.community.id);
+                  await unjoinPublicCommunity(communityInfo.communityId);
                   setCurrentRelationshipType(RelationshipType.None);
                   setJoined(false);
                 }
                 else {
-                  await joinPublicCommunity(community.community.id);
-                  setCurrentRelationshipType(RelationshipType.Joined);
+                  await joinPublicCommunity(communityInfo.communityId);
+                  setCurrentRelationshipType(RelationshipType.Member);
                   setJoined(true);
                 }
                 setSubmitting(false);
