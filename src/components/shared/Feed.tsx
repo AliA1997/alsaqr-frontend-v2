@@ -14,7 +14,7 @@ import { leadingDebounce } from "@utils/api/agent";
 import { ContentContainerWithRef } from "@common/Containers";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import PostComponent from "@components/posts/Post";
-import { ModalLoader, SkeletonLoader } from "@common/CustomLoader";
+import { SkeletonLoader } from "@common/CustomLoader";
 import { inTestMode } from "@utils/constants";
 // import toast from "react-hot-toast";
 
@@ -55,7 +55,7 @@ const Feed = observer(({
 
   const feedLoadingInitial = useMemo(() => {
     if (filterKey === FilterKeys.Explore) return exploreStore.loadingInitial;
-    // else if (filterKey === FilterKeys.Search) return searchStore.predicate;
+    else if (filterKey === FilterKeys.SearchPosts) return searchStore.searchPostsLoadingInitial;
     else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.loadingInitial;
     else return feedStore.loadingInitial;
   }, [
@@ -68,7 +68,7 @@ const Feed = observer(({
   const setFeedPagingParams = useMemo(() => {
     if (filterKey === FilterKeys.Explore) return exploreStore.setPagingParams;
     else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.setPagingParams;
-    // else if (filterKey === FilterKeys.Search) return searchStore.predicate;
+    else if (filterKey === FilterKeys.SearchPosts) return searchStore.setSearchedPostsPagingParams;
     else return feedStore.setPagingParams;
   }, [
     searchStore.searchedPostsPagingParams.currentPage,
@@ -79,14 +79,13 @@ const Feed = observer(({
   const setFeedPredicate = useMemo(() => {
     if (filterKey === FilterKeys.Explore) return exploreStore.setPredicate;
     else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.setPredicate;
-    // else if (filterKey === FilterKeys.Search) return searchStore.predicate;
     else return feedStore.setPredicate;
   }, []);
   
   const feedPagingParams = useMemo(() => {
     if (filterKey === FilterKeys.Explore) return exploreStore.pagingParams;
     else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.pagingParams;
-    // else if (filterKey === FilterKeys.Search) return searchStore.predicate;
+    else if (filterKey === FilterKeys.SearchPosts) return searchStore.searchedPostsPagingParams;
     else return feedStore.pagingParams;
   }, [
     searchStore.searchedPostsPagingParams.currentPage,
@@ -119,7 +118,7 @@ const Feed = observer(({
 
   const loadPosts = async () => {
     if(filterKey === FilterKeys.SearchPosts && userId) 
-      await searchStore.loadSearchedPosts(userId);
+      await searchStore.loadSearchedPosts();
     else if(filterKey === FilterKeys.MyBookmarks && userId) 
       await bookmarkFeedStore.loadBookmarkedPosts(userId);
     else if(filterKey === FilterKeys.Normal)
@@ -258,25 +257,42 @@ const Feed = observer(({
         innerRef={containerRef}
         data-testid="feedcontaineritems"
       >
-        {loading && filterKey === FilterKeys.SearchPosts 
-          ? <ModalLoader /> 
-          : (
-          <>
-            {loadedPosts && loadedPosts.length 
-              ? loadedPosts.map((postRec, postKey) => (
-                <PostComponent
-                  filterKey={filterKey}
-                  key={postRec.postId ?? postKey}
-                  postToDisplay={postRec}
-                  onAdd={onAdd}
-                  canAdd={canAdd}
-                  postsAlreadyAddedByIds={postsAlreadyAddedByIds}
-                />
-              ))
-              : <NoRecordsTitle>No Posts to show</NoRecordsTitle>}
-              <LoadMoreTrigger />
-          </>
-        )}
+        {(() => {
+          const isFirstPage = (feedPagination?.currentPage ?? 1) <= 1;
+          const isInitialLoading = feedLoadingInitial || (loading && isFirstPage);
+          const hasPosts = !!loadedPosts?.length;
+
+          // 1. First load, no data yet → skeleton screen (prevents blank flash)
+          if (isInitialLoading && !hasPosts) {
+            return <SkeletonLoader count={filterKey === FilterKeys.SearchPosts ? 2 : 5} />;
+          }
+
+          // 2. Have posts → render them + keep the infinite-scroll trigger
+          if (hasPosts) {
+            return (
+              <>
+                {loadedPosts.map((postRec, postKey) => (
+                  <PostComponent
+                    filterKey={filterKey}
+                    key={postRec.postId ?? postKey}
+                    postToDisplay={postRec}
+                    onAdd={onAdd}
+                    canAdd={canAdd}
+                    postsAlreadyAddedByIds={postsAlreadyAddedByIds}
+                  />
+                ))}
+                <LoadMoreTrigger />
+              </>
+            );
+          }
+
+          // 3. Done loading, genuinely empty
+          return (
+            <NoRecordsTitle>
+              {filterKey === FilterKeys.SearchPosts ? 'No Similar Posts to show' : 'No Posts to show'}
+            </NoRecordsTitle>
+          );
+        })()}
       </ContentContainerWithRef>
     </div>
   );

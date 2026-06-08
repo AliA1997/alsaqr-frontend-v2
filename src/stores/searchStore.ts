@@ -84,7 +84,7 @@ export default class SearchStore {
         return params;
     }
 
-    loadSearchedUsers = async (userId: string) => {
+    loadSearchedUsers = async () => {
 
         this.setSearchUsersLoadingInitial(true);
 
@@ -92,7 +92,7 @@ export default class SearchStore {
             if(this.searchedUsersPagingParams.currentPage === 1)
                 this.searchUsersRegistry.clear();
             
-            const { items, pagination } = await agent.userApiClient.getUsersToAdd(userId, this.searchUsersAxiosParams) ?? [];
+            const { items, pagination } = await agent.userApiClient.getUsersToAdd(this.searchUsersAxiosParams) ?? [];
 
             runInAction(() => {
                 items.forEach((userItem: UserItemToDisplay) => {
@@ -106,7 +106,7 @@ export default class SearchStore {
         }
 
     }
-    loadSearchedPosts = async (userId: string) => {
+    loadSearchedPosts = async () => {
 
         this.setSearchPostsLoadingInitial(true);
 
@@ -114,7 +114,7 @@ export default class SearchStore {
             if(this.searchedPostsPagingParams.currentPage === 1)
                 this.searchUsersRegistry.clear();
             
-            const { items, pagination } = await agent.postApiClient.getPostsToAdd(userId, this.searchPostsAxiosParams) ?? [];
+            const { items, pagination } = await agent.postApiClient.getPostsToAdd(this.searchPostsAxiosParams) ?? [];
 
             runInAction(() => {
                 items.forEach((postItem: PostToDisplay) => {

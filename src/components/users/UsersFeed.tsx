@@ -59,7 +59,7 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
   }, []);
 
   const loadUsers = async () => {
-    await searchStore.loadSearchedUsers(loggedInUserId ?? "");
+    await searchStore.loadSearchedUsers();
   }
 
   async function getUsers() {

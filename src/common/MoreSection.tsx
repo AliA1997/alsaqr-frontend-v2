@@ -52,19 +52,18 @@ function MoreSection({
     return (
         <>
             <div className={`
-                absolute top-0 right-0 pr-[1.1rem] mt-2 w-full flex justify-end
+                absolute top-0 right-0 pr-[1.1rem] mt-2 z-20
                 ${moreOptionClassNames ? moreOptionClassNames : ''}
             `}>
-                <div />
-                {/* <div className='absolute'> */}
+                <div className="relative inline-flex">
                     <MoreButton
                         onClick={e => stopPropagationOnClick(e, () => setIsDropdownOpen(!isDropdownOpen))}
                         containerClassNames=""
                     />
                     {isDropdownOpen && (
-                        <div 
+                        <div
                             className={`
-                                absolute right-[1rem] top-full mt-2 w-48 rounded-md shadow-lg 
+                                absolute right-0 top-full mt-2 w-48 rounded-md shadow-lg
                                 ring-1 bg-white dark:bg-[#000000] ring-black ring-opacity-5 z-[9999]
                             `}
                         >
@@ -86,7 +85,7 @@ function MoreSection({
                             </div>
                         </div>
                     )}
-                {/* </div> */}
+                </div>
             </div>
         </>
     );

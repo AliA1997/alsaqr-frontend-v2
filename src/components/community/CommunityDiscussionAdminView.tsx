@@ -1,10 +1,14 @@
 import { observer } from "mobx-react-lite";
+import { useNavigate } from "react-router";
 import { convertDateToDisplay } from "@utils/index";
 import { FilterKeys, useStore } from "@stores/index";
 import RequestedInvitesModal from "@common/RequestedInvitesModal";
+import UpdateCommunityDiscussionModal from "@common/UpdateCommunityDiscussionModal";
 import type { CommunityDiscussionAdminInfo } from "@models/community";
 import { InfoCardContainer } from "@common/Containers";
+import { ConfirmModal } from "@common/Modal";
 import { TagOrLabel } from "@common/Titles";
+import { CommonLink } from "@common/Links";
 
 type Props = {
     communityDiscussionAdminInfo: CommunityDiscussionAdminInfo;
@@ -13,30 +17,74 @@ type Props = {
 
 function CommunityDiscussionAdminView({
     communityDiscussionAdminInfo,
+    refreshCommunityDiscussionAdminInfo,
 }: Props) {
-    const { modalStore } = useStore();
-    const { showModal } = modalStore;
-    
+    const navigate = useNavigate();
+    const { modalStore, communityDiscussionFeedStore } = useStore();
+    const { showModal, closeModal } = modalStore;
+
     if (communityDiscussionAdminInfo)
         return (
             <>
-                <div className='flex justify-between p-5'>
+                <div className='flex justify-between items-center p-5'>
                      <h1 className='text-4xl'>
                         {`A Discussion Starter Welcome `}
                     </h1>
+                    <div className='flex space-x-2'>
+                        <CommonLink
+                            onClick={() =>
+                                showModal(
+                                    <UpdateCommunityDiscussionModal
+                                        loggedInUserId={communityDiscussionAdminInfo.founder?.userId ?? ''}
+                                        communityDiscussionAdminInfo={communityDiscussionAdminInfo}
+                                        refreshCommunityDiscussionAdminInfo={refreshCommunityDiscussionAdminInfo}
+                                    />,
+                                )
+                            }
+                            animatedLink={false}
+                            classNames="border border-[0.1rem] hover:text-[#55a8c2]"
+                        >
+                            Edit Discussion
+                        </CommonLink>
+                        <CommonLink
+                            onClick={() =>
+                                showModal(
+                                    <ConfirmModal
+                                        title="Delete Discussion"
+                                        confirmMessage="Are you sure you want to delete this discussion? This action cannot be undone."
+                                        onClose={() => closeModal()}
+                                        declineButtonText="Cancel"
+                                        confirmButtonText="Delete"
+                                        confirmButtonClassNames="bg-red-600"
+                                        confirmFunc={async () => {
+                                            await communityDiscussionFeedStore.deleteCommunityDiscussion(
+                                                communityDiscussionAdminInfo.communityId,
+                                                communityDiscussionAdminInfo.discussionId,
+                                            );
+                                            navigate(-1);
+                                        }}
+                                    />,
+                                )
+                            }
+                            animatedLink={false}
+                            classNames="border border-[0.1rem] text-red-600 hover:text-red-700"
+                        >
+                            Delete Discussion
+                        </CommonLink>
+                    </div>
                 </div>
-                <div className='relative flex'> 
+                <div className='relative flex'>
                     <InfoCardContainer>
                         <h1 className='text-3xl'>
                             {communityDiscussionAdminInfo.title}
                         </h1>
                     </InfoCardContainer>
-                    <TagOrLabel 
-                        color={communityDiscussionAdminInfo.isPrivate ?? false ? 'danger' : 'info'} 
-                        size='sm' 
+                    <TagOrLabel
+                        color={(communityDiscussionAdminInfo.isPrivate ?? false) ? 'danger' : 'info'}
+                        size='sm'
                         className='absolute bottom-0 right-0'
                     >
-                        {communityDiscussionAdminInfo.isPrivate ?? false ? 'Private' : 'Public'}
+                        {(communityDiscussionAdminInfo.isPrivate ?? false) ? 'Private' : 'Public'}
                     </TagOrLabel>
                 </div>
                 <div className="flex">
@@ -73,10 +121,10 @@ function CommunityDiscussionAdminView({
                                     );
                                 }}
                                 className={`
-                                min-w-[4rem] max-w-[12rem] max-h-[3rem] border px-3 py-1 
-                                font-bold 
+                                min-w-[4rem] max-w-[12rem] max-h-[3rem] border px-3 py-1
+                                font-bold
                                 text-gray-900
-                                dark:text-white 
+                                dark:text-white
                                 hover:text-[#55a8c2]
                                 hover:opacity-90
                                 disabled:opacity-40

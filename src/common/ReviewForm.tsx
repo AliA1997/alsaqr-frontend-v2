@@ -102,7 +102,7 @@ export const ReviewUpsertListOrCommunity = ({
     type
 }: ReviewNewCommunityProps) => (
     <div className='flex flex-col text-gray-900 dark:text-gray-50'>
-        {!(type === CommonUpsertBoxTypes.CommunityDiscussion || type === CommonUpsertBoxTypes.UpdateCommunity) && (
+        {!(type === CommonUpsertBoxTypes.CommunityDiscussion || type === CommonUpsertBoxTypes.UpdateCommunityDiscussion || type === CommonUpsertBoxTypes.UpdateCommunity) && (
             <div className='flex flex-col x-space-3 justify-items-between'>
                 <h5 className='font-bold mr-2'>
                     {type === CommonUpsertBoxTypes.Community ? 'Community Avatar' : 'List Banner Image'}:
@@ -117,16 +117,16 @@ export const ReviewUpsertListOrCommunity = ({
 
         <div className='flex x-space-3 justify-items-between'>
             <h5 className='font-bold mr-2'>
-                {type === CommonUpsertBoxTypes.Community 
-                    ? 'Community Name' 
-                    : type === CommonUpsertBoxTypes.CommunityDiscussion
+                {type === CommonUpsertBoxTypes.Community || type === CommonUpsertBoxTypes.UpdateCommunity
+                    ? 'Community Name'
+                    : type === CommonUpsertBoxTypes.CommunityDiscussion || type === CommonUpsertBoxTypes.UpdateCommunityDiscussion
                         ? 'Discussion Name'
                         : 'List Name'}:
             </h5>
             <p>{name}</p>
         </div>
 
-        {(type === CommonUpsertBoxTypes.Community || type === CommonUpsertBoxTypes.UpdateCommunity) && (
+        {(type === CommonUpsertBoxTypes.Community || type === CommonUpsertBoxTypes.UpdateCommunity || type === CommonUpsertBoxTypes.UpdateCommunityDiscussion) && (
             <div className='flex x-space-3 justify-items-between'>
                 <h5 className='font-bold mr-2'>Visibility:</h5>
                 <p>{visibility === 'private' ? 'Private' : 'Public'}</p>

@@ -11,7 +11,7 @@ import {
 } from "react";
 import TimeAgo from "react-timeago";
 
-import type { CommentToDisplay, User } from "@typings";
+import type { PostToDisplay, PostUserInfoDto } from "@typings";
 import {
     getPercievedNumberOfRecord,
     stopPropagationOnClick,
@@ -30,7 +30,7 @@ import CommentPDF from "@components/pdf/CommentPdf";
 import { OptimizedImage, OptimizedPostImage } from "@common/Image";
 
 interface Props {
-    commentToDisplay: CommentToDisplay;
+    commentToDisplay: PostToDisplay;
     showLabel?: boolean;
     onlyDisplay?: boolean;
 }
@@ -41,19 +41,22 @@ function CommentComponent({
     onlyDisplay
 }: Props) {
     const navigate = useNavigate();
-    const { authStore, commentFeedStore, modalStore } = useStore();
+    const { authStore, commentFeedStore, modalStore, feedStore } = useStore();
     const { currentSessionUser } = authStore;
     const { showModal, closeModal } = modalStore;
     const [mounted, setMounted] =useState<boolean>(false);
     const {
-        rePostComment,
-        likedComment,
-        loadComments,
-        deleteYourComment
+        loadComments
     } = commentFeedStore;
+    const { 
+        rePost,
+        likedPost,
+        bookmarkPost,
+        deleteYourPost
+    } = feedStore;
+    const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
     const [isRePosted, setIsRePosted] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState<boolean>(false);
-    const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
     const userId = useMemo(() => currentSessionUser ? currentSessionUser.id : "", [currentSessionUser]);
 
     const initiallyBooleanValues = useRef<{
@@ -88,7 +91,7 @@ function CommentComponent({
             };
             setIsBookmarked(false);
         }, 
-        [commentToDisplay.id, refreshComments]
+        [commentToDisplay.postId, refreshComments]
     );
 
     useEffect(() => {
@@ -99,7 +102,7 @@ function CommentComponent({
 
     const numberOfRePosts = useMemo(
         () =>
-            getPercievedNumberOfRecord<User>(
+            getPercievedNumberOfRecord<PostUserInfoDto>(
                 isRePosted,
                 initiallyBooleanValues.current?.reposted,
                 commentToDisplay.reposters ?? [],
@@ -110,7 +113,7 @@ function CommentComponent({
     );
     const numberOfLikes = useMemo(
         () =>
-            getPercievedNumberOfRecord<User>(
+            getPercievedNumberOfRecord<PostUserInfoDto>(
                 isLiked,
                 initiallyBooleanValues.current?.liked,
                 commentToDisplay.likers ?? [],
@@ -135,7 +138,7 @@ function CommentComponent({
     };
 
     const navigateToComment = () => {
-        navigate(`/status/${commentToDisplay.id}`);
+        navigate(`/status/${commentToDisplay.postId}`);
     };
 
     const onLikeComment = async () => {
@@ -143,8 +146,8 @@ function CommentComponent({
         try {
             await checkUserIsLoggedInBeforeUpdatingComment(async () => {
                 setIsLiked(!isLiked);
-                await likedComment({
-                    statusId: commentToDisplay.id,
+                await likedPost({
+                    statusId: commentToDisplay.postId,
                     userId: userId!,
                     liked: isLiked
                 });
@@ -161,8 +164,8 @@ function CommentComponent({
             await checkUserIsLoggedInBeforeUpdatingComment(async () => {
                 setIsRePosted(!isRePosted);
 
-                await rePostComment({
-                    statusId: commentToDisplay.id,
+                await rePost({
+                    statusId: commentToDisplay.postId,
                     userId: userId!,
                     reposted: isRePosted
                 });
@@ -176,16 +179,15 @@ function CommentComponent({
         const beforeUpdate = isRePosted;
         try {
             await checkUserIsLoggedInBeforeUpdatingComment(async () => {
-                setIsRePosted(!isRePosted);
-
-                await rePostComment({
-                    statusId: commentToDisplay.id,
+                setIsBookmarked(!isBookmarked);
+                await bookmarkPost({
+                    statusId: commentToDisplay.postId,
                     userId: userId!,
-                    reposted: isRePosted
+                    bookmarked: isBookmarked
                 });
             });
         } catch {
-            setIsRePosted(beforeUpdate);
+            setIsBookmarked(beforeUpdate);
         }
     }
 
@@ -204,7 +206,7 @@ function CommentComponent({
                             onClose={() => closeModal()}
                             declineButtonText="Cancel"
                             confirmFunc={async () => {
-                                await deleteYourComment(commentToDisplay.id);
+                                await deleteYourPost(commentToDisplay.postId);
                                 closeModal();
                                 refreshComments();
                             }}
@@ -223,7 +225,7 @@ function CommentComponent({
             });
 
         return defaultOpts;
-    }, [commentToDisplay.id]);
+    }, [commentToDisplay.postId]);
 
 
     return (
@@ -255,7 +257,7 @@ function CommentComponent({
                 />
                 <OptimizedImage
                     classNames="h-10 w-10 rounded-full object-cover z-50 hover:bg-blue-200"
-                    src={commentToDisplay.profileImg}
+                    src={commentToDisplay.profileImg ?? ''}
                     alt={commentToDisplay.username}
                     onClick={(e) => {
                     if (onlyDisplay)
@@ -307,15 +309,15 @@ function CommentComponent({
                         </p>
                         <TimeAgo
                             className="text-sm text-gray-500 dark:text-gray-400"
-                            date={convertDateToDisplay(commentToDisplay?.createdAt)}
+                            date={convertDateToDisplay(commentToDisplay?.postCreatedAt)}
                         />
                     </div>
-                    <p data-testid="commentcardtext" className="pt-1 text-left text-black dark:text-gray-50">{commentToDisplay.text}</p>
-                    {commentToDisplay.image && (
+                    <p data-testid="commentcardtext" className="pt-1 text-left text-black dark:text-gray-50">{commentToDisplay.content}</p>
+                    {commentToDisplay.postBannerImage && (
                         <div className="w-[300px] h-[200px] overflow-hidden flex justify-center items-center">
                             <OptimizedPostImage
-                                src={commentToDisplay.image}
-                                alt="img/post"
+                                src={commentToDisplay.postBannerImage ?? ""}
+                                alt="img/comment"
                                 classNames="m-5 ml-0 w-full h-full object-cover shadow-sm"
                             />
                         </div>
@@ -359,15 +361,15 @@ function CommentComponent({
                                 className="flex cursor-pointer item-center space-x-3 text-gray-400"
                                 disabled={onlyDisplay ?? false}
                             >
-                                {commentToDisplay.createdAt ? (
+                                {commentToDisplay.postCreatedAt ? (
                                     <PDFDownloadLink 
-                                        fileName={`${commentToDisplay.id}.pdf`}
+                                        fileName={`${commentToDisplay.postId}.pdf`}
                                         document={
                                         <CommentPDF 
                                             commentToDisplay={commentToDisplay} 
                                             showLabel={showLabel ?? false} 
                                             userId={currentSessionUser?.id ?? ''}
-                                            createdAt={formatTimeAgo(convertDateToDisplay(commentToDisplay.createdAt))}
+                                            createdAt={formatTimeAgo(convertDateToDisplay(commentToDisplay.postCreatedAt))}
                                         />
                                         }>
                                         <UploadIcon className="h-5 w-5" />

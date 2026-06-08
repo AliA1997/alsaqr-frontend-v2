@@ -1,11 +1,13 @@
 import axios from "axios";
 import { axiosRequests, axiosResponseBody } from "./agent";
 import { CreateListOrCommunityFormDto } from "typings";
-import { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionMessageDto, CommunityInviteConfirmationDto, UpdateCommunityFormDto } from "@models/community";
+import { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionMessageDto, CommunityInviteConfirmationDto, UpdateCommunityDiscussionFormDto, UpdateCommunityFormDto } from "@models/community";
 
 export const communityApiClient = {
     updateCommunity: (values: UpdateCommunityFormDto, userId: string, communityId: string) =>
         axiosRequests.put(`/api/Communities/${userId}/${communityId}`, { values }).then(axiosResponseBody),
+    deleteCommunity: (userId: string, communityId: string) =>
+        axiosRequests.del(`/api/Communities/${userId}/${communityId}`).then(axiosResponseBody),
     
     requestToJoinCommunity: (values: CommunityInviteConfirmationDto, userId: string, communityId: string) =>
         axiosRequests.post(`/api/Communities/${userId}/${communityId}/request-join`, { values }).then(axiosResponseBody),
@@ -30,6 +32,10 @@ export const communityApiClient = {
         axios.get(`/api/CommunityDiscussion/${communityId}/${communityDiscussionId}/admin`, {  }).then(axiosResponseBody),
     addCommunityDiscussion: (values: CreateListOrCommunityFormDto, communityId: string) =>
         axios.post(`/api/CommunityDiscussion/${communityId}`, { values }).then(axiosResponseBody),
+    updateCommunityDiscussion: (values: UpdateCommunityDiscussionFormDto, communityId: string, communityDiscussionId: string) =>
+        axiosRequests.put(`/api/CommunityDiscussion/${communityId}/${communityDiscussionId}`, { values }).then(axiosResponseBody),
+    deleteCommunityDiscussion: (communityId: string, communityDiscussionId: string) =>
+        axiosRequests.del(`/api/CommunityDiscussion/${communityId}/${communityDiscussionId}`).then(axiosResponseBody),
     getCommunityDiscussions: (params: URLSearchParams | undefined, communityId: string) =>
         axios.get(`/api/CommunityDiscussion/${communityId}`, { params }).then(axiosResponseBody),
     

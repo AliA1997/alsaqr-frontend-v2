@@ -8,8 +8,8 @@ import { communityApiClient } from '@utils/api/communityApiClient';
 import { convertDateToDisplay } from '@utils/index';
 import { motion } from 'framer-motion';
 import { Pagination } from '@models/common';
-import { CommunityDiscussionAdminInfo, CommunityDiscussionInfoForMessageRoom, CommunityDiscussionMessageDto, CommunityDiscussionMessageToDisplay } from '@models/community';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { CommunityDiscussionAdminInfo, CommunityDiscussionMessageDto, CommunityDiscussionMessageToDisplay, CommunityDiscussionToDisplay } from '@models/community';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import TimeAgo from "react-timeago";
 import { ButtonLoader, SkeletonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
@@ -25,6 +25,8 @@ type Props = {
   communityDiscussionId: string;
 }
 
+const MESSAGES_PER_PAGE = 20;
+
 const CommunityDiscussionMessageRoom = ({
   loggedInUser,
   communityId,
@@ -34,9 +36,9 @@ const CommunityDiscussionMessageRoom = ({
 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [loadingMessages, setLoadingMessages] = useState<boolean>(true);
-  const [loadingAdminInfo, setLoadingAdminInfo] = useState<boolean>(false);
+  const [_, setLoadingAdminInfo] = useState<boolean>(false);
 
-  const [commmityDiscussionInfo, setCommunityDiscussionInfo] = useState<CommunityDiscussionInfoForMessageRoom | undefined>(undefined);
+  const [commmityDiscussionInfo, setCommunityDiscussionInfo] = useState<CommunityDiscussionToDisplay | undefined>(undefined);
   const [adminCommunityDiscussionInfo, setAdminCommunityDiscussionInfo] = useState<CommunityDiscussionAdminInfo | undefined>(undefined);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const CommunityDiscussionMessageRoom = ({
     if (communityDiscussionId && communityId) {
       getCommunityDiscussionInfo();
       getAdminCommunityDiscussionInfo()
-      getDiscussionMessages(1, 100);
+      getDiscussionMessages(1, MESSAGES_PER_PAGE);
     }
   }, [
     communityDiscussionId,
@@ -62,7 +64,7 @@ const CommunityDiscussionMessageRoom = ({
   ])
 
   const [messages, setMessages] = useState<CommunityDiscussionMessageToDisplay[]>();
-  const [_, setPagination] = useState<Pagination | undefined>(undefined);
+  const [pagination, setPagination] = useState<Pagination | undefined>(undefined);
   const [mounted, setMounted] = useState(false);
   const [input, setInput] = useState('');
   const [image, setImage] = useState('');
@@ -71,6 +73,8 @@ const CommunityDiscussionMessageRoom = ({
   const [hasError, setHasError] = useState(false);
   const messageInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef(null);
+  const loaderRef = useRef(null);
 
   // Attaching an image kicks off an async NSFW check (see effect below).
   const handleSetImage = (val: string) => {
@@ -78,9 +82,10 @@ const CommunityDiscussionMessageRoom = ({
     setImage(val);
   };
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change, but not while paginating
+  // older pages — otherwise loading more would yank the view to the bottom.
   useEffect(() => {
-    scrollToBottom();
+    if ((pagination?.currentPage ?? 1) <= 1) scrollToBottom();
   }, [messages]);
 
   const scrollToBottom = () => {
@@ -108,7 +113,7 @@ const CommunityDiscussionMessageRoom = ({
           setProcessNsfwCheck(false);
         });
     }
-  }, [processNsfwCheck]);
+  }, [processNsfwCheck, image]);
 
   useEffect(() => {
     setMounted(true);
@@ -118,10 +123,10 @@ const CommunityDiscussionMessageRoom = ({
     }
   }, [])
 
-  async function getDiscussionMessages(currentPage?: number, itemsPerPage?: number) {
+  async function getDiscussionMessages(currentPage?: number, itemsPerPage?: number, append = false) {
     setLoadingMessages(true);
     const urlParams = new URLSearchParams();
-    urlParams.append('itemsPerPage', itemsPerPage?.toString() ?? '100');
+    urlParams.append('itemsPerPage', itemsPerPage?.toString() ?? MESSAGES_PER_PAGE.toString());
     urlParams.append('currentPage', currentPage?.toString() ?? '1');
     try {
       const { items, pagination } = await communityApiClient.getCommunityDiscussionMessages(
@@ -130,18 +135,61 @@ const CommunityDiscussionMessageRoom = ({
         communityDiscussionId
       );
 
-      setMessages(items);
+      setMessages((prev) => (append && prev ? [...prev, ...items] : items));
       setPagination(pagination);
     } finally {
       setLoadingMessages(false);
     }
   }
 
+  const fetchMoreMessages = useCallback(
+    async (pageNum: number) => {
+      await getDiscussionMessages(pageNum, MESSAGES_PER_PAGE, true);
+    },
+    [communityId, communityDiscussionId]
+  );
+
+  // Infinite scroll: load the next page when the trigger element scrolls
+  // into view (mirrors the IntersectionObserver pattern used in Feed).
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+        const currentPage = pagination?.currentPage ?? 1;
+        const itemsPerPage = pagination?.itemsPerPage ?? MESSAGES_PER_PAGE;
+        const totalItems = pagination?.totalItems ?? 0;
+
+        const nextPage = currentPage + 1;
+        const totalItemsOnNextPage = nextPage * itemsPerPage;
+        const hasMoreItems = totalItems >= totalItemsOnNextPage;
+
+        if (firstEntry?.isIntersecting && !loadingMessages && hasMoreItems) {
+          fetchMoreMessages(nextPage);
+        }
+      },
+      {
+        root: containerRef.current,
+        rootMargin: '10px',
+        threshold: 0.1,
+      }
+    );
+
+    const currentLoader = loaderRef.current;
+    if (currentLoader) {
+      observer.observe(currentLoader);
+    }
+
+    return () => {
+      if (currentLoader) {
+        observer.unobserve(currentLoader);
+      }
+    };
+  }, [pagination, loadingMessages, fetchMoreMessages]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || hasError || processNsfwCheck) return;
     setSubmitting(true);
-
     const message: CommunityDiscussionMessageDto = {
       creatorId: loggedInUser.id,
       content: input, 
@@ -156,7 +204,7 @@ const CommunityDiscussionMessageRoom = ({
       );
       setInput('');
       setImage('');
-      await getDiscussionMessages(1, 100);
+      await getDiscussionMessages(1, MESSAGES_PER_PAGE);
 
       toast("Discussion Message Posted!", {
         icon: "🚀",
@@ -168,9 +216,10 @@ const CommunityDiscussionMessageRoom = ({
     }
   };
   async function refreshCommunityDiscussionInfo(communityId: string) {
+      setLoadingAdminInfo(true);
       const communityDiscussionInfoResult = await communityApiClient.getAdminCommunityDiscussionInfo(communityId, communityDiscussionId);
-  
-      setCommunityDiscussionInfo(communityDiscussionInfoResult);
+
+      setAdminCommunityDiscussionInfo(communityDiscussionInfoResult);
       setLoadingAdminInfo(false);
   }
   
@@ -187,7 +236,7 @@ const CommunityDiscussionMessageRoom = ({
     return <SkeletonLoader count={3} />;
 
   return (
-    <div data-testid='communitydiscussionmessagecontainer' className="flex flex-col h-screen bg-gray-50 dark:bg-[#0e1517]">
+    <div data-testid='communitydiscussionmessagecontainer' className="flex flex-col max-h-screen bg-gray-50 dark:bg-[#0e1517]">
       {/* Header */}
       <div className="bg-white p-4 border-b border-gray-200 dark:border-gray-900 flex items-center dark:bg-[#0e1517]">
         <button
@@ -201,15 +250,15 @@ const CommunityDiscussionMessageRoom = ({
           {
             communityDiscussionUsers.map(user => (
               <OptimizedImage
-                key={user.id}
-                src={user.avatar}
-                alt={user.username}
+                key={user.userId!}
+                src={user.avatar ?? ''}
+                alt={user.username ?? ''}
                 classNames="w-10 h-10 rounded-full border-2 border-white dark:border-none"
               />
             ))}
         </div>
         <div className="ml-3">
-          <h2 className="font-semibold text-gray-800 dark:text-gray-50">{commmityDiscussionInfo?.communityDiscussion.name}</h2>
+          <h2 className="font-semibold text-gray-800 dark:text-gray-50">{commmityDiscussionInfo?.communityDiscussionTitle}</h2>
           <p className="text-xs text-gray-500">
           </p>
         </div>
@@ -221,38 +270,38 @@ const CommunityDiscussionMessageRoom = ({
         />
       )}
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {loadingMessages ? (
+      <div ref={containerRef} className="flex-[0.5] overflow-y-auto p-4 space-y-3">
+        {loadingMessages && (!messages || !messages.length) ? (
           <SkeletonLoader count={8} />
         ) : (
           <>
             {messages && messages.length
               ? messages.map((message) => (
                 <div
-                  key={message.communityDiscussionMessage.id}
-                  className={`flex ${message.communityDiscussionMessage.userId === loggedInUser.id ? 'justify-end' : 'justify-start'}`}
+                  key={message.id}
+                  className={`flex ${message.userId === loggedInUser.id ? 'justify-end' : 'justify-start'}`}
                   data-testid="communitydiscussionmessagecard"
                 >
-                  {!(message.communityDiscussionMessage.userId === loggedInUser.id) && (
+                  {/* {!(message.userId === loggedInUser.id) && (
                     <OptimizedImage
-                      src={message.profileImg}
+                      src={message.avat}
                       alt={message.username}
                       classNames="w-8 h-8 rounded-full mr-2 mt-1"
                     />
-                  )}
-                  <div className={`max-w-xs md:max-w-md lg:max-w-lg ${(message.communityDiscussionMessage.userId === loggedInUser.id) ? 'flex flex-col items-end' : ''}`}>
-                    {!(message.communityDiscussionMessage.userId === loggedInUser.id) && (
+                  )} */}
+                  <div className={`max-w-xs md:max-w-md lg:max-w-lg ${(message.userId === loggedInUser.id) ? 'flex flex-col items-end' : ''}`}>
+                    {!(message.userId === loggedInUser.id) && (
                       <span className="text-xs font-medium text-gray-700 mb-1">
-                        {message.username}
+                        {/* {message.username} */}
                       </span>
                     )}
                     <div
-                      className={`p-3 rounded-lg ${(message.communityDiscussionMessage.userId === loggedInUser.id) ? 'bg-blue-500 text-white' : 'bg-[#55a8c2] text-white'}`}
+                      className={`p-3 rounded-lg ${(message.userId === loggedInUser.id) ? 'bg-blue-500 text-white' : 'bg-[#55a8c2] text-white'}`}
                     >
-                      <p>{message.communityDiscussionMessage.messageText}</p>
-                      {message.communityDiscussionMessage.image && (
+                      <p>{message.messageText}</p>
+                      {message.image && (
                         <img
-                          src={message.communityDiscussionMessage.image}
+                          src={message.image}
                           alt="img/tweet"
                           className="m-5 ml-0 max-h-60 rounded-lg object-cover shadow-sm"
                         />
@@ -260,12 +309,17 @@ const CommunityDiscussionMessageRoom = ({
                     </div>
                     <TimeAgo
                       className="text-sm text-gray-500"
-                      date={convertDateToDisplay(message.communityDiscussionMessage)}
+                      date={convertDateToDisplay(message.createdAt)}
                     />
                   </div>
                 </div>
               ))
               : <NoRecordsTitle>No Discussion Messages to Display</NoRecordsTitle>}
+            {messages && messages.length ? (
+              <div ref={loaderRef} className="dark:text-gray-500 italic" style={{ height: '20px' }}>
+                {loadingMessages ? <SkeletonLoader count={1} /> : null}
+              </div>
+            ) : null}
             <div ref={messagesEndRef} />
           </>
         )}

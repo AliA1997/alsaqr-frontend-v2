@@ -2,7 +2,6 @@ import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { CommentForm, CommentToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
-import {  LikedCommentParams, RePostCommentParams } from "@models/posts";
 
 export default class CommentFeedStore {
 
@@ -98,65 +97,11 @@ export default class CommentFeedStore {
 
     }
 
-    loadComment = async (commentId: string) => {
-
-        this.setLoadingComment(true);
-
-        try {
-            if(this.pagingParams.currentPage === 1)
-                this.commentsRegistry.clear();
-        
-            const { comment } = await agent.commentApiClient.getCommentsById(commentId) ?? [];
-            
-            runInAction(() => {
-                this.setLoadedComment(comment)
-            });
-
-        } finally {
-            this.setLoadingComment(false);
-        }
-
-    }
-
     addComment = async (newComment: CommentForm) => {
 
         this.setLoadingUpsert(true);
         try {
             await agent.commentApiClient.addComment(newComment) ?? {};
-
-        } finally {
-            this.setLoadingUpsert(false);
-        }
-
-    }
-    rePostComment = async (rePostCommentParams: RePostCommentParams) => {
-
-        this.setLoadingInitial(true);
-        try {
-            await agent.commentApiClient.rePostComment(rePostCommentParams.statusId, rePostCommentParams) ?? {};
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-
-    }
-    likedComment = async (likedPostParams: LikedCommentParams) => {
-
-        this.setLoadingInitial(true);
-        try {
-            await agent.commentApiClient.likedComment(likedPostParams.statusId, likedPostParams) ?? {};
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-
-    }
-
-    deleteYourComment = async (commentId: string) => {
-
-        this.setLoadingUpsert(true);
-        try {
-            await agent.commentApiClient.deleteComment(commentId) ?? {};
 
         } finally {
             this.setLoadingUpsert(false);

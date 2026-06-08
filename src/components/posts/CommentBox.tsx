@@ -1,6 +1,5 @@
 import { DangerAlert } from "@common/Alerts";
 import UpsertBoxIconButton from "@common/UpsertBoxIconButtons";
-import { faker } from "@faker-js/faker";
 import { XIcon } from "@heroicons/react/solid";
 import { useStore } from "@stores/index";
 import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";
@@ -26,6 +25,7 @@ export default observer(function CommentBox({
     const { commentFeedStore } = useStore();
     const {
         addComment,
+        loadComments
     } = commentFeedStore;
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [input, setInput] = useState<string>("");
@@ -38,7 +38,7 @@ export default observer(function CommentBox({
         setSubmitting(true);
 
         const gradioClient = await initializeClient();
-        const nsfwStatus = await checkNsfwInImage(gradioClient, image);
+        const nsfwStatus = image ? await checkNsfwInImage(gradioClient, image) : "";
         if (nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
             setCommentNsfwAlert("Please choose a different photo — explicit images aren’t allowed in comments.");
             setImage('');
@@ -49,7 +49,6 @@ export default observer(function CommentBox({
         const commentToast = toast.loading("Posting Comment...");
 
         const newComment: CommentForm = {
-            id: `comment_${faker.datatype.uuid()}`,
             postId: postId,
             userId: userId!,
             text: input,
@@ -64,7 +63,9 @@ export default observer(function CommentBox({
         setInput("");
         setImage("");
         setCommentBoxOpen(false);
+        await loadComments(postId);
         setSubmitting(false);
+        
     };
 
     return (

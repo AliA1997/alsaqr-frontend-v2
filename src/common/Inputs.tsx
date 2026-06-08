@@ -55,6 +55,7 @@ type FileUploadInputProps = {
 export function FileUploadInput({ label, ...props }: FileUploadInputProps) {
     const [field, meta, helpers] = useField(props);
 
+    console.log("Field:", field);
     return (
         <div className="mb-4">
             {label && (
@@ -67,7 +68,7 @@ export function FileUploadInput({ label, ...props }: FileUploadInputProps) {
                 id={props.id}
                 name={props.name}
                 onChange={e => props.handleFileChange(e, helpers)}
-                onBlur={field.onBlur}
+                onBlur={() => helpers.setTouched(true)}
                 data-testid={`${props.name.toLowerCase()}input`}
                 className={`block w-full text-sm text-gray-500
                     file:mr-4 file:py-2 file:px-4

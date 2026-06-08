@@ -21,7 +21,8 @@ const PersonalInfo = observer(() => {
     const upsert = async (values: any) => {
         let infoToUpsert: UpdateUserForm = {
             ...currentSessionUser,
-            ...values
+            ...values,
+            avatar: values.avatar ?? currentSessionUser?.avatar
         };
 
         if (currentSessionUser) {
@@ -45,6 +46,8 @@ const PersonalInfo = observer(() => {
                 hover:shadow-lg dark:text-gray-50
             `}>
                 <Formik
+                    validateOnBlur={true}
+                    validateOnChange={false}
                     initialValues={{
                         username: currentSessionUser?.username ?? "",
                         avatar: currentSessionUser?.avatar ?? "",
@@ -59,8 +62,6 @@ const PersonalInfo = observer(() => {
                         const errors: FormikErrors<any> = {};
                         if (!values.username) {
                             errors.name = 'Name is required';
-                        } else if (!values.avatar) {
-                            errors.avatar = 'Avatar is required';
                         } else if (!values.bgThumbnail) {
                             errors.bgThumbnail = 'Background for profile is required'
                         } else if (!values.bio) {

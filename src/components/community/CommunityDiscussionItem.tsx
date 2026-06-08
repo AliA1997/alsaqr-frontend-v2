@@ -24,7 +24,8 @@ const CommunityDiscussionItemComponent = observer(({
 }: Props) => {
   const navigate = useNavigate();
 
-  const { communityDiscussionFeedStore } = useStore();
+  const { authStore, communityDiscussionFeedStore } = useStore();
+  const { currentSessionUser } = authStore;
   const {
     joinPublicCommunityDiscussion,
     unjoinPublicCommunityDiscussion,
@@ -56,7 +57,7 @@ const CommunityDiscussionItemComponent = observer(({
   }, [currentRelationshipType, communityDiscussionToDisplay.relationshipType])
   const hasToJoin = useMemo(() => currentRelationshipType === RelationshipType.None, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
   const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.Requested, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
-  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Member || joined, [currentRelationshipType, communityDiscussionToDisplay.relationshipType, joined]);
+  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Member || communityDiscussionInfo.creatorId === currentSessionUser?.id || joined, [currentRelationshipType, communityDiscussionToDisplay.relationshipType, joined]);
 
   return (
     <>
@@ -98,7 +99,7 @@ const CommunityDiscussionItemComponent = observer(({
           <div className='flex justify-start'>
             <TagOrLabel
               color={
-                (currentRelationshipType as RelationshipType) === RelationshipType.Founder ? 'gold'
+                (communityDiscussionInfo.creatorId === currentSessionUser?.id) ? 'gold'
                   : (currentRelationshipType as RelationshipType) === RelationshipType.Invited ? 'success'
                     : (currentRelationshipType as RelationshipType) === RelationshipType.Member ? 'primary'
                       : (currentRelationshipType as RelationshipType) === RelationshipType.Requested ? 'secondary'
@@ -107,7 +108,8 @@ const CommunityDiscussionItemComponent = observer(({
               size="sm"
               className='w-full max-w-fit self-end self-[unset]'
             >
-              {requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType.toUpperCase()}
+              {communityDiscussionInfo.creatorId === currentSessionUser?.id ? 'Founder' : 
+                requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType.toUpperCase()}
             </TagOrLabel>
             <TagOrLabel
               color={communityDiscussionInfo.isPrivate ? 'danger' : 'info'}

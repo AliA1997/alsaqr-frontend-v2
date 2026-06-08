@@ -117,6 +117,22 @@ export default class CommunityFeedStore {
 
     }
 
+    deleteCommunity = async (userId: string, communityId: string) => {
+
+        this.setLoadingUpsert(true);
+        try {
+            await agent.communityApiClient.deleteCommunity(userId, communityId);
+
+            runInAction(() => {
+                this.communityRegistry.delete(communityId);
+                store.modalStore.closeModal();
+            });
+        } finally {
+            this.setLoadingUpsert(false);
+        }
+
+    }
+
     unjoinPublicCommunity = async (communityId: string) => {
 
         this.setLoadingJoinCommunity(true);

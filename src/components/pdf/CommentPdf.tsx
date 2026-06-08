@@ -1,8 +1,8 @@
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer';
-import { CommentToDisplay } from 'typings';
+import { PostToDisplay } from 'typings';
 
 type CommentPdfProps = {
-    commentToDisplay: CommentToDisplay;
+    commentToDisplay: PostToDisplay;
     userId: string;
     showLabel?: boolean;
     createdAt: string;
@@ -108,12 +108,12 @@ const CommentPDF = ({
                 </Text>
               </View>
               
-              <Text style={styles.commentText}>{commentToDisplay.text}</Text>
+              <Text style={styles.commentText}>{commentToDisplay.content}</Text>
               
-              {commentToDisplay.image && (
+              {commentToDisplay.postBannerImage && (
                 <Image
                   style={styles.commentImage}
-                  src={commentToDisplay.image}
+                  src={commentToDisplay.postBannerImage}
                 />
               )}
             </View>

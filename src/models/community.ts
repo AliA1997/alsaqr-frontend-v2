@@ -40,13 +40,6 @@ export interface CommunityDiscussionAdminInfo {
   isPrivate?: boolean;
 }
 
-export interface CommunityDiscussionInfoForMessageRoom {
-  communityDiscussion: CommunityDiscussionRecord;
-  community: CommunityRecord;
-  invitedUsers: User[];
-  joinedUsers: User[];
-}
-
 export interface CommunityDiscussionToDisplay {
   communityDiscussionId: string;
   communityId: string;
@@ -61,10 +54,26 @@ export interface CommunityDiscussionToDisplay {
   userRole: string;
   userJoinedAt?: Date;
   relationshipType: string;
-  joinedUsers: object[];
-  moderatorUsers: object[];
-  invitedUsers: object[];
-  requestedUsers: object[];
+  joinedUsers: {
+    userId?: string;
+    username?: string;
+    avatar?: string;
+  }[];
+  moderatorUsers: {
+    userId?: string;
+    username?: string;
+    avatar?: string;
+  }[];
+  invitedUsers: {
+    userId?: string;
+    username?: string;
+    avatar?: string;
+  }[];
+  requestedUsers: {
+    userId?: string;
+    username?: string;
+    avatar?: string;
+  }[];
   memberCount: number;
   moderatorCount: number;
   invitedCount: number;
@@ -99,10 +108,12 @@ export interface CommunityDiscussionMessageDto {
 
 export interface CommunityDiscussionMessageRecord extends CommunityDiscussionMessage {}
 
-export interface CommunityDiscussionMessageToDisplay {
-  username: string;
-  profileImg: string;
-  communityDiscussionMessage: CommunityDiscussionMessageRecord;
+export interface CommunityDiscussionMessageToDisplay extends CommunityDiscussionMessage {
+  userId: string;
+  communityDiscussionId: string;
+  messageText: string;
+  image: string;
+  createdAt: string;
 }
 
 export interface UpdateCommunityForm {
@@ -114,6 +125,15 @@ export interface UpdateCommunityForm {
 }
 
 export interface UpdateCommunityFormDto extends UpdateCommunityForm {}
+
+export interface UpdateCommunityDiscussionForm {
+  id: string;
+  name: string;
+  isPrivate: any;
+  tags: string[];
+}
+
+export interface UpdateCommunityDiscussionFormDto extends UpdateCommunityDiscussionForm {}
 
 // InviteConfirmation
 export interface CommunityInviteConfirmation {

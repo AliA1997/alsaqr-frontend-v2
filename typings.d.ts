@@ -44,6 +44,7 @@ export enum CommonUpsertBoxTypes {
   Community = "Community",
   UpdateCommunity = "Update-Community",
   CommunityDiscussion = "CommunityDiscussion",
+  UpdateCommunityDiscussion = "Update-Community-Discussion",
   Register = "Register"
 }
 
@@ -130,9 +131,19 @@ export interface User extends UserInfo {
   favoriteQuranReciters?: string[];
   favoriteIslamicScholars?: string[];
   islamicStudyTopics?: string[];
-  following: Record<string, unknown>[];
+  following: {
+    avatar?: string;
+    bio?: string;
+    username?: string;
+    userId?: string;
+  }[];
   followingCount: number;
-  followers: Record<string, unknown>[];
+  followers: {
+    avatar?: string;
+    bio?: string;
+    username?: string;
+    userId?: string;
+  }[];
   followerCount: number;
   bookmarks: string[];
   reposts: string[];
@@ -207,8 +218,11 @@ export interface CreatePostForm {
   tags: string[];
 }
 
-export interface CommentForm extends Comment {
-  commentToCommentOnId?: string;
+export interface CommentForm {
+  text: string;
+  postId: string;
+  userId: string;
+  image?: string;
 };
 
 export interface Comment extends CommonRecordBody {

@@ -249,6 +249,7 @@ function PostComponent({
 
 
   const moreOptions = useMemo(() => {
+    debugger;
     const defaultOpts = [
       {
         title: 'Save to List',
@@ -270,7 +271,7 @@ function PostComponent({
       }
     ];
 
-    if (postInfo.userId === currentSessionUser?.id)
+    if (postInfo.username === currentSessionUser?.username)
       defaultOpts.push({
         title: 'Delete Your Post',
         onClick: async () => {
@@ -282,6 +283,7 @@ function PostComponent({
               declineButtonText="Cancel"
               confirmFunc={async () => {
                 await deleteYourPost(postInfo.postId);
+                navigate(`/users/${postToDisplay.username}`)
                 closeModal();
               }}
               confirmMessage="Are you sure you want to delete this post forever?"
@@ -299,7 +301,7 @@ function PostComponent({
       });
 
     return defaultOpts;
-  }, [postInfo.postId]);
+  }, [postInfo.postId, currentSessionUser?.id]);
 
   return (
     <div
@@ -362,7 +364,7 @@ function PostComponent({
             >
               {postToDisplay.username}
             </p>
-            {userId === postToDisplay.username && (
+            {currentSessionUser?.username === postToDisplay.username && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"

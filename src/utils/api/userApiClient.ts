@@ -15,8 +15,8 @@ export const userApiClient = {
     getUserProfile: (username: string) => 
         axios.get(`/api/Profile/${username}`).then(axiosResponseBody),
 
-    getUsersToAdd: (userId: string, params: URLSearchParams) =>
-        axios.get(`/api/Users/${userId}/usersToAdd`, { params }).then(axiosResponseBody),
+    getUsersToAdd: (params: URLSearchParams) =>
+        axios.get(`/api/Users/usersToAdd`, { params }).then(axiosResponseBody),
     getUserProfilePosts: (username: string, params: URLSearchParams) =>
         axios.get(`/api/Profile/${username}/posts`, { params }).then(axiosResponseBody),
     

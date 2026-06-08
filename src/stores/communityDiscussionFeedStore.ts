@@ -2,7 +2,7 @@ import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { CreateListOrCommunityForm, CreateListOrCommunityFormDto, RelationshipType } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
-import type { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionToDisplay } from "@models/community";
+import type { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionToDisplay, UpdateCommunityDiscussionForm } from "@models/community";
 import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
 import { store } from ".";
 
@@ -36,6 +36,8 @@ export default class CommunityDiscussionFeedStore {
     communityDiscussionsRegistry: Map<string, CommunityDiscussionToDisplay> = new Map<string, CommunityDiscussionToDisplay>();
     currentStepInCommunityDiscussionCreation: number | undefined = undefined;
     communityDiscussionCreationForm: CreateListOrCommunityForm = DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM;
+    currentStepInCommunityDiscussionUpdate: number | undefined = undefined;
+    updateCommunityDiscussionForm: UpdateCommunityDiscussionForm | undefined = undefined;
 
     setLoadingInitial = (val: boolean) => {
         this.loadingInitial = val;
@@ -54,6 +56,12 @@ export default class CommunityDiscussionFeedStore {
     }
     setCommunityDiscussionCreationForm = (val: CreateListOrCommunityForm) => {
         this.communityDiscussionCreationForm = val;
+    }
+    setCurrentStepInCommunityDiscussionUpdate = (val: number) => {
+        this.currentStepInCommunityDiscussionUpdate = val;
+    }
+    setUpdateCommunityDiscussionForm = (val: UpdateCommunityDiscussionForm | undefined) => {
+        this.updateCommunityDiscussionForm = val;
     }
     setSearchQry = (val: string) => this.predicate.set('searchQry', val);
 
@@ -180,6 +188,39 @@ export default class CommunityDiscussionFeedStore {
             store.modalStore.closeModal();
             await this.loadCommunityDiscussions(communityId);
 
+        } finally {
+            this.setLoadingUpsert(false);
+        }
+
+    }
+
+    updateCommunityDiscussion = async (values: UpdateCommunityDiscussionForm, communityId: string, communityDiscussionId: string) => {
+
+        this.setLoadingUpsert(true);
+        try {
+            await agent.communityApiClient.updateCommunityDiscussion(values, communityId, communityDiscussionId);
+
+            runInAction(() => {
+                store.modalStore.closeModal();
+                this.setCurrentStepInCommunityDiscussionUpdate(0);
+                this.setUpdateCommunityDiscussionForm(undefined);
+            });
+        } finally {
+            this.setLoadingUpsert(false);
+        }
+
+    }
+
+    deleteCommunityDiscussion = async (communityId: string, communityDiscussionId: string) => {
+
+        this.setLoadingUpsert(true);
+        try {
+            await agent.communityApiClient.deleteCommunityDiscussion(communityId, communityDiscussionId);
+
+            runInAction(() => {
+                this.communityDiscussionsRegistry.delete(communityDiscussionId);
+                store.modalStore.closeModal();
+            });
         } finally {
             this.setLoadingUpsert(false);
         }

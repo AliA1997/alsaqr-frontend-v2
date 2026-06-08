@@ -2,7 +2,7 @@ import { FieldHelperProps } from "formik";
 import { FileUploadInput, MyInput } from "./Inputs";
 import { RadioCard } from "./RadioBoxes";
 import { MultiSelect } from "./MultiSelect";
-import { useCallback, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { CommonUpsertBoxTypes } from "@typings";
 import { observer } from "mobx-react-lite";
 import { TAG_OPTIONS } from "@utils/constants/tagOptions";
@@ -42,8 +42,8 @@ export const ListOrCommunityFormInputs = observer(({ type }: Props) => {
     );
 
     const namePlaceholder = useMemo(() => {
-        if(type === CommonUpsertBoxTypes.Community) return 'New Community';
-        else if(type === CommonUpsertBoxTypes.CommunityDiscussion) return 'New Community Discussion';
+        if(type === CommonUpsertBoxTypes.Community || type === CommonUpsertBoxTypes.UpdateCommunity) return 'New Community';
+        else if(type === CommonUpsertBoxTypes.CommunityDiscussion || type === CommonUpsertBoxTypes.UpdateCommunityDiscussion) return 'New Community Discussion';
         else return 'New List';
     }, [type])
 
@@ -52,7 +52,7 @@ export const ListOrCommunityFormInputs = observer(({ type }: Props) => {
     const tagsLabel = useMemo(() => {
         if(type === CommonUpsertBoxTypes.Community || type === CommonUpsertBoxTypes.UpdateCommunity)
             return "Select Hashtags associated with Community";
-        else if(type === CommonUpsertBoxTypes.CommunityDiscussion)
+        else if(type === CommonUpsertBoxTypes.CommunityDiscussion || type === CommonUpsertBoxTypes.UpdateCommunityDiscussion)
             return "Select Hashtags associated with the Discussion";
         else
             return "Select Hashtags associated with List";

@@ -1,5 +1,5 @@
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { faker } from "@faker-js/faker";
 import { useNavigate } from "react-router-dom";
 import { ProfileUser, UserItemToDisplay } from "typings";
@@ -44,12 +44,11 @@ const UserHeader = ({
   } = useStore();
   const { followUser, unFollowUser, loadingFollow } = userStore;
   const { setCurrentProfileToMessage } = messageStore;
-  const { currentSessionUser } = authStore;
+  const { auth, setCurrentSessionUser, currentSessionUser } = authStore;
   const { showModal, closeModal } = modalStore;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const profileIsLoggedInUser = useMemo(() => profileInfo.username === (currentSessionUser?.username ?? ""), [currentSessionUser, profileInfo]);
-  const isFollowingUser = useMemo(() => currentSessionUser?.following?.some((fU: any) => fU.id === profileInfo.userId) ||  isFollowing, [profileInfo, currentSessionUser]);
+  const profileIsLoggedInUser = useMemo(() => (profileInfo.userId === currentSessionUser?.id), [currentSessionUser]);
+  const isFollowingUser = useMemo(() => currentSessionUser?.following?.some((fU: any) => fU.userId === profileInfo.userId), [currentSessionUser]);
   const handleDropdownEnter = useCallback(
       () => setIsDropdownOpen(!isDropdownOpen),
       [isDropdownOpen]
@@ -76,8 +75,11 @@ const UserHeader = ({
       await followUser(profileInfo.userId)
 
 
-    await agent.userApiClient.sessionCheck(currentSessionUser?.email!);
-    setIsFollowing(true);
+    const checkData = await agent.userApiClient.sessionCheck(currentSessionUser?.email!);
+    if(checkData){
+      setCurrentSessionUser(checkData.result);
+      if(auth) auth?.setUser(checkData.result);
+    }
     await refreshProfileInfo();
 
 
@@ -188,52 +190,52 @@ const UserHeader = ({
             </div>
           </div>
           {isDropdownOpen && (
-            <div className="absolute right-0 bottom-100 mt-2 w-48 rounded-md shadow-lg ring-1 bg-white dark:bg-[#000000] ring-black ring-opacity-5 z-40">
-              <div
-                className="py-1"
-                role="menu"
-                aria-orientation="vertical"
-                aria-labelledby="options-menu"
-              >
-                <SidebarRow 
-                  Icon={UserAddIcon} 
-                  title="Add to List"
-                  onClick={() => {
-                    showModal(
-                      <SaveToListModal
-                        relatedEntityType="user"
-                        info={{
-                          id: profileInfo.userId,
-                          username: profileInfo.username,
-                          avatar: profileInfo.avatar,
-                          bgThumbnail: profileInfo.bgThumbnail,
-                          bio: profileInfo.bio,
-                          firstName: profileInfo.firstName,
-                          lastName: profileInfo.lastName,
-                          dateOfBirth: profileInfo.dateOfBirth,
-                          countryOfOrigin: '',
-                          preferredMadhab: '',
-                          hobbies: [],
-                          favoriteQuranReciters: [],
-                          favoriteIslamicScholars: [],
-                          islamicStudyTopics: [],
-                          followingCount: profileInfo.followingCount,
-                          followerCount: profileInfo.followerCount,
-                          totalItems: 1
-                        } as UserItemToDisplay}
-                        onClose={() => {
-                          const canCloseLoginModal = !(ROUTES_USER_CANT_ACCESS.some(r => window.location.href.includes(r)));
-                          
-                          if (currentSessionUser && currentSessionUser.id && canCloseLoginModal)
-                              closeModal();
-                        }}
-                      />
-                    )
-                  }}
-                  overrideOnClick={true}
-                />
+              <div className="absolute right-5 mt-5 w-48 rounded-md shadow-lg ring-1 bg-white dark:bg-[#000000] ring-black ring-opacity-5 z-40">
+                <div
+                  className="py-1"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="options-menu"
+                >
+                  <SidebarRow 
+                    Icon={UserAddIcon} 
+                    title="Add to List"
+                    onClick={() => {
+                      showModal(
+                        <SaveToListModal
+                          relatedEntityType="user"
+                          info={{
+                            id: profileInfo.userId,
+                            username: profileInfo.username,
+                            avatar: profileInfo.avatar,
+                            bgThumbnail: profileInfo.bgThumbnail,
+                            bio: profileInfo.bio,
+                            firstName: profileInfo.firstName,
+                            lastName: profileInfo.lastName,
+                            dateOfBirth: profileInfo.dateOfBirth,
+                            countryOfOrigin: '',
+                            preferredMadhab: '',
+                            hobbies: [],
+                            favoriteQuranReciters: [],
+                            favoriteIslamicScholars: [],
+                            islamicStudyTopics: [],
+                            followingCount: profileInfo.followingCount,
+                            followerCount: profileInfo.followerCount,
+                            totalItems: 1
+                          } as UserItemToDisplay}
+                          onClose={() => {
+                            const canCloseLoginModal = !(ROUTES_USER_CANT_ACCESS.some(r => window.location.href.includes(r)));
+                            setIsDropdownOpen(false);
+                            if (currentSessionUser && currentSessionUser.id && canCloseLoginModal)
+                                closeModal();
+                          }}
+                        />
+                      )
+                    }}
+                    overrideOnClick={true}
+                  />
+                </div>
               </div>
-            </div>
           )}
 
           <div className="space-y-1 justify-center w-full mt-3 ml-3">

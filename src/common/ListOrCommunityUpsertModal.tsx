@@ -161,7 +161,8 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
         resetPagingParams();
 
         if (type === CommonUpsertBoxTypes.CommunityDiscussion) {
-            await upsert(infoToUpsert, loggedInUserId, communityId)
+            await upsert(infoToUpsert, loggedInUserId, communityId);
+            debugger;
             await refreshRecords(loggedInUserId, communityId);
         } else {
             await upsert(infoToUpsert, loggedInUserId)
@@ -317,6 +318,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                                     <PostsFeed
                                         title="Posts to Add"
                                         hideTweetBox={true}
+                                        canAdd={true}
                                         filterKey={FilterKeys.SearchPosts}
                                         onAdd={(p: PostToDisplay) => {
                                             const postFoundIdx = values.postsAdded.findIndex(pst => pst.postId === p.postId);
