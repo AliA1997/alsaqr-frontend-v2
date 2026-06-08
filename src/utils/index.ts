@@ -1,4 +1,4 @@
-import { PostToDisplay, User } from "typings";
+import { PostToDisplay } from "typings";
 
 export interface Params {
   currentPage?: number;
@@ -91,7 +91,7 @@ export function getPercievedNumberOfRecord<T>(
     return loadedNumberOfRecords.length;
 }
 
-export function defineUsersMessagesArray(sender: User, receiver: User) {
+export function defineUsersMessagesArray(sender: any, receiver: any) {
   return [
     sender,
     receiver

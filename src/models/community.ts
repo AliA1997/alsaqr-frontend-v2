@@ -1,6 +1,5 @@
-import type { CommunityRecord, User, UserInfo } from "@typings";
+import type { CommunityRecord, User } from "@typings";
 
-// communityDiscussion - [:POSTED_DISCUSSION_ON] -> community
 export interface CommunityDiscussion {
     id: string;
     userId: string;
@@ -17,12 +16,28 @@ export interface CommunityDiscussionRecord extends CommunityDiscussion {}
 
 
 export interface CommunityDiscussionAdminInfo {
-  communityDiscussion: CommunityDiscussionRecord;
+  discussionId: string;
+  communityId: string;
+  title: string;
+  content: string;
+  createdAt: Date;
   isFounder: boolean;
-  founder: UserInfo;
-  inviteRequestedUsers: User[]; 
+  founder: { 
+    userId: string;
+    username: string;
+    avatar: string;
+  };
   invitedCount: number;
   joinedCount: number;
+  moderatorCount: number;
+  requestedCount: number;
+  inviteRequestedUsers: {
+    id: string;
+    userId: string;
+    username: string;
+    avatar: string;
+  }[];
+  isPrivate?: boolean;
 }
 
 export interface CommunityDiscussionInfoForMessageRoom {
@@ -74,18 +89,12 @@ export interface CommunityDiscussionMessage {
     messageText: string;
     image: string;
     createdAt: string;
-    _type: "community_discussion_message";
-    tags: string[];
 }
 
 export interface CommunityDiscussionMessageDto {
-  userId: string;
-  communityDiscussionId: string;
-  communityId: string;
-  messageText: string;
-  image: string;
-  _type: "community_discussion_message";
-  tags: string[];
+    creatorId: string;
+    content: string;
+    media: string;
 }
 
 export interface CommunityDiscussionMessageRecord extends CommunityDiscussionMessage {}

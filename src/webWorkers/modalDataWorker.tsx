@@ -26,6 +26,7 @@ function defineCommonUrlParams() {
     return params;
 }
 
+
 // User Data Worker
 self.onmessage = async (event) => {
     const { loggedInUserId } = event.data;
@@ -42,7 +43,7 @@ self.onmessage = async (event) => {
             postsToAddPagination
         };
     } catch {
-        console.log("Error prefetching modal data for loggedin user.");
+        console.log("Error getting data");
     }
 
     // 3. Send plain loggedin user back to main thread

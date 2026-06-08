@@ -104,7 +104,6 @@ export default class CommunityFeedStore {
         this.setLoadingUpsert(true);
         try {
             const updatedCommunityDto: UpdateCommunityFormDto = values;
-
             await agent.communityApiClient.updateCommunity(updatedCommunityDto, userId, communityId);
 
             runInAction(() => {

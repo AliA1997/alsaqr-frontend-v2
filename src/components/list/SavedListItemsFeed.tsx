@@ -5,13 +5,15 @@ import { useStore } from "@stores/index";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import { ContentContainerWithRef } from "@common/Containers";
 import SavedListItem from "./SavedListItem";
+import { ListToDisplay } from "typings";
 
 interface Props {
   listId: string;
+  selectedList: ListToDisplay | undefined;
 }
 
 
-const SavedListItemsFeed = observer(({ listId }: Props) => {
+const SavedListItemsFeed = observer(({ listId, selectedList }: Props) => {
   const [_, setLoading] = useState(false);
   const { authStore, listFeedStore } = useStore();
   const {
@@ -26,8 +28,9 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
   async function getListItems() {
     setLoading(true);
     try {
-
       await loadSavedListItems(currentSessionUser?.id ?? '', listId);
+    } catch(error){
+      console.log("Load saved list items", error);
     } finally {
       setLoading(false);
     }
@@ -36,7 +39,8 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
   useEffect(() => {
     if (currentSessionUser?.id)
       getListItems();
-  }, [currentSessionUser])
+
+  }, [])
 
 
   return (
@@ -50,7 +54,7 @@ const SavedListItemsFeed = observer(({ listId }: Props) => {
             {savedListItems && savedListItems.length
               ?
               savedListItems.map((savedListItem) => (
-                <SavedListItem key={savedListItem.listItemId} savedListItemToDisplay={savedListItem} />
+                <SavedListItem key={savedListItem.listItemId} savedListItemToDisplay={savedListItem} selectedList={selectedList} />
               ))
               : <NoRecordsTitle>No saved items for this list.</NoRecordsTitle>}
           </>

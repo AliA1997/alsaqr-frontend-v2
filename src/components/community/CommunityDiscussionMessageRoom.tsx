@@ -15,6 +15,9 @@ import { ButtonLoader, SkeletonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
 import CommunityDiscussionAdminView from './CommunityDiscussionAdminView';
 import { useNavigate } from 'react-router';
+import { DangerAlert } from '@common/Alerts';
+import { checkNsfwInImage, initializeClient } from '@utils/infrastructure/gradio';
+import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from '@utils/constants';
 
 type Props = {
   loggedInUser: any;
@@ -35,43 +38,45 @@ const CommunityDiscussionMessageRoom = ({
 
   const [commmityDiscussionInfo, setCommunityDiscussionInfo] = useState<CommunityDiscussionInfoForMessageRoom | undefined>(undefined);
   const [adminCommunityDiscussionInfo, setAdminCommunityDiscussionInfo] = useState<CommunityDiscussionAdminInfo | undefined>(undefined);
-  const userId = useMemo(() => loggedInUser?.id, [loggedInUser]);
 
   useEffect(() => {
     async function getCommunityDiscussionInfo() {
-      const result = await agent.communityApiClient.getCommunityDiscussionForMessageRoom(userId, communityId, communityDiscussionId);
+      const result = await agent.communityApiClient.getCommunityDiscussionForMessageRoom(communityId, communityDiscussionId);
 
       setCommunityDiscussionInfo(result);
     }
     async function getAdminCommunityDiscussionInfo() {
-      const result = await agent.communityApiClient.getAdminCommunityDiscussionInfo(userId, communityId, communityDiscussionId);
+      const result = await agent.communityApiClient.getAdminCommunityDiscussionInfo(communityId, communityDiscussionId);
 
       setAdminCommunityDiscussionInfo(result);
     }
 
     if (communityDiscussionId && communityId) {
       getCommunityDiscussionInfo();
-      getAdminCommunityDiscussionInfo();
+      getAdminCommunityDiscussionInfo()
+      getDiscussionMessages(1, 100);
     }
   }, [
     communityDiscussionId,
     communityId
   ])
 
-  useEffect(() => {
-    if (communityDiscussionId && communityId)
-      getDiscussionMessages(1, 100)
-  }, [
-    communityId,
-    communityDiscussionId,
-    (submitting === false)
-  ])
-
   const [messages, setMessages] = useState<CommunityDiscussionMessageToDisplay[]>();
   const [_, setPagination] = useState<Pagination | undefined>(undefined);
+  const [mounted, setMounted] = useState(false);
   const [input, setInput] = useState('');
   const [image, setImage] = useState('');
+  const [nsfwAlert, setNsfwAlert] = useState('');
+  const [processNsfwCheck, setProcessNsfwCheck] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const messageInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Attaching an image kicks off an async NSFW check (see effect below).
+  const handleSetImage = (val: string) => {
+    if (val) setProcessNsfwCheck(true);
+    setImage(val);
+  };
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -82,6 +87,37 @@ const CommunityDiscussionMessageRoom = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    if (processNsfwCheck) {
+      initializeClient()
+        .then((gradioClient) => checkNsfwInImage(gradioClient, image))
+        .then((resolvedNsfwStatus: string) => {
+          if (resolvedNsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || resolvedNsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
+            setNsfwAlert(`Please choose a different photo — explicit images aren’t allowed in discussion messages.`);
+            setImage('');
+            setHasError(true);
+          } else {
+            setHasError(false);
+          }
+        })
+        .catch((err) => {
+          console.log("Error:", err);
+          setHasError(true);
+        })
+        .finally(() => {
+          setProcessNsfwCheck(false);
+        });
+    }
+  }, [processNsfwCheck]);
+
+  useEffect(() => {
+    setMounted(true);
+
+    return () => {
+      setMounted(false);
+    }
+  }, [])
+
   async function getDiscussionMessages(currentPage?: number, itemsPerPage?: number) {
     setLoadingMessages(true);
     const urlParams = new URLSearchParams();
@@ -90,7 +126,6 @@ const CommunityDiscussionMessageRoom = ({
     try {
       const { items, pagination } = await communityApiClient.getCommunityDiscussionMessages(
         urlParams,
-        loggedInUser.id,
         communityId,
         communityDiscussionId
       );
@@ -104,41 +139,36 @@ const CommunityDiscussionMessageRoom = ({
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!input.trim() || hasError || processNsfwCheck) return;
     setSubmitting(true);
-    if (!input.trim()) return;
 
     const message: CommunityDiscussionMessageDto = {
-      userId: loggedInUser.id,
-      communityDiscussionId: communityDiscussionId,
-      communityId: communityId,
-      messageText: input,
-      image: image,
-      _type: "community_discussion_message",
-      tags: []
+      creatorId: loggedInUser.id,
+      content: input, 
+      media: image
     };
 
     try {
       await communityApiClient.addCommunityDiscussionMessage(
         message,
-        loggedInUser.id,
-        message.communityId,
-        message.communityDiscussionId
+        communityId,
+        communityDiscussionId
       );
       setInput('');
       setImage('');
+      await getDiscussionMessages(1, 100);
 
       toast("Discussion Message Posted!", {
         icon: "🚀",
       });
 
-      await getDiscussionMessages(1, 100);
     }
     finally {
       setSubmitting(false);
     }
   };
   async function refreshCommunityDiscussionInfo(communityId: string) {
-      const communityDiscussionInfoResult = await communityApiClient.getAdminCommunityDiscussionInfo(loggedInUser.id, communityId, communityDiscussionId);
+      const communityDiscussionInfoResult = await communityApiClient.getAdminCommunityDiscussionInfo(communityId, communityDiscussionId);
   
       setCommunityDiscussionInfo(communityDiscussionInfoResult);
       setLoadingAdminInfo(false);
@@ -152,7 +182,10 @@ const CommunityDiscussionMessageRoom = ({
     return Array.from(new Set([...jUsers, ...iUsers]).values())
   }, [commmityDiscussionInfo])
 
-  console.log("current loading status:", loadingAdminInfo)
+
+  if(!mounted) 
+    return <SkeletonLoader count={3} />;
+
   return (
     <div data-testid='communitydiscussionmessagecontainer' className="flex flex-col h-screen bg-gray-50 dark:bg-[#0e1517]">
       {/* Header */}
@@ -241,6 +274,13 @@ const CommunityDiscussionMessageRoom = ({
       {/* Message Input */}
       <div className="bg-white p-4 border-t border-gray-200 dark:border-none dark:bg-[#0e1517]">
         <form onSubmit={handleSendMessage} className="flex flex-col items-start">
+          {nsfwAlert && (
+            <DangerAlert
+              title="NSFW Photos Not Allowed"
+              message={nsfwAlert}
+              onClose={() => setNsfwAlert('')}
+            />
+          )}
           {image && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -255,21 +295,26 @@ const CommunityDiscussionMessageRoom = ({
               >
                 <XIcon className="h-5 w-5" />
               </button>
-              <img
-                className="mt-10 h-40 w-full rounded-xl object-contain shadow-lg"
-                src={image}
-                width={20}
-                height={20}
-                alt="image/tweet"
-              />
+              {processNsfwCheck ? (
+                <SkeletonLoader />
+              ) : (
+                <img
+                  className="mt-10 h-40 w-full rounded-xl object-contain shadow-lg"
+                  src={image}
+                  width={20}
+                  height={20}
+                  alt="image/tweet"
+                />
+              )}
             </motion.div>
           )}
-          <div className='flex w-full'>
+          <div className='flex w-full mb-1'>
             <input
+              ref={messageInputRef}
               type="text"
               className={`
                 flex-1 border border-gray-300 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                dark:bg-gray-900  
+                dark:bg-gray-900 ${hasError ? 'bg-red-200' : ''}
               `}
               placeholder="Type a message..."
               value={input}
@@ -278,7 +323,7 @@ const CommunityDiscussionMessageRoom = ({
             <button
               type="submit"
               className="ml-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              disabled={!input.trim() || submitting}
+              disabled={!input.trim() || submitting || hasError || processNsfwCheck}
             >
               {submitting ? (
                 <ButtonLoader />
@@ -290,7 +335,7 @@ const CommunityDiscussionMessageRoom = ({
             </button>
           </div>
           <div className='px-1'>
-            <UpsertBoxIconButton setInput={setInput} input={input} setImage={setImage} />
+            <UpsertBoxIconButton setInput={setInput} input={input} setImage={handleSetImage} inputRef={messageInputRef} />
           </div>
         </form>
       </div>

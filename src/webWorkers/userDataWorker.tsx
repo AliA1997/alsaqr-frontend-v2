@@ -42,7 +42,6 @@ function defineCommonUrlParams() {
 
 // User Data Worker
 self.onmessage = async (event) => {
-    debugger;
     const { loggedInUserId } = event.data;
     let result: PrefetchPayloadData | null = null;
     // 1. Perform heavy background fetching/processing
@@ -52,7 +51,8 @@ self.onmessage = async (event) => {
 
         const { items: communities, pagination: communitiesPagination } = await agent.communityApiClient.getCommunities(defineCommonUrlParams(), loggedInUserId);
         const { items: lists, pagination: listsPagination } = await agent.listApiClient.getLists(defineListUrlParams(), loggedInUserId);
-        const { items: messageHistory, pagination: messageHistoryPagination } = await agent.messageApiClient.loadDirectMessageHistory(loggedInUserId, defineCommonUrlParams());
+        const { items: messageHistory, pagination: messageHistoryPagination } = await agent.messageApiClient.loadDirectMessageThreads(defineCommonUrlParams());
+        
         result = {
             notifications,
             notificationsPagination,

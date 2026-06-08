@@ -74,6 +74,7 @@ export const SaveToListModal = observer(({
                                         <PostComponent
                                             postToDisplay={info as PostToDisplay}
                                             onlyDisplay={true}
+                                            canAdd={true}
                                         />
                                     </>
                                 );

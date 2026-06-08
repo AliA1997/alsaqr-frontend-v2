@@ -94,7 +94,6 @@ export default class FeedStore {
             const { items, pagination } = await agent.postApiClient.getPosts(this.axiosParams) ?? [];
             
             runInAction(() => {
-                console.log("items:", items);
                 items.forEach((pst: PostToDisplay) => {
                     this.setPost(pst.postId, pst);
                 });

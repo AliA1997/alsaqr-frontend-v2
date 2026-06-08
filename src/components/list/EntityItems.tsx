@@ -8,7 +8,6 @@ import {
   stopPropagationOnClick,
 } from "@utils/index";
 import { capitalize } from "lodash";
-import { useNavigate } from "react-router";
 import TimeAgo from "react-timeago";
 
 interface CommonEntityItemProps {
@@ -16,8 +15,6 @@ interface CommonEntityItemProps {
 }
 
 export function SavedPostItem({ listItem }: CommonEntityItemProps) {
-  const navigate = useNavigate();
-
   const {
     postId,
     postContent,
@@ -29,11 +26,11 @@ export function SavedPostItem({ listItem }: CommonEntityItemProps) {
     postBannerImage,
   } = listItem;
 
-  const navigateToTweetUser = () => {
-    navigate(`/users/${postUsername}`);
+  const navigateToPostUser = () => {
+    window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/users/${postUsername}`, "_blank");
   };
-  const navigateToTweet = () => {
-    navigate(`/status/${postId}`);
+  const navigateToPost = () => {
+    window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/status/${postId}`, "_blank");
   };
 
   return (
@@ -58,7 +55,7 @@ export function SavedPostItem({ listItem }: CommonEntityItemProps) {
         <div
           className="absolute top-0 bg-transparent w-full h-full z-10"
           onClick={(e) => {
-            return stopPropagationOnClick(e, navigateToTweet);
+            return stopPropagationOnClick(e, navigateToPost);
           }}
         />
         <OptimizedImage
@@ -66,7 +63,7 @@ export function SavedPostItem({ listItem }: CommonEntityItemProps) {
           src={postAvatar ?? ""}
           alt={postUsername ?? ""}
           onClick={(e) => {
-            return stopPropagationOnClick(e, navigateToTweetUser);
+            return stopPropagationOnClick(e, navigateToPostUser);
           }}
         />
         <div className="text-left w-full">
@@ -75,7 +72,7 @@ export function SavedPostItem({ listItem }: CommonEntityItemProps) {
               data-testid="usernamelink"
               className={`font-bold mr-1 text-black dark:text-gray-50 hover:underline`}
               onClick={(e) => {
-                return stopPropagationOnClick(e, navigateToTweetUser);
+                return stopPropagationOnClick(e, navigateToPostUser);
               }}
             >
               {postUsername}
@@ -85,7 +82,7 @@ export function SavedPostItem({ listItem }: CommonEntityItemProps) {
               data-testid="postusername"
               className="hidden text-sm text-gray-500 sm:inline dark:text-gray-400 hover:underline"
               onClick={(e) => {
-                return stopPropagationOnClick(e, navigateToTweetUser);
+                return stopPropagationOnClick(e, navigateToPostUser);
               }}
             >
               @{postUsername ? postUsername.replace(/\s+/g, "") : ""}.
@@ -132,29 +129,27 @@ export function SavedPostItem({ listItem }: CommonEntityItemProps) {
 }
 
 export function SavedUserItem({ listItem }: CommonEntityItemProps) {
-  const navigate = useNavigate();
 
   const { savedUserUsername, savedUserAvatar, savedUserBio } = listItem;
 
   const navigateToUser = () => {
-    navigate(`users/${savedUserUsername}`);
+    window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/users/${savedUserUsername}`, "_blank");
   };
 
   return (
     <div
       className={`flex relative space-x-3 border-y border-gray-100 p-5 dark:border-gray-800 
-                            rounded-sm w-full h-[7em]
-                        `}
+                  rounded-sm w-full h-[7em]`}
     >
-      <div className="flex flex-col justify-self-stretch grow justify-start h-full space-x-3 cursor-pointer">
-        <div className="flex justify-items-start items-end align-items-end space-x-2 text-gray-900 dark:text-gray-50">
+      <div className="flex flex-col justify-self-stretch grow justify-start h-full space-x-3">
+        <div className="flex justify-items-start items-end align-items-end space-x-2 text-gray-900 dark:text-gray-50 cursor-pointer">
           <OptimizedImage
             classNames="h-10 w-10 rounded-full object-cover"
             src={savedUserAvatar ?? ""}
             alt={savedUserUsername ?? ""}
             onClick={(e) => stopPropagationOnClick(e, navigateToUser)}
           />
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start hover:underline">
             <h6>{savedUserUsername}</h6>
             <p className="italic text-gray-400 text-sm">
               {shortenText(savedUserBio ?? "", MAX_BIO_LENGTH_FEED)}
@@ -215,7 +210,6 @@ export function SavedCommunityDiscussionMessageItem({
 export function SavedCommunityDiscussionItem({
   listItem,
 }: CommonEntityItemProps) {
-  const navigate = useNavigate();
 
   const {
     communityId,
@@ -227,7 +221,8 @@ export function SavedCommunityDiscussionItem({
   } = listItem;
 
   const navigateToCommunityDiscussion = () => {
-    navigate(`/communities/${communityId}/${communityDiscussionId}`);
+    window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${communityId}/${communityDiscussionId}`, "_blank");
+
   };
 
   return (

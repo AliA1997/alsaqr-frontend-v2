@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
-import { CommunityAdminInfo } from "typings";
+import {
+    CommunityToDisplay 
+} from "typings";
 import { communityApiClient } from "@utils/api/communityApiClient";
-import CommunityAdminView from "@components/community/CommunityAdminView";
+import CommunityNonAdminView from "@components/community/CommunityNonAdminView";
 import CommunityDiscussionFeed from "@components/shared/CommunityDiscussionFeed";
 import { useParams } from "react-router-dom";
 import { SkeletonLoader } from "@common/CustomLoader";
+import CommunityAdminView from "@components/community/CommunityAdminView";
 
 const CommunityPage = observer(() => {
     const { community_id } = useParams();
@@ -14,27 +17,19 @@ const CommunityPage = observer(() => {
     const [loading, setLoading] = useState<boolean>(true);
     const { authStore } = useStore();
     const { currentSessionUser } = authStore;
-    const [communityInfo, setCommunityInfo] = useState<CommunityAdminInfo | undefined>(undefined);
-
+    const [communityInfo, setCommunityInfo] = useState<CommunityToDisplay | undefined>(undefined);
+    
     async function getCommunityInfo() {
         const communityInfoResult = await communityApiClient
-            .getAdminCommunityInfo(undefined, currentSessionUser?.id!, community_id!);
+            .getCommunityInfo(undefined, currentSessionUser?.id!, community_id!);
 
         setCommunityInfo(communityInfoResult);
         setLoading(false);
     }
 
-    async function refreshCommunityInfo(communityId: string) {
-        const communityInfoResult = await communityApiClient
-            .getAdminCommunityInfo(undefined, currentSessionUser?.id!, communityId);
-
-        setCommunityInfo(communityInfoResult);
-        setLoading(false);
-    }
 
     useEffect(
         () => {
-
             if (currentSessionUser?.id)
                 getCommunityInfo();
         },
@@ -46,16 +41,16 @@ const CommunityPage = observer(() => {
     else
         return (
             <>
-                {communityInfo?.isFounder && (
-                    <CommunityAdminView
-                        communityAdminInfo={communityInfo!}
-                        refreshCommunityAdminInfo={refreshCommunityInfo}
-                    />
+                {communityInfo?.founderId == currentSessionUser?.id ? (
+                    <CommunityAdminView communityId={community_id ?? ''} />
+                ) : (
+                    communityInfo && <CommunityNonAdminView communityInfo={communityInfo} />
                 )}
                 <CommunityDiscussionFeed communityId={community_id ?? ""} />
             </>
         );
 });
 
+ 
 
 export default CommunityPage;

@@ -113,7 +113,7 @@ const ConfirmModal = observer(({
             onClick={onClose}
             className={`
                   rounded-full bg-gray-100 px-5 py-2 font-bold text-gray-900 
-                  disabled:opacity-40
+                  disabled:opacity-40 cursor-pointer
                 `}
             type="button"
           >
@@ -132,7 +132,7 @@ const ConfirmModal = observer(({
             disabled={(submitting ?? false) || loadingUpsert}
             className={`
                   rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white ${confirmButtonClassNames && confirmButtonClassNames} 
-                  disabled:opacity-40
+                  disabled:opacity-40 cursor-pointer
                 `}
             type="button"
           >

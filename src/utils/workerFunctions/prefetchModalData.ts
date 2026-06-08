@@ -37,9 +37,8 @@ export const prefetchModalData = (loggedInUserId: string) => {
   // Listen for worker result
   worker.onmessage = (event: PrefetchPayloadMessageEvent) => {
     const { type, payload } = event.data;
-    debugger;
     if (type === 'MODAL_DATA_PREFETCHED') {
-      console.log('modal data prefetched', payload)
+    //   console.log('modal data prefetched', payload)
       setUsersToAdd(payload.usersToAdd, payload.usersToAddPagination);
       setPostsToAdd(payload.postsToAdd, payload.postsToAddPagination);
     }

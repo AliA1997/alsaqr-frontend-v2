@@ -29,7 +29,7 @@ function ListItemComponent({
   const { authStore, modalStore, listFeedStore } = useStore();
   const { currentSessionUser } = authStore;
   const { closeModal, showModal } = modalStore;
-  const { deleteList } = listFeedStore;
+  const { deleteList, setSelectedList } = listFeedStore;
 
   const initiallyBooleanValues = useRef<{
     alreadySaved: boolean;
@@ -63,6 +63,7 @@ function ListItemComponent({
   };
 
   const navigateToList = () => {
+    setSelectedList(listInfo);
     navigate(`/lists/${listInfo.listId}`);
   };
 

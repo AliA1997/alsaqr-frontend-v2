@@ -2,7 +2,7 @@ import {
   useMemo,
 } from "react";
 import TimeAgo from "react-timeago";
-import type { CommunityToDisplay } from "@typings";
+import type { CommunityToDisplay, ListToDisplay } from "@typings";
 import { useStore } from "@stores/index";
 import { ListItemToDisplay } from "@models/list";
 import CommunityItemComponent from "@components/community/CommunityItem";
@@ -10,30 +10,22 @@ import { convertDateToDisplay } from "@utils/index";
 import { TagOrLabel } from "@common/Titles";
 import { ConfirmModal } from "@common/Modal";
 import { SavedCommunityDiscussionItem, SavedCommunityDiscussionMessageItem, SavedPostItem, SavedUserItem } from "./EntityItems";
+import { observer } from "mobx-react-lite";
 
 
 interface Props {
   savedListItemToDisplay: ListItemToDisplay;
+  selectedList: ListToDisplay | undefined;
 }
 
 function SavedListItem({
-  savedListItemToDisplay
+  savedListItemToDisplay,
+  selectedList
 }: Props) {
   const { authStore, listFeedStore, modalStore } = useStore();
   const { showModal, closeModal } = modalStore;
-  const { loadingUpsert, deleteSavedListItem, loadSavedListItems, listInfoForSavedListItems } = listFeedStore;
+  const { loadingUpsert, deleteSavedListItem, loadSavedListItems } = listFeedStore;
 
-  const navigateToRelatedEntity = () => {
-    if (savedListItemToDisplay.postId)
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/status/${savedListItemToDisplay.postId}`, "_blank");
-    else if (savedListItemToDisplay.savedUserId)
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/users/${savedListItemToDisplay.savedUserUsername}`), "_blank";
-    else if (savedListItemToDisplay.communityId && !savedListItemToDisplay.communityDiscussionId)
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${savedListItemToDisplay.communityId}`, "_blank")
-    else if (savedListItemToDisplay.communityDiscussionId) {
-      window.open(`${import.meta.env.VITE_PUBLIC_BASE_URL}/communities/${savedListItemToDisplay.communityId}/${savedListItemToDisplay.communityDiscussionId}`, "_blank")
-    }
-  };
 
   const RelatedEntityNode = () => {
     if (savedListItemToDisplay.postId)
@@ -75,7 +67,7 @@ function SavedListItem({
       className="relative flex flex-col space-x-3 border-y border-gray-100 p-5 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000]"
     >
       <div className='flex justify-between'>
-        <div className='absolute top-0 left-0 text-sm text-gray-500 dark:text-gray-400'>
+        <div className='absolute top-0 right-20 text-sm text-gray-500 dark:text-gray-400'>
           Saved{" "}
           <TimeAgo
 
@@ -94,15 +86,18 @@ function SavedListItem({
       </div>
       <div className='relative'>
         {RelatedEntityNode()}
-        <div className='absolute top-0 bg-transparent w-full h-full z-10' onClick={navigateToRelatedEntity} />
       </div>
 
       <button
         type='button'
         disabled={loadingUpsert}
-        className={`rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40 w-48 self-center`}
+        className={`
+          rounded-full bg-[#55a8c2] px-5 py-2 font-bold text-white disabled:opacity-40 w-48 self-center
+          cursor-pointer
+        `}
         onClick={(e) => {
           e.preventDefault();
+
           showModal(
             <ConfirmModal
               title="Are you sure?"
@@ -110,15 +105,15 @@ function SavedListItem({
               confirmButtonClassNames="bg-red-700"
               confirmFunc={async () => {
                 await deleteSavedListItem(authStore.currentSessionUser?.id!, savedListItemToDisplay?.listId!, savedListItemToDisplay.listItemId);
+                await loadSavedListItems(authStore.currentSessionUser?.id!, selectedList?.listId!)
                 closeModal();
-                await loadSavedListItems(authStore.currentSessionUser?.id!, listInfoForSavedListItems.id!)
               }}
               declineButtonText="Cancel"
               confirmButtonText="Remove"
               onClose={() => closeModal()}
             >
               {RelatedEntityNode()}
-              <p className='my-2'>{`Are you sure you want to remove this from your list named ${listInfoForSavedListItems.name}?`}</p>
+              <p className='my-2'>{`Are you sure you want to remove this from your list named ${selectedList?.listName}?`}</p>
             </ConfirmModal>
           );
         }}
@@ -148,4 +143,4 @@ function SavedListItem({
   );
 }
 
-export default SavedListItem;
+export default observer(SavedListItem);

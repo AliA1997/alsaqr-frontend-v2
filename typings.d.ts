@@ -61,9 +61,13 @@ export type CommonRecordBody = {
 export interface ProfileUser {
   userId: string;
   username: string;
+  firstName: string;
+  lastName?: string;
   avatar?: string;
   bgThumbnail?: string;
+  bannerImage?: string;
   bio?: string;
+  dateOfBirth?: Date;
   createdAt: Date;
   updatedAt?: Date;
   bookmarks: string[];
@@ -250,6 +254,7 @@ export interface CreateListOrCommunityFormDto extends CreateListOrCommunityForm 
 
 export interface CreateListOrCommunityForm {
   name: string;
+  description?: string;
   avatarOrBannerImage: string;
   isPrivate: "private" | "public";
   tags: string[];
@@ -341,6 +346,7 @@ export interface CommunityToDisplay {
   communityBannerImage?: string;
   communityCreatedAt: Date;
   communityUpdatedAt?: Date;
+  communityTags?: string[];
   founderId: string;
   founderUsername: string;
   founderAvatar: string;
@@ -352,13 +358,11 @@ export interface CommunityToDisplay {
   isPrivate?: boolean;
 }
 
-export interface CommunityAdminInfo {
-  community: CommunityRecordToDisplay;
-  isFounder: boolean;
-  founder: UserInfo;
+export interface CommunityAdminInfo  extends CommunityToDisplay {
   inviteRequestedUsers: User[]; 
   invitedCount: number;
   joinedCount: number;
+  moderatorCount: number;
 }
 // CALL apoc.trigger.add('create_list_notification', 
 // 'UNWIND $createdNodes AS node
@@ -409,34 +413,34 @@ export interface ServerError {
 // Direct Message Relationships
 // Sender -> SEND_MESSAGE -> Recipient
 // Recipient -> RECEIVED_MESSAGE -> Sender
-export interface MessageFormDto extends CommonRecordBody {
-  messageType: MessageType;
+export interface MessageFormDto {
   senderId: string;
   senderProfileImg?: string;
   senderUsername?: string;
   recipientId?: string;
   recipientProfileImg?: string;
   recipientUsername?: string;
+  text: string;
+  image?: string;
 }
 
 export interface MessageRecord extends CommonRecordBody {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  _rev: string;
-  _type: "message";
-  messageType: MessageType;
+  messageId: string;
   senderId?: string;
-  senderProfileImg?: string;
   senderUsername?: string;
+  senderAvatar?: string;
   recipientId?: string;
-  recipientProfileImg?: string;
+  recipientAvatar?: string;
   recipientUsername?: string;
+  messageContent?: string;
+  messageMedia?; string;
+  isRead?: boolean;
+
+  messageCreatedAt: Date;
+  messageUpdatedAt: Date;
 }
 
-export interface MessageToDisplay {
-  message: MessageRecord,
-}
+export interface MessageToDisplay extends MessageRecord {}
 
 export interface MessageHistoryToDisplay {
   id: string;

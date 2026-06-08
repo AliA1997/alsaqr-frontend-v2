@@ -66,7 +66,7 @@ function UserItemComponent({
         if (loggedInUserId) {
             // alert(JSON)
             const alreadyFollowedOrAdded = usersAlreadyFollowedOrAddedIds?.some((userById: string) => userById == userItemInfo.id) ?? false;
-            console.log(JSON.stringify(usersAlreadyFollowedOrAddedIds))
+
             if (filterKey === FilterKeys.SearchUsers) {
                 initiallyBooleanValues.current.added = alreadyFollowedOrAdded;
                 setIsAdded(alreadyFollowedOrAdded);

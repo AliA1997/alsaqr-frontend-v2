@@ -7,7 +7,7 @@ import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";
 import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { CommentForm } from "typings";
 
@@ -31,6 +31,7 @@ export default observer(function CommentBox({
     const [input, setInput] = useState<string>("");
     const [image, setImage] = useState<string>("");
     const [commentNsfwAlert, setCommentNsfwAlert] = useState<string>("");
+    const commentInputRef = useRef<HTMLInputElement>(null);
 
     const handleSubmitComment = async (e: any) => {
         e.preventDefault();
@@ -114,6 +115,7 @@ export default observer(function CommentBox({
                     <div className="flex flex-col md:flex-row">
 
                         <input
+                            ref={commentInputRef}
                             data-testid="postcommentinput"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
@@ -153,7 +155,7 @@ export default observer(function CommentBox({
                         </button>
                     </div>
                 </form>
-                <UpsertBoxIconButton setInput={setInput} input={input} setImage={setImage} />
+                <UpsertBoxIconButton setInput={setInput} input={input} setImage={setImage} inputRef={commentInputRef} />
             </motion.div>
         </>
     );

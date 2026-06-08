@@ -28,18 +28,18 @@ function CommunityDiscussionAdminView({
                 <div className='relative flex'> 
                     <InfoCardContainer>
                         <h1 className='text-3xl'>
-                            {communityDiscussionAdminInfo.communityDiscussion.name}
+                            {communityDiscussionAdminInfo.title}
                         </h1>
                     </InfoCardContainer>
                     <TagOrLabel 
-                        color={communityDiscussionAdminInfo.communityDiscussion.isPrivate ? 'danger' : 'info'} 
+                        color={communityDiscussionAdminInfo.isPrivate ?? false ? 'danger' : 'info'} 
                         size='sm' 
                         className='absolute bottom-0 right-0'
                     >
-                        {communityDiscussionAdminInfo.communityDiscussion.isPrivate ? 'Private' : 'Public'}
+                        {communityDiscussionAdminInfo.isPrivate ?? false ? 'Private' : 'Public'}
                     </TagOrLabel>
                 </div>
-                <div className="flex flex-5">
+                <div className="flex">
                     <InfoCardContainer>
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Invited Users:</p>
                         <h1 className='w-full text-center text-3xl'>
@@ -52,7 +52,7 @@ function CommunityDiscussionAdminView({
                             {communityDiscussionAdminInfo.joinedCount}
                         </h1>
                     </InfoCardContainer>
-                    {communityDiscussionAdminInfo.communityDiscussion.isPrivate && (
+                    {(communityDiscussionAdminInfo.isPrivate ?? false) && (
                         <InfoCardContainer>
                             <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Pending Invites:</p>
                             <h1 className='w-full text-center text-3xl'>
@@ -64,11 +64,11 @@ function CommunityDiscussionAdminView({
                                     e.stopPropagation();
                                     showModal(
                                         <RequestedInvitesModal
-                                            invitedUsers={communityDiscussionAdminInfo.inviteRequestedUsers}
+                                            invitedUsers={communityDiscussionAdminInfo.inviteRequestedUsers as any[]}
                                             title="Pending Invite Requests"
                                             filterKey={FilterKeys.CommunityDiscussion}
-                                            entityInvitedToId={communityDiscussionAdminInfo.communityDiscussion.communityId}
-                                            childEntityInviteToId={communityDiscussionAdminInfo.communityDiscussion.id}
+                                            entityInvitedToId={communityDiscussionAdminInfo.communityId}
+                                            childEntityInviteToId={communityDiscussionAdminInfo.discussionId}
                                         />
                                     );
                                 }}
@@ -89,23 +89,8 @@ function CommunityDiscussionAdminView({
                     <InfoCardContainer>
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Created on: </p>
                         <h1 className='w-full text-center mt-2'>
-                            {new Date(convertDateToDisplay(communityDiscussionAdminInfo.communityDiscussion.createdAt)).toLocaleString('default', { dateStyle: 'short' })}
+                            {new Date(convertDateToDisplay(communityDiscussionAdminInfo.createdAt)).toLocaleString('default', { dateStyle: 'short' })}
                         </h1>
-                    </InfoCardContainer>
-                    <InfoCardContainer classNames='justify-end items-center'>
-                        <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Tags:</p>
-
-                        <div className='flex flex-wrap'>
-                            {communityDiscussionAdminInfo.communityDiscussion.tags && communityDiscussionAdminInfo.communityDiscussion.tags.map((t: string, tIdx: number) =>
-                                <div key={tIdx}>
-                                    <TagOrLabel 
-                                        color='secondary' 
-                                        size='sm' 
-                                    >
-                                        #{t}
-                                    </TagOrLabel>
-                                </div>)}
-                        </div>
                     </InfoCardContainer>
                 </div>
             </>

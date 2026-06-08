@@ -106,9 +106,22 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
             if (type === CommonUpsertBoxTypes.Community)
                 return communityFeedStore.addCommunity(form, userId);
             else if (type === CommonUpsertBoxTypes.CommunityDiscussion)
-                return communityDiscussionFeedStore.addCommunityDiscussion(form, userId, communityId!);
+                return communityDiscussionFeedStore.addCommunityDiscussion(form, communityId!);
             else
                 return listFeedStore.addList(form, userId);
+        },
+        [type]
+    );
+
+
+    const refreshRecords: (userId: string, communityId?: string) => Promise<void> = useCallback(
+        (userId: string, communityId?: string) => {
+            if (type === CommonUpsertBoxTypes.Community)
+                return communityFeedStore.loadCommunities(userId, true);
+            else if (type === CommonUpsertBoxTypes.CommunityDiscussion)
+                return communityDiscussionFeedStore.loadCommunityDiscussions(communityId!);
+            else
+                return listFeedStore.loadLists(userId);
         },
         [type]
     );
@@ -128,6 +141,7 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
         else if (type === CommonUpsertBoxTypes.CommunityDiscussion)
             infoToUpsert = {
                 name: values.name,
+                description: '',
                 avatarOrBannerImage: '',
                 isPrivate: values.isPrivate,
                 tags: values.tags,
@@ -144,12 +158,15 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
                 postsAdded: values.postsAdded
             };
 
-        if (type === CommonUpsertBoxTypes.CommunityDiscussion)
-            await upsert(infoToUpsert, loggedInUserId, communityId)
-        else
-            await upsert(infoToUpsert, loggedInUserId)
-
         resetPagingParams();
+
+        if (type === CommonUpsertBoxTypes.CommunityDiscussion) {
+            await upsert(infoToUpsert, loggedInUserId, communityId)
+            await refreshRecords(loggedInUserId, communityId);
+        } else {
+            await upsert(infoToUpsert, loggedInUserId)
+            await refreshRecords(loggedInUserId);
+        }
 
         toast(toastMessage, {
             icon: "🚀",

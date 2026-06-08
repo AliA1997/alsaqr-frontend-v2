@@ -23,6 +23,8 @@ import { OptimizedImage } from "@common/Image";
 // import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";po
 import { DangerAlert } from "@common/Alerts";
 import { CommonBoxButton } from "@common/Buttons";
+import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
+import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";
 
 interface Props {
   filterKey: FilterKeys;
@@ -54,7 +56,13 @@ function PostBox({ filterKey }: Props) {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleShowEmojiPicker = useCallback(
-    () => setShowEmojiPicker(!showEmojiPicker),
+    (e: React.MouseEvent) => {
+      // Stop the opening click from reaching the document, otherwise the
+      // picker's own onClickOutside handler treats it as an outside click and
+      // closes immediately.
+      e.stopPropagation();
+      setShowEmojiPicker((prev) => !prev);
+    },
     []
   );
   const handleEmojiSelect = useCallback(
@@ -95,7 +103,6 @@ function PostBox({ filterKey }: Props) {
       tags: hashtags ?? []
     };
 
-    console.log('createNewPost', createPostForm);
     await agent.postApiClient.addPost(createPostForm);
 
     setSearchQry(defaultSearchParams.search_term);
@@ -111,17 +118,16 @@ function PostBox({ filterKey }: Props) {
       e.preventDefault();
       setSubmitting(true);
       try {
-        // const gradioClient = await initializeClient();
-        // debugger;
-        // if(!!image.trim()) {
-        //   const nsfwStatus = await checkNsfwInImage(gradioClient, image);
-        //   if (nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
-        //     setNsfwAlert("Please choose a different photo — explicit images aren’t allowed in posts.");
-        //     setImage('');
-        //     setSubmitting(false);
-        //     return;
-        //   }
-        // }
+        const gradioClient = await initializeClient();
+        if(!!image.trim()) {
+          const nsfwStatus = await checkNsfwInImage(gradioClient, image);
+          if (nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || nsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
+            setNsfwAlert("Please choose a different photo — explicit images aren’t allowed in posts.");
+            setImage('');
+            setSubmitting(false);
+            return;
+          }
+        }
 
         await postNewPost();
 

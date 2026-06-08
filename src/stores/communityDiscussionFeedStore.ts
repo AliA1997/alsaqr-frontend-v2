@@ -90,12 +90,11 @@ export default class CommunityDiscussionFeedStore {
         this.setLoadingJoinCommunityDiscussion(true);
         try {
             const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
             const joinCommunityDiscussionDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
             }
-            await agent.communityApiClient.unjoinCommunityDiscussion(joinCommunityDiscussionDto, userId, communityId, communityDiscussionId)
+            await agent.communityApiClient.unjoinCommunityDiscussion(joinCommunityDiscussionDto, communityId, communityDiscussionId)
 
             runInAction(() => {
                 this.updateCommunityDiscussionRelationship(communityDiscussionId, RelationshipType.None);
@@ -110,12 +109,11 @@ export default class CommunityDiscussionFeedStore {
         this.setLoadingJoinCommunityDiscussion(true);
         try {
             const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
             }
-            await agent.communityApiClient.joinCommunityDiscussion(joinCommunityDto, userId, communityId, communityDiscussionId)
+            await agent.communityApiClient.joinCommunityDiscussion(joinCommunityDto, communityId, communityDiscussionId)
 
             runInAction(() => {
                 this.updateCommunityDiscussionRelationship(communityDiscussionId, RelationshipType.Member);
@@ -130,12 +128,11 @@ export default class CommunityDiscussionFeedStore {
         this.setLoadingJoinCommunityDiscussion(true);
         try {
             const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
             }
-            await agent.communityApiClient.requestToJoinCommunityDiscussion(joinCommunityDto, userId, communityId, communityDiscussionId)
+            await agent.communityApiClient.requestToJoinCommunityDiscussion(joinCommunityDto, communityId, communityDiscussionId)
 
             runInAction(() => {
                 this.updateCommunityDiscussionRelationship(communityDiscussionId, RelationshipType.Requested);
@@ -148,17 +145,14 @@ export default class CommunityDiscussionFeedStore {
     acceptRequestToJoinPrivateCommunityDiscussion = async (
         communityId: string,
         communityDiscussionId: string,
-        invitedUserId: string,
         acceptToDenyRequest: AcceptOrDenyCommunityInviteConfirmationDto) => {
 
         this.setLoadingJoinCommunityDiscussion(true);
         try {
-            const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
-            await agent.communityApiClient.acceptOrDenyToJoinRequestToCommunityDiscussion(acceptToDenyRequest, invitedUserId, communityId, communityDiscussionId)
+            await agent.communityApiClient.acceptOrDenyToJoinRequestToCommunityDiscussion(acceptToDenyRequest, communityId, communityDiscussionId)
 
             runInAction(async () => {
-                await this.loadCommunityDiscussions(userId, communityId);
+                await this.loadCommunityDiscussions(communityId);
             });
         } finally {
             this.setLoadingJoinCommunityDiscussion(false);
@@ -167,7 +161,7 @@ export default class CommunityDiscussionFeedStore {
     }
 
 
-    addCommunityDiscussion = async (newCommunityDiscussion: CreateListOrCommunityForm, userId: string, communityId: string) => {
+    addCommunityDiscussion = async (newCommunityDiscussion: CreateListOrCommunityForm, communityId: string) => {
 
         this.setLoadingUpsert(true);
         try {
@@ -177,14 +171,14 @@ export default class CommunityDiscussionFeedStore {
                 usersAdded: newCommunityDiscussion.usersAdded.map(u => u.id)
             };
 
-            await agent.communityApiClient.addCommunityDiscussion(newCommunityDiscussionDto, userId, communityId);
+            await agent.communityApiClient.addCommunityDiscussion(newCommunityDiscussionDto, communityId);
             runInAction(() => {
                 this.setCommunityDiscussionCreationForm(DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM);
                 this.setCurrentStepInCommunityDiscussionCreation(0);
             });
 
             store.modalStore.closeModal();
-            await this.loadCommunityDiscussions(userId, communityId);
+            await this.loadCommunityDiscussions(communityId);
 
         } finally {
             this.setLoadingUpsert(false);
@@ -192,12 +186,11 @@ export default class CommunityDiscussionFeedStore {
 
     }
 
-    loadCommunityDiscussions = async (userId: string, communityId: string) => {
+    loadCommunityDiscussions = async (communityId: string) => {
 
         this.setLoadingInitial(true);
         try {
-            const { items, pagination } = await agent.communityApiClient.getCommunityDiscussions(this.axiosParams, userId, communityId) ?? [];
-            console.log("communitydiscussion items:", items);
+            const { items, pagination } = await agent.communityApiClient.getCommunityDiscussions(this.axiosParams, communityId) ?? [];
 
             runInAction(() => {
                 items.forEach((communityDiscussion: CommunityDiscussionToDisplay) => {

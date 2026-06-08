@@ -1,6 +1,8 @@
-import { useCallback, useLayoutEffect } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import type {
   DashboardPostToDisplay,
+  ProfileUser,
+  UserProfileDashboardPosts,
 } from "@typings";
 
 import { useParams } from "react-router-dom";
@@ -11,36 +13,53 @@ import { SkeletonLoader } from "@common/CustomLoader";
 import Tabs from "@common/Tabs";
 import PostComponent from "../posts/Post";
 import UserHeader from "./UserHeader";
-
+import agent from "@utils/api/agent";
 
 const MainProfile = () => {
+  const [profileInfo, setProfileInfo] = useState<ProfileUser | undefined>(undefined);
+  const [profilePosts, setProfilePosts] = useState<UserProfileDashboardPosts | undefined>(undefined);
+  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
+
   const { userStore } = useStore();
   const { 
-    loadProfile, 
-    currentUserProfile, 
-    loadProfilePosts, 
-    currentUserProfilePosts,
-    loadingPosts
+    axiosParams
   } = userStore;
   const params = useParams();
   const { name } = params;
   const username = name as string;
 
-  async function refreshProfileInfo() {
-    await loadProfile(username);
+  async function loadProfilePosts() {
+    setLoadingPosts(true);
+    await agent.userApiClient.getUserProfilePosts(username, axiosParams)
+      .then(profilePs => {
+        setProfilePosts(profilePs);
+      })
+      .catch(err => {
+        console.log('Get Profile Posts error:', err);
+      })
+      .finally(() => {
+        setLoadingPosts(false);
+      });
+  }
+
+  async function loadProfileInfo() {
+    await agent.userApiClient.getUserProfile(username)
+      .then(user => {
+        setProfileInfo(user);
+      })
+      .catch(err => {
+        console.log("Get profile info error:", err);
+      });
   }
 
   useLayoutEffect(() => {
     async function getProfileInfo() {
-      loadProfile(username)
-        .then(async () => {
-          await loadProfilePosts(username);
-        })
-      
+      await loadProfileInfo();
+      await loadProfilePosts();
     }
 
     getProfileInfo();
-  }, []);
+  }, [username]);
   
   const renderer = useCallback(
     (postToDisplay: DashboardPostToDisplay) => (
@@ -52,18 +71,18 @@ const MainProfile = () => {
     []
   );
 
-  if(currentUserProfile) 
+  if(profileInfo) 
     return (
       <div className="col-span-7 scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
         <div className="mb-[7rem]">
-          {currentUserProfile && (
+          {profileInfo && (
             <>
               <UserHeader
-                refreshProfileInfo={refreshProfileInfo}
-                profileInfo={currentUserProfile}
-                numberOfPosts={currentUserProfilePosts?.userPosts?.length ?? 0}
-                followerCount={currentUserProfile.followers?.length ?? 0}
-                followingCount={currentUserProfile.following?.length ?? 0}
+                refreshProfileInfo={loadProfilePosts}
+                profileInfo={profileInfo}
+                numberOfPosts={profilePosts?.userPosts?.length ?? 0}
+                followerCount={profileInfo.followers?.length ?? 0}
+                followingCount={profileInfo.following?.length ?? 0}
               />
 
               <Tabs
@@ -72,7 +91,7 @@ const MainProfile = () => {
                     tabKey: "recent",
                     title: "Recent",
                     testId: 'recenttab',
-                    content: currentUserProfilePosts?.userPosts ?? [],
+                    content: profilePosts?.userPosts ?? [],
                     renderer,
                     noRecordsContent: 'No posts'
                   },
@@ -80,7 +99,7 @@ const MainProfile = () => {
                     tabKey: "reposts",
                     title: "Reposts",
                     testId: 'repoststab',
-                    content: currentUserProfilePosts?.repostedPosts ?? [],
+                    content: profilePosts?.repostedPosts ?? [],
                     renderer,
                     noRecordsContent: 'No reposts found'
                   },
@@ -88,7 +107,7 @@ const MainProfile = () => {
                     tabKey: "bookmarks",
                     title: "Bookmarks",
                     testId: 'bookmarkstab',
-                    content: currentUserProfilePosts?.bookmarkedPosts ?? [],
+                    content: profilePosts?.bookmarkedPosts ?? [],
                     renderer,
                     noRecordsContent: `No bookmarks found`
                   },
@@ -96,7 +115,7 @@ const MainProfile = () => {
                     tabKey: "replied-posts",
                     title: "Replies",
                     testId: 'repliestab',
-                    content: currentUserProfilePosts?.repliedPosts ?? [],
+                    content: profilePosts?.repliedPosts ?? [],
                     renderer,
                     noRecordsContent: `No replied posts found`
                   },
@@ -104,7 +123,7 @@ const MainProfile = () => {
                     tabKey: "liked-posts",
                     title: "Liked Posts",
                     testId: 'likestab',
-                    content: currentUserProfilePosts?.likedPosts ?? [],
+                    content: profilePosts?.likedPosts ?? [],
                     renderer,
                     noRecordsContent: `No liked posts found`
                   },

@@ -1,4 +1,4 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { CreateListOrCommunityForm, CreateListOrCommunityFormDto, ListToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
@@ -10,13 +10,6 @@ export default class ListFeedStore {
 
     constructor() {
         makeAutoObservable(this);
-
-        reaction(
-            () => this.predicate.keys(),
-            () => {
-                this.predicate.clear();
-            }
-        );
     }
 
 
@@ -37,7 +30,7 @@ export default class ListFeedStore {
     savedListItemsPagination: Pagination | undefined = undefined;
 
     listsRegistry: Map<string, ListToDisplay> = new Map<string, ListToDisplay>();
-
+    selectedList: ListToDisplay | undefined = undefined;
     listInfoForSavedListItems: any | undefined = undefined;
     savedListItemsRegistry: Map<string, ListItemToDisplay> = new Map<string, ListItemToDisplay>();
     loadingUpsert = false;
@@ -46,6 +39,9 @@ export default class ListFeedStore {
 
     setListInfoForSavedListItems = (val: any | undefined) => {
         this.listInfoForSavedListItems = val;
+    }
+    setSelectedList = (val: ListToDisplay | undefined) => {
+        this.selectedList = val;
     }
     setLoadingUpsert = (value: boolean) => {
         this.loadingUpsert = value;
@@ -165,6 +161,9 @@ export default class ListFeedStore {
 
     loadLists = async (userId: string) => {
         this.setLoadingInitial(true);
+        runInAction(() => {
+            this.listsRegistry.clear();
+        });
 
         try {
             const { items, pagination } = await agent.listApiClient.getLists(this.axiosParams, userId);
@@ -199,18 +198,18 @@ export default class ListFeedStore {
         runInAction(() => {
             this.savedListItemsRegistry.clear();
         });
+
         try {
 
-            const { result, listInfo } = await agent.listApiClient.getSavedListItems(this.savedListItemsAxiosParams, userId, listId);
-
+            const { items, pagination } = await agent.listApiClient.getSavedListItems(this.savedListItemsAxiosParams, userId, listId);
             runInAction(() => {
-                result.data.forEach((listItem: ListItemToDisplay) => {
+                items.forEach((listItem: ListItemToDisplay) => {
                     this.setSavedListItem(listItem.listItemId, listItem)
                 });
-                this.setSavedListItemsPagination(result.pagination);
-
-                this.setListInfoForSavedListItems(listInfo);
             });
+            this.setSavedListItemsPagination(pagination);
+        } catch(error){
+            console.log("Get List Items Error:", error);
         } finally {
             this.setLoadingListItems(false);
         }

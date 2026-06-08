@@ -1,24 +1,25 @@
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { faker } from "@faker-js/faker";
 import { useNavigate } from "react-router-dom";
-import { ProfileUser } from "typings";
+import { ProfileUser, UserItemToDisplay } from "typings";
 import TimeAgo from "react-timeago";
 import { convertDateToDisplay } from "@utils/index";
 import { CommonLink } from "@common/Links";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 
-// import { MailIcon, UserAddIcon } from "@heroicons/react/outline";
+import { MailIcon, UserAddIcon } from "@heroicons/react/outline";
 import { ButtonLoader } from "@common/CustomLoader";
 import toast from "react-hot-toast";
-// import MessageModal from "@common/MessageModal";
+import MessageModal from "@common/MessageModal";
 import { GoBackButton } from "@common/IconButtons";
-// import { defineUsersMessagesArray } from "@utils/index";
-// import { SaveToListModal } from "@components/list/ListModal";
-// import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
+import { defineUsersMessagesArray } from "@utils/index";
+import { SaveToListModal } from "@components/list/ListModal";
+import { ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { OptimizedImage } from "@common/Image";
-// import SidebarRow from "../../layout/SidebarRow";
+import SidebarRow from "../../layout/SidebarRow";
+import agent from "@utils/api/agent";
 
 type UserHeaderProps = {
   profileInfo: ProfileUser;
@@ -38,35 +39,35 @@ const UserHeader = ({
   const { 
     authStore, 
     userStore, 
-    // messageStore, 
-    // modalStore 
+    messageStore, 
+    modalStore 
   } = useStore();
   const { followUser, unFollowUser, loadingFollow } = userStore;
-  // const { setCurrentProfileToMessage } = messageStore;
+  const { setCurrentProfileToMessage } = messageStore;
   const { currentSessionUser } = authStore;
-  // const { showModal, closeModal } = modalStore;
+  const { showModal, closeModal } = modalStore;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
-
+  const [isFollowing, setIsFollowing] = useState(false);
   const profileIsLoggedInUser = useMemo(() => profileInfo.username === (currentSessionUser?.username ?? ""), [currentSessionUser, profileInfo]);
-  const isFollowingUser = useMemo(() => currentSessionUser?.following?.some((fU: any) => fU.id === profileInfo.userId) ?? false, [profileInfo, currentSessionUser]);
+  const isFollowingUser = useMemo(() => currentSessionUser?.following?.some((fU: any) => fU.id === profileInfo.userId) ||  isFollowing, [profileInfo, currentSessionUser]);
   const handleDropdownEnter = useCallback(
       () => setIsDropdownOpen(!isDropdownOpen),
       [isDropdownOpen]
     );
 
-  // const handleOnMessage = useCallback(
-  //   () => {
-  //     setCurrentProfileToMessage(profileInfo);
-  //     if(currentSessionUser)
-  //       showModal(
-  //         <MessageModal
-  //           loggedInUser={currentSessionUser!}
-  //           usersInMessageModal={defineUsersMessagesArray(currentSessionUser!, profileInfo)}
-  //         />
-  //       );
-  //   },
-  //   [currentSessionUser, profileInfo]
-  // );
+  const handleOnMessage = useCallback(
+    () => {
+      setCurrentProfileToMessage(profileInfo);
+      if(currentSessionUser)
+        showModal(
+          <MessageModal
+            loggedInUser={currentSessionUser!}
+            usersInMessageModal={defineUsersMessagesArray(currentSessionUser!, profileInfo)}
+          />
+        );
+    },
+    [currentSessionUser, profileInfo]
+  );
 
   const onFollow = useCallback(async () => {
     if(isFollowingUser)
@@ -74,6 +75,9 @@ const UserHeader = ({
     else
       await followUser(profileInfo.userId)
 
+
+    await agent.userApiClient.sessionCheck(currentSessionUser?.email!);
+    setIsFollowing(true);
     await refreshProfileInfo();
 
 
@@ -144,13 +148,13 @@ const UserHeader = ({
                   )
                   : (
                     <>
-                      {/* <CommonLink
+                      <CommonLink
                         onClick={handleOnMessage}
                         animatedLink={false}
                         classNames='border border-[0.1rem]'
                       >
                         <MailIcon className="h-6 w-6"/>
-                      </CommonLink> */}
+                      </CommonLink>
                       <CommonLink
                         onClick={handleDropdownEnter}
                         animatedLink={false}
@@ -191,7 +195,7 @@ const UserHeader = ({
                 aria-orientation="vertical"
                 aria-labelledby="options-menu"
               >
-                {/* <SidebarRow 
+                <SidebarRow 
                   Icon={UserAddIcon} 
                   title="Add to List"
                   onClick={() => {
@@ -199,10 +203,24 @@ const UserHeader = ({
                       <SaveToListModal
                         relatedEntityType="user"
                         info={{
-                          user: profileInfo as any,
-                          followers: profileInfo.followers,
-                          following: profileInfo.following
-                        }}
+                          id: profileInfo.userId,
+                          username: profileInfo.username,
+                          avatar: profileInfo.avatar,
+                          bgThumbnail: profileInfo.bgThumbnail,
+                          bio: profileInfo.bio,
+                          firstName: profileInfo.firstName,
+                          lastName: profileInfo.lastName,
+                          dateOfBirth: profileInfo.dateOfBirth,
+                          countryOfOrigin: '',
+                          preferredMadhab: '',
+                          hobbies: [],
+                          favoriteQuranReciters: [],
+                          favoriteIslamicScholars: [],
+                          islamicStudyTopics: [],
+                          followingCount: profileInfo.followingCount,
+                          followerCount: profileInfo.followerCount,
+                          totalItems: 1
+                        } as UserItemToDisplay}
                         onClose={() => {
                           const canCloseLoginModal = !(ROUTES_USER_CANT_ACCESS.some(r => window.location.href.includes(r)));
                           
@@ -213,7 +231,7 @@ const UserHeader = ({
                     )
                   }}
                   overrideOnClick={true}
-                /> */}
+                />
               </div>
             </div>
           )}

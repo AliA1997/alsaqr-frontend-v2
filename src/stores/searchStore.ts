@@ -94,7 +94,6 @@ export default class SearchStore {
             
             const { items, pagination } = await agent.userApiClient.getUsersToAdd(userId, this.searchUsersAxiosParams) ?? [];
 
-            console.log("usersToAdd:", items);
             runInAction(() => {
                 items.forEach((userItem: UserItemToDisplay) => {
                     this.setSearchedUser(userItem.id, userItem);

@@ -34,7 +34,8 @@ const CommunityDiscussionItemComponent = observer(({
   const communityDiscussionInfo = communityDiscussionToDisplay;
 
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(communityDiscussionToDisplay.relationshipType as RelationshipType)
+  const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(communityDiscussionToDisplay.relationshipType as RelationshipType);
+
   const [joined, setJoined] = useState<boolean>(false);
 
   const communityDiscussionUsers = useMemo(() => {

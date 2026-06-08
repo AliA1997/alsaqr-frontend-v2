@@ -43,7 +43,6 @@ function UserInviteItemComponent({
 
         if(filterKey === FilterKeys.CommunityDiscussion) 
             await communityDiscussionFeedStore.acceptRequestToJoinPrivateCommunityDiscussion(
-                entityInvitedToId, 
                 childEntityInviteToId!,
                 userItemToDisplay.id,
                 {
@@ -66,7 +65,6 @@ function UserInviteItemComponent({
             await communityDiscussionFeedStore.acceptRequestToJoinPrivateCommunityDiscussion(
                 entityInvitedToId, 
                 childEntityInviteToId!,
-                userItemToDisplay.id,
                 {
                     deny: true
                 });

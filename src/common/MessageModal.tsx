@@ -4,16 +4,19 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import TimeAgo from "react-timeago";
 import { SkeletonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
-import { MessageFormDto, MessageType, User } from 'typings.d';
+import { MessageFormDto, User } from 'typings.d';
 import { ModalBody, ModalPortal } from './Modal';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@stores/index';
 import { MessagesImagePreview } from './Containers';
 import MessageInput from '@components/message/MessageInput';
+import { OptimizedImage, OptimizedPostImage } from './Image';
+import { checkNsfwInImage, initializeClient } from '@utils/infrastructure/gradio';
+import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from '@utils/constants';
 
 type Props = {
     loggedInUser: User;
-    usersInMessageModal: User[];
+    usersInMessageModal: any[];
 }
 
 const MessageModal = ({
@@ -31,10 +34,15 @@ const MessageModal = ({
     } = messageStore;
     const [submitting, setSubmitting] = useState<boolean>(false);
     const sender = useMemo(() => usersInMessageModal[0], [usersInMessageModal]);
+    const senderUserId = useMemo(() => sender.id ?? sender.userId, [usersInMessageModal]);
     const receiver = useMemo(() => usersInMessageModal[1], [usersInMessageModal]);
+    const receiverUserId = useMemo(() => receiver.id ?? receiver.userId, [usersInMessageModal]);
 
     const [input, setInput] = useState('');
     const [image, setImage] = useState('');
+    const [hasError, setHasError] = useState(false);
+    const [nsfwAlert, setNsfwAlert] = useState('');
+    const [processNsfwCheck, setProcessNsfwCheck] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -47,9 +55,34 @@ const MessageModal = ({
 
     useEffect(() => {
         if(sender)
-            loadDirectMessages(sender.id, receiver.id);
+            loadDirectMessages(senderUserId, receiverUserId);
     }, [receiver])
 
+
+    useEffect(() => {
+        if (processNsfwCheck) {
+            initializeClient()
+                .then((gradioClient) => checkNsfwInImage(gradioClient, image))
+                .then((resolvedNsfwStatus: string) => {
+                    if (resolvedNsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit'] || resolvedNsfwStatus === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Very Explicit']) {
+                        setNsfwAlert(`Please choose a different photo — explicit images aren’t allowed in messages.`);
+                        setHasError(true);
+                    } else {
+                        setNsfwAlert('');
+                        setHasError(false);
+                    }
+                })
+                .catch(err => {
+                    console.log("Error:", err);
+                    setHasError(true);
+                })
+                .finally(() => {
+                    setProcessNsfwCheck(false);
+                });
+        }
+
+        return () => { }
+    }, [processNsfwCheck]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,20 +90,18 @@ const MessageModal = ({
         if (!input.trim()) return;
 
         const messageForm: MessageFormDto = {
-          senderId: sender.id,
+          senderId: senderUserId,
           senderUsername: sender.username,
           senderProfileImg: sender.avatar,
-          recipientId: receiver.id,
+          recipientId: receiverUserId,
           recipientUsername: receiver.username,
           recipientProfileImg: receiver.avatar,
           image: image,
-          text: input,
-          messageType: MessageType.Direct
+          text: input
         };
 
         try {
-            
-            await sendDirectMessage(messageForm, loggedInUser.id);
+            await sendDirectMessage(messageForm);
 
             setInput('');
             setImage('');
@@ -79,7 +110,7 @@ const MessageModal = ({
                 icon: "🚀",
               });
 
-            await loadDirectMessages(sender.id, receiver.id);
+            await loadDirectMessages(senderUserId, receiverUserId);
         }
         finally {
             setSubmitting(false);
@@ -128,7 +159,7 @@ const MessageModal = ({
                     </div>
                 }
             >
-                <div className="h-[90vh] flex flex-col h-screen bg-gray-50 dark:bg-[#0e1517]">
+                <div className="h-[60vh] flex flex-col bg-gray-50 dark:bg-[#0e1517]">
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {loadingInitial ? (
@@ -138,37 +169,33 @@ const MessageModal = ({
                                 {directMessages && directMessages.length
                                     ? directMessages.map((messageToDisplay) => (
                                         <div
-                                            key={messageToDisplay.message.id}
-                                            className={`flex ${messageToDisplay.message.senderId === loggedInUser.id ? 'justify-end' : 'justify-start'}`}
+                                            key={messageToDisplay.messageId}
+                                            className={`flex ${messageToDisplay.senderId === loggedInUser.id ? 'justify-end' : 'justify-start'}`}
                                         >
-                                            {!(messageToDisplay.message.senderId === loggedInUser.id) && (
-                                                <img
-                                                    src={messageToDisplay.message.senderProfileImg}
-                                                    alt={messageToDisplay.message.senderUsername}
-                                                    className="w-8 h-8 rounded-full mr-2 mt-1"
+                                            {!(messageToDisplay.senderId === loggedInUser.id) && (
+                                                <OptimizedImage
+                                                    src={messageToDisplay.senderAvatar ?? ''}
+                                                    alt={messageToDisplay.senderUsername ?? ''}
+                                                    classNames="w-8 h-8 rounded-full mr-2 mt-1"
                                                 />
                                             )}
-                                            <div className={`max-w-xs md:max-w-md lg:max-w-lg ${(messageToDisplay.message.senderId === loggedInUser.id) ? 'flex flex-col items-end' : ''}`}>
-                                                {!(messageToDisplay.message.senderId === loggedInUser.id) && (
-                                                    <span className="text-xs font-medium text-gray-700 mb-1">
-                                                        {messageToDisplay.message.text}
-                                                    </span>
-                                                )}
+                                            <div className={`max-w-xs md:max-w-md lg:max-w-lg ${(messageToDisplay.senderId === loggedInUser.id) ? 'flex flex-col items-end' : ''}`}>
+                                                
                                                 <div
-                                                    className={`p-3 rounded-lg ${(messageToDisplay.message.senderId === loggedInUser.id) ? 'bg-blue-500 text-white' : 'bg-[#55a8c2] text-white'}`}
+                                                    className={`p-3 max-h-[50] rounded-lg ${(messageToDisplay.senderId === loggedInUser.id) ? 'bg-blue-500 text-white' : 'bg-[#55a8c2] text-white'} max-w-xs`}
                                                 >
-                                                    <p>{messageToDisplay.message.text}</p>
-                                                    {messageToDisplay.message.image && (
-                                                        <img
-                                                            src={messageToDisplay.message.image}
+                                                    <p className="overflow-x-auto whitespace-nowrap">{messageToDisplay.messageContent}</p>
+                                                    {messageToDisplay.messageMedia && (
+                                                        <OptimizedPostImage
+                                                            src={messageToDisplay.messageMedia}
                                                             alt="img/tweet"
-                                                            className="m-5 ml-0 max-h-60 rounded-lg object-cover shadow-sm"
+                                                            classNames="m-5 ml-0 max-h-60 rounded-lg object-cover shadow-sm"
                                                         />
                                                     )}
                                                 </div>
                                                 <TimeAgo
                                                     className="text-sm text-gray-500"
-                                                    date={convertDateToDisplay(messageToDisplay.message.createdAt)}
+                                                    date={convertDateToDisplay(messageToDisplay.messageCreatedAt)}
                                                 />
                                             </div>
                                         </div>
@@ -183,11 +210,23 @@ const MessageModal = ({
                     <MessageInput 
                         onSubmit={handleSendMessage}
                         image={image}
-                        setImage={setImage}
+                        setImage={(val: string) => {
+                            setImage(val);
+                            if(val){
+                                setProcessNsfwCheck(true);
+                            } else {
+                                setHasError(false);
+                            }
+
+                        }}
                         input={input}
                         setInput={setInput}
                         loading={loadingUpsert}
                         submitting={submitting}
+                        processNsfwCheck={processNsfwCheck}
+                        nsfwAlert={nsfwAlert}
+                        setNsfwAlert={setNsfwAlert}
+                        hasError={hasError}
                     />
                 </div>
             </ModalBody>

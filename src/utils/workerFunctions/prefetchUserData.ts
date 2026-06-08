@@ -53,9 +53,8 @@ export const prefetchUserData = (loggedInUserId: string) => {
   // Listen for worker result
   worker.onmessage = (event: PrefetchPayloadMessageEvent) => {
     const { type, payload } = event.data;
-    debugger;
     if (type === 'DATA_PREFETCHED') {
-      console.log('data prefetched', payload)
+    //   console.log('data prefetched', payload)
       setNotifications(payload.notifications, payload.notificationsPagination);
       setBookmarks(payload.bookmarks, payload.bookmarksPagination);
       setCommunities(payload.communities, payload.communitiesPagination);

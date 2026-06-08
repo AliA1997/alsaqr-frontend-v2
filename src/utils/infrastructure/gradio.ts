@@ -6,7 +6,6 @@ export const checkNsfwInImage  = async (client: Client, imageUrl: string) => {
     const response = await client.predict("/chat", [imageUrl]);
     const data = (response?.data ?? []) as any[];
     if(data?.length) {
-        console.log(data[0].text)
         return data[0]?.text ?? "No Response"
     }
 

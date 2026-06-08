@@ -17,7 +17,7 @@ export default class AuthStore {
   initializeFromStorage = async () => {
     if (!this.auth)
       this.auth = new Auth();
-    debugger;
+
     if(inTestMode()) {
         this.auth.setUser(testAuthUser)
         this.setCurrentSessionUser(testAuthUser);
@@ -53,12 +53,10 @@ export default class AuthStore {
     this.currentStepInUserRegistration = val;
   }
   setCurrentRegistrationForm = (val: UserRegisterForm) => {
-    console.log("setCurrentRegistrationForm value:", val);
     this.currentRegistrationForm = val;
   }
 
   setCurrentSessionUser = (currentUserPayload: User | undefined) => {
-    console.log("CURRENT USER PAYLOAD", currentUserPayload)
     this.currentSessionUser = currentUserPayload;
     if(currentUserPayload)
       this.auth?.setUser(currentUserPayload);

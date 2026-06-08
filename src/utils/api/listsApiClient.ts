@@ -11,6 +11,9 @@ export const listApiClient = {
         axiosRequests.patch(`/api/Lists/${userId}/${listId}`, { values: { relatedEntityId, type } }).then(axiosResponseBody),
     getLists: (params: URLSearchParams | undefined, userId: string) =>
         axios.get(`/api/Lists/${userId}`, { params }).then(axiosResponseBody),
+    getListDetails: (listId: string) =>
+        axios.get(`/api/Lists/${listId}/details`).then(axiosResponseBody),
+    
     getSavedListItems: (params: URLSearchParams | undefined, userId: string, listId: string) =>
         axios.get(`/api/Lists/${userId}/${listId}`, { params }).then(axiosResponseBody),
     deleteSavedListItem: (userId: string, listId: string, listItemId: string) =>

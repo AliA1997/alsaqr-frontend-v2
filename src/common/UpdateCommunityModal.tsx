@@ -10,6 +10,7 @@ import { observer } from "mobx-react-lite";
 import { ListOrCommunityFormInputs } from "./ListOrCommunityForm";
 import { ReviewForm, ReviewUpsertListOrCommunity } from "./ReviewForm";
 import { UpdateCommunityForm } from "@models/community";
+import { PageTitleNoPadding } from "./Titles";
 
 interface Props {
     loggedInUserId: string;
@@ -44,7 +45,7 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
     
     const upsert: (form: UpdateCommunityForm, userId: string) => Promise<void> = useCallback(
         async (form: UpdateCommunityForm, userId: string) => {
-            await communityFeedStore.updateCommunity(form, userId, communityAdminInfo.community.id);
+            await communityFeedStore.updateCommunity(form, userId, communityAdminInfo.communityId);
         },
         [communityFeedStore.updateCommunityForm]
     );
@@ -52,7 +53,7 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
 
     const putRecord = async (values: any) => {
         const communityToUpdate: UpdateCommunityForm | undefined = {
-            id: communityAdminInfo.community.id,
+            id: communityAdminInfo.communityId,
             name: values.name,
             avatar: values.avatar,
             isPrivate: values.isPrivate,
@@ -69,7 +70,7 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
         });
     };
 
-    const communityDetails = useMemo(() => communityAdminInfo.community, [communityAdminInfo.community]);
+    const communityDetails = useMemo(() => communityAdminInfo, [communityAdminInfo]);
     const showReviewForm = useMemo(() => currentStep === 1, [currentStep]);
     const lastStepBeforeReview = useMemo(() => 0, []);
     const reviewInfoSectionTitle = useMemo(() => "Review Community Update", []);
@@ -77,6 +78,7 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
     return (
         <ModalPortal>
             <ModalBody onClose={() => closeModal()}>
+                <PageTitleNoPadding>Update Community</PageTitleNoPadding>
                 <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
@@ -85,10 +87,10 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
                 >
                     <Formik
                         initialValues={{
-                            name: communityDetails.name ?? currentForm?.name ?? '',
-                            avatar: communityDetails.avatar ?? currentForm?.avatar ?? '',
+                            name: communityDetails.communityName ?? currentForm?.name ?? '',
+                            avatar: communityDetails.communityAvatar ?? currentForm?.avatar ?? '',
+                            tags: communityDetails.communityTags ?? [],
                             isPrivate: communityDetails?.isPrivate === true ? 'private' : 'public',
-                            tags: communityDetails.tags ?? (currentForm?.tags && currentForm?.tags.length > 0 ? currentForm?.tags : []),
                         } as UpdateCommunityForm}
                         validate={values => {
                             const errors: FormikErrors<any> = {};

@@ -43,7 +43,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
   const filteredOptions = options.filter(
     option =>
       option.label.toLowerCase().includes(inputValue.toLowerCase()) &&
-      !field.value.includes(option.value)
+      !field?.value?.includes(option.value)
   );
 
   return (
@@ -56,7 +56,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
 
       <div className="flex flex-wrap gap-2 p-2 min-h-8 w-full border rounded-md dark:bg-[#000000] dark:border-gray-700">
         {/* Selected options */}
-        {field.value.map(selectedValue => {
+        {field?.value?.map(selectedValue => {
           const selectedOption = options.find(opt => opt.value === selectedValue) || {
             value: selectedValue,
             label: selectedValue,
@@ -105,7 +105,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
               data-testid="multiselectfilteredlabel"
               onClick={() => {
-                if (!field.value.includes(option.value)) {
+                if (!field?.value?.includes(option.value)) {
                   helpers.setValue([...field.value, option.value]);
                 }
                 setInputValue('');

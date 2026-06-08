@@ -40,7 +40,7 @@ function CommunityItemComponent({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [currentRelationshipType, setCurrentRelationshipType] = useState<RelationshipType>(communityInfo.relationshipType as RelationshipType)
   const [joined, setJoined] = useState<boolean>(false);
-  console.log("CURRENT RELATIONSHIP TYPE:", currentRelationshipType)
+
   const navigateToCommunity = () => {
     setNavigateCommunity(community);
     navigate(`/communities/${communityInfo.communityId}`);

@@ -186,10 +186,8 @@ export const ModalFooterButtons = observer(<T extends CreateListOrCommunityForm>
 
     useEffect(() => {
         if (processNsfwCheck) {
-            debugger;
             initializeClient()
                 .then((gradioClient) => {
-                    console.log("HIT GRADIO CLINENT", gradioClient);
                     const processedNsfwStatuses: any[] = [];
 
                     for (let i = 0; i < nsfwKeysToCheck.length; i++) {
@@ -199,7 +197,6 @@ export const ModalFooterButtons = observer(<T extends CreateListOrCommunityForm>
                     return Promise.all(processedNsfwStatuses);
                 })
                 .then((resolvedNsfwStatuses: string[]) => {
-                    console.log('resolvedNsfwStatuses', resolvedNsfwStatuses);
                     if (resolvedNsfwStatuses
                         .some(status =>
                             status === NOT_ALLOWED_NSFW_CHECKER_RESULTS['Somewhat Explicit']

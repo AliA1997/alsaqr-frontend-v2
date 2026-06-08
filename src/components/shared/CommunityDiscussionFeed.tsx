@@ -64,9 +64,7 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
     await loadFeedRecords();
   };
   const loadFeedRecords = useThrottle(async () => {
-    const authUserId = inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
-    
-    await loadCommunityDiscussions(authUserId ?? 'undefined', communityId!)
+    await loadCommunityDiscussions(communityId!)
   }, 30_000);
 
   useEffect(() => {
