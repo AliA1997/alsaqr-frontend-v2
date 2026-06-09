@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
-  CommentToDisplay,
+  PostToDisplay,
 } from "@typings"
 import { convertQueryStringToObject } from "@utils/index";
 
@@ -15,7 +15,7 @@ import { NoRecordsTitle } from "@common/Titles";
 
 interface Props {
   postId: string;
-  alreadyLoadedComments?: CommentToDisplay[];
+  alreadyLoadedComments?: PostToDisplay[];
 }
 
 function CommentFeedContainer({ children }: React.PropsWithChildren<any>) {
@@ -183,7 +183,7 @@ const CommentFeed = observer(({
               {loadedComments && loadedComments.length
                 ? loadedComments.map((commentRec) => (
                   <CommentComponent
-                    key={commentRec.id}
+                    key={commentRec.postId}
                     commentToDisplay={commentRec}
                     onlyDisplay={false}
                   />

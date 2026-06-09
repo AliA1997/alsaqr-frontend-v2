@@ -1,5 +1,5 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { Comment, CommentToDisplay, PostToDisplay } from "@typings";
+import { PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 import { BookmarkParams } from "@models/posts";
@@ -45,9 +45,6 @@ export default class BookmarkFeedStore {
 
     setBookmarkedPost = (postId: string, post: PostToDisplay) => {
         this.bookmarkedPostsRegistry.set(postId, post);
-    }
-    setComment = (commentId: string, comment: CommentToDisplay) => {
-        this.commentsRegistry.set(commentId, comment);
     }
 
     setLoadingInitial = (value: boolean) => {

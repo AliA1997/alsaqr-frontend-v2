@@ -28,13 +28,12 @@ function defineCommonUrlParams() {
 
 
 // User Data Worker
-self.onmessage = async (event) => {
-    const { loggedInUserId } = event.data;
+self.onmessage = async (_) => {
     let result: PrefetchModalPayloadData | null = null;
     // 1. Perform heavy background fetching/processing
     try {
-        const { items: usersToAdd, pagination: usersToAddPagination } = await agent.userApiClient.getUsersToAdd(loggedInUserId, defineCommonUrlParams());
-        const { items: postsToAdd, pagination: postsToAddPagination } = await agent.postApiClient.getPostsToAdd(loggedInUserId, defineCommonUrlParams());
+        const { items: usersToAdd, pagination: usersToAddPagination } = await agent.userApiClient.getUsersToAdd(defineCommonUrlParams());
+        const { items: postsToAdd, pagination: postsToAddPagination } = await agent.postApiClient.getPostsToAdd(defineCommonUrlParams());
 
         result = {
             usersToAdd,

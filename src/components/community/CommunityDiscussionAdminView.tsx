@@ -74,7 +74,7 @@ function CommunityDiscussionAdminView({
                     </div>
                 </div>
                 <div className='relative flex'>
-                    <InfoCardContainer>
+                    <InfoCardContainer classNames="hover:shadow-none">
                         <h1 className='text-3xl'>
                             {communityDiscussionAdminInfo.title}
                         </h1>
@@ -88,20 +88,20 @@ function CommunityDiscussionAdminView({
                     </TagOrLabel>
                 </div>
                 <div className="flex">
-                    <InfoCardContainer>
+                    <InfoCardContainer classNames="hover:shadow-none">
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Invited Users:</p>
                         <h1 className='w-full text-center text-3xl'>
                             {communityDiscussionAdminInfo.invitedCount}
                         </h1>
                     </InfoCardContainer>
-                    <InfoCardContainer>
+                    <InfoCardContainer classNames="hover:shadow-none">
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Joined Users:</p>
                         <h1 className='w-full text-center text-3xl'>
                             {communityDiscussionAdminInfo.joinedCount}
                         </h1>
                     </InfoCardContainer>
                     {(communityDiscussionAdminInfo.isPrivate ?? false) && (
-                        <InfoCardContainer>
+                        <InfoCardContainer classNames="hover:shadow-none">
                             <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Pending Invites:</p>
                             <h1 className='w-full text-center text-3xl'>
                                 {communityDiscussionAdminInfo.inviteRequestedUsers?.length ?? 0}
@@ -134,7 +134,7 @@ function CommunityDiscussionAdminView({
                             >Accept Or Deny Invites</button>
                         </InfoCardContainer>
                     )}
-                    <InfoCardContainer>
+                    <InfoCardContainer classNames="hover:shadow-none">
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Created on: </p>
                         <h1 className='w-full text-center mt-2'>
                             {new Date(convertDateToDisplay(communityDiscussionAdminInfo.createdAt)).toLocaleString('default', { dateStyle: 'short' })}

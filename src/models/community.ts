@@ -1,4 +1,4 @@
-import type { CommunityRecord, User } from "@typings";
+
 
 export interface CommunityDiscussion {
     id: string;
@@ -20,6 +20,7 @@ export interface CommunityDiscussionAdminInfo {
   communityId: string;
   title: string;
   content: string;
+  tags: string[];
   createdAt: Date;
   isFounder: boolean;
   founder: { 
@@ -86,10 +87,7 @@ export interface CommunityDiscussionToDisplay {
   isPrivate?: boolean;
 }
 
-// Relationship when posting is 
-// user - [:POST_DISCUSSION_MESSAGE]-> CommunityDiscussionMessage
-// communityDiscussion - [:DISCUSSION_MESSAGE_POSTED] -> CommunityDiscussionMessage
-// communtyDiscussionMessage - [:DISCUSSION_MESSAGED_ON] -> CommunityDiscussion
+
 export interface CommunityDiscussionMessage {
     id: string;
     userId: string;
@@ -127,15 +125,14 @@ export interface UpdateCommunityForm {
 export interface UpdateCommunityFormDto extends UpdateCommunityForm {}
 
 export interface UpdateCommunityDiscussionForm {
-  id: string;
   name: string;
+  description: string;
   isPrivate: any;
   tags: string[];
 }
 
 export interface UpdateCommunityDiscussionFormDto extends UpdateCommunityDiscussionForm {}
 
-// InviteConfirmation
 export interface CommunityInviteConfirmation {
   _id?: string; 
   communityId: string;

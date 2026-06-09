@@ -19,8 +19,6 @@ import ListFeedStore from "@stores/listFeedStore";
 import CommunityFeedStore from "@stores/communityFeedStore";
 import agent from "@utils/api/agent";
 import { OptimizedImage } from "@common/Image";
-// import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
-// import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";po
 import { DangerAlert } from "@common/Alerts";
 import { CommonBoxButton } from "@common/Buttons";
 import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
@@ -169,7 +167,7 @@ function PostBox({ filterKey }: Props) {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        className="flex space-x-2 p-5"
+        className="relative z-30 flex space-x-2 p-5"
       >
         <OptimizedImage
           classNames="h-8 w-8 md:h-10 md:w-10 lg:h-14 lg:w-14 rounded-full object-cover mt-4"
@@ -254,7 +252,16 @@ function PostBox({ filterKey }: Props) {
                 hover:scale-150"
                 />
                 {showEmojiPicker && (
-                  <div style={{ position: "absolute", zIndex: 1000 }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      zIndex: 1000,
+                      backgroundColor: "#ffffff",
+                      borderRadius: "12px",
+                      padding: "4px",
+                      boxShadow: "0 4px 24px rgba(0, 0, 0, 0.15)",
+                    }}
+                  >
                     <Picker
                       data={emojiData}
                       onEmojiSelect={handleEmojiSelect(input)}

@@ -51,8 +51,8 @@ function UpdateCommunityDiscussionModal({ communityDiscussionAdminInfo, refreshC
 
     const putRecord = async (values: any) => {
         const discussionToUpdate: UpdateCommunityDiscussionForm = {
-            id: communityDiscussionAdminInfo.discussionId,
             name: values.name,
+            description: "",
             isPrivate: values.isPrivate,
             tags: values.tags ?? []
         };
@@ -85,6 +85,7 @@ function UpdateCommunityDiscussionModal({ communityDiscussionAdminInfo, refreshC
                     <Formik
                         initialValues={{
                             name: discussionDetails.title ?? currentForm?.name ?? '',
+                            description: discussionDetails.content ?? currentForm?.description ?? '',
                             tags: (discussionDetails as any).tags ?? currentForm?.tags ?? [],
                             isPrivate: discussionDetails?.isPrivate === true ? 'private' : 'public',
                         } as UpdateCommunityDiscussionForm}

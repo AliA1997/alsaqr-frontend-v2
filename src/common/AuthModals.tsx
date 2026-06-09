@@ -13,6 +13,8 @@ import { supabase } from "@utils/infrastructure/supabase";
 import { OAUTH_OPTIONS, ROUTES_USER_CANT_ACCESS } from "@utils/constants";
 import { useLocation } from "react-router";
 import { PageTitleNoPadding } from "./Titles";
+import { capitalize } from "lodash";
+import agent from "@utils/api/agent";
 
 
 export const LoginModal = observer(() => {
@@ -116,7 +118,9 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
     currentStepInUserRegistration, 
     setCurrentRegistrationForm, 
     currentRegistrationForm,
-    completeRegistration
+    completeRegistration,
+    auth,
+    setCurrentSessionUser
   } = authStore;
   const { closeModal } = modalStore;
   const loggedInUserId = useMemo(() => userInfo?.id, [userInfo]);
@@ -183,7 +187,7 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
               dateOfBirth: currentRegistrationForm.dateOfBirth ? currentRegistrationForm.dateOfBirth : userInfo?.dateOfBirth,
               countryOfOrigin: currentRegistrationForm.countryOfOrigin ? currentRegistrationForm.countryOfOrigin : userInfo?.countryOfOrigin ?? '',
               hobbies: currentRegistrationForm.hobbies ? currentRegistrationForm.hobbies : userInfo?.hobbies ?? [],
-              maritalStatus: currentRegistrationForm.maritalStatus ? currentRegistrationForm.maritalStatus : userInfo?.maritalStatus ?? "single",
+              maritalStatus: capitalize(currentRegistrationForm.maritalStatus ? currentRegistrationForm.maritalStatus : userInfo?.maritalStatus ?? "single"),
               religion: currentRegistrationForm.religion ? currentRegistrationForm.religion : userInfo?.religion ??  "Prefer Not To Disclose",
               followingUsers: currentRegistrationForm.followingUsers ? userInfo?.following : []
             } as UserRegisterForm}
@@ -196,6 +200,10 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
             onSubmit={async (values, { setSubmitting }) => {
               await completeRegistration(loggedInUserId, values);
               setSubmitting(false);
+              const checkData = await agent.userApiClient.sessionCheck((userInfo as any)["email"]);
+              setCurrentSessionUser(checkData.result);
+              auth?.setUser(checkData.result);
+              window.location.href = '/';
               closeModal();
             }}
           >

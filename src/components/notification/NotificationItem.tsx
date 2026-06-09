@@ -26,6 +26,20 @@ function NotificationItemComponent({
   });
 
   const notificationInfo = notificationToDisplay;
+  debugger;
+  const getNotificationTypeLabel = (): string => {
+    if (notificationInfo.postId) return "Post";
+    if (notificationInfo.listItemId) return "List Item";
+    if (notificationInfo.relatedUserId) return "Related User";
+    if (notificationInfo.listId) return "List";
+    if (notificationInfo.communityDiscussionMessageId)
+      return "Community Discussion Message";
+    if (notificationInfo.communityDiscussionId) return "Community Discussion";
+    if (notificationInfo.communityId) return "Community";
+    return "Notification";
+  };
+
+  const notificationTypeLabel = getNotificationTypeLabel();
 
   useLayoutEffect(() => {
     if (currentSessionUser?.id) {
@@ -58,16 +72,17 @@ function NotificationItemComponent({
       >
         <div className="absolute m-0 inset-0"></div>
         <div className="flex flex-col justify-between h-full space-x-3 cursor-pointer">
-        {notificationInfo.image && (
-            <img
-                className="h-10 w-10 rounded-full object-cover "
-                src={notificationInfo.image}
-                alt={notificationInfo.notificationMessage}
-            />
-        )}
           <div className="flex justify-between item-center space-x-1">
-            <p 
-              className='text-sm' 
+            <span
+              className="text-xs font-semibold uppercase tracking-wide text-blue-500 dark:text-blue-400"
+              data-testid="notificationtype"
+            >
+              {notificationTypeLabel}
+            </span>
+          </div>
+          <div className="flex justify-between item-center space-x-1">
+            <p
+              className='text-sm'
               data-testid="notificationtext"
             >
               {notificationInfo.notificationMessage}

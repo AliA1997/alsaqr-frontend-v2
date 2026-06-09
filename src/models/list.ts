@@ -7,9 +7,7 @@ export enum ListItemType {
     CommunityDiscussionMessage = 'community-discussion-message',
     List = 'list'
 }
-// Relationship when posting is 
-// list - [:SAVED_LIST_ITEM] -> list item
-// listItem - [:SAVED_TO_LIST] -> list
+
 export interface ListItem {
     id: string;
     savedUserId?: string;

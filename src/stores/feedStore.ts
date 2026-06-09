@@ -1,5 +1,5 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { Comment, CommentToDisplay, CreatePostForm, PostToDisplay } from "@typings";
+import { CreatePostForm, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
@@ -47,9 +47,6 @@ export default class FeedStore {
 
     setPost = (postId: string, post: PostToDisplay) => {
         this.postsRegistry.set(postId, post);
-    }
-    setComment = (commentId: string, comment: CommentToDisplay) => {
-        this.commentsRegistry.set(commentId, comment);
     }
 
     setLoadingInitial = (value: boolean) => {

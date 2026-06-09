@@ -18,22 +18,22 @@ export const MAX_BIO_LENGTH_FEED = 40;
 export const MARITAL_STATUS_OPTIONS = [
   {
     label: "Single",
-    value: 'single',
+    value: 'Single',
     description: ''
   },
   {
     label: "Married",
-    value: 'married',
+    value: 'Married',
     description: ''
   },
   {
     label: "Divorced",
-    value: 'divorced',
+    value: 'Divorced',
     description: ''
   },
   {
     label: "Widowed",
-    value: 'widowed',
+    value: 'Widowed',
     description: ''
   }
 ];

@@ -1,9 +1,4 @@
 
-interface CommonReduxTweetsState {
-  searchQry: string;
-  page: number;
-  limit: number;
-}
 
 export enum TypeOfFeed {
   Feed = "feed",
@@ -225,16 +220,6 @@ export interface CommentForm {
   image?: string;
 };
 
-export interface Comment extends CommonRecordBody {
-  id: string;
-  postId: string;
-  userId: string;
-  image: string;
-  text: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 export interface PostCommentDto {
   id: string;
   postId: string;
@@ -250,15 +235,6 @@ export interface PostUserInfoDto {
   id: string;
   username: string;
   profileImg?: string;
-}
-
-export interface CommentToDisplay extends Comment {
-  username: string;
-  profileImg: string;
-  comments: Comment[],
-  commenters: User[],
-  reposters: User[],
-  likers: User[]
 }
 
 export interface CreateListOrCommunityFormDto extends CreateListOrCommunityForm {
@@ -378,34 +354,13 @@ export interface CommunityAdminInfo  extends CommunityToDisplay {
   joinedCount: number;
   moderatorCount: number;
 }
-// CALL apoc.trigger.add('create_list_notification', 
-// 'UNWIND $createdNodes AS node
-//  WHERE labels(node)[0] = "List"
-//  MATCH (owner:User)-[:OWNS]->(node)
-//  CREATE (n:Notification {
-//    id: apoc.text.format("notification_%s", [randomUUID()]),
-//    message: "New list created by " + owner.username,
-//    read: false,
-//    relatedEntityId: node.id,
-//     link: null,
-//    createdAt: datetime(),
-//    updatedAt: null,
-//    _rev: null,
-//    _type: "notification",
-//    notificationType: "new_list"
-//  })
-//  CREATE (n)-[:NOTIFIES]->(owner)
-//  RETURN count(*)', 
-// {phase: 'after'})
 export interface NotificationRecord extends CommonRecordBody {
   notificationId: string;
   userId: string;
   notificationMessage: string;
+  notificationType: string;
   isRead: boolean;
-  relatedEntityId?: string;
   link?: string;
-  notificationCreatedAt: string;
-  notificationUpdatedAt: string;
   relatedUserId?: string;
   postId?: string;
   communityId?: string;
@@ -413,6 +368,8 @@ export interface NotificationRecord extends CommonRecordBody {
   communityDiscussionMessageId?: string;
   listId?: string;
   listItemId?: string;
+  notificationCreatedAt: string;
+  notificationUpdatedAt: string;
 }
 
 
@@ -424,9 +381,8 @@ export interface ServerError {
   details: string;
 }
 
-// Direct Message Relationships
-// Sender -> SEND_MESSAGE -> Recipient
-// Recipient -> RECEIVED_MESSAGE -> Sender
+
+
 export interface MessageFormDto {
   senderId: string;
   senderProfileImg?: string;

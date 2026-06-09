@@ -1,5 +1,5 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { CommentForm, CommentToDisplay } from "@typings";
+import { CommentForm, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 
@@ -10,10 +10,7 @@ export default class CommentFeedStore {
 
         reaction(
             () => this.predicate.keys(),
-            () => {
-                // this.predicate.clear();
-                // this.loadPosts();
-            }
+            () => { }
         );
     }
 
@@ -32,8 +29,8 @@ export default class CommentFeedStore {
     pagingParams: PagingParams = new PagingParams(1, 10);
     pagination: Pagination | undefined = undefined;
   
-    commentsRegistry: Map<string, CommentToDisplay> = new Map<string, CommentToDisplay>();
-    loadedComment: CommentToDisplay | undefined;
+    commentsRegistry: Map<string, PostToDisplay> = new Map<string, PostToDisplay>();
+    loadedComment: PostToDisplay | undefined;
 
     setPagingParams = (pagingParams: PagingParams) => {
         this.pagingParams = pagingParams;
@@ -41,7 +38,7 @@ export default class CommentFeedStore {
     setPagination = (value: Pagination | undefined) => {
         this.pagination = value;
     }
-    setComment = (commentId: string, comment: CommentToDisplay) => {
+    setComment = (commentId: string, comment: PostToDisplay) => {
         this.commentsRegistry.set(commentId, comment);
     }
 
@@ -51,7 +48,7 @@ export default class CommentFeedStore {
     setLoadingComment = (value: boolean) => {
         this.loadingComment = value;
     }
-    setLoadedComment = (val: CommentToDisplay) => {
+    setLoadedComment = (val: PostToDisplay) => {
         this.loadedComment = val;
     }
     setLoadingUpsert = (value: boolean) => {
@@ -84,8 +81,8 @@ export default class CommentFeedStore {
             const { items, pagination } = await agent.commentApiClient.getCommentsForPost(this.axiosParams, postId) ?? [];
             
             runInAction(() => {
-                items.forEach((cmt: CommentToDisplay) => {
-                    this.setComment(cmt.id, cmt);
+                items.forEach((cmt: PostToDisplay) => {
+                    this.setComment(cmt.postId, cmt);
                 });
                 
                 this.setPagination(pagination);
