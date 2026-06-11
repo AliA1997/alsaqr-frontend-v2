@@ -1,44 +1,37 @@
-;
-import { useStore } from "@stores/index";
-import { retrieveQueryString, stopPropagationOnClick } from "@utils/index";
+import { stopPropagationOnClick } from "@utils/index";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { useState } from "react";
+import { ButtonLoader } from "./CustomLoader";
 
 interface SearchBarProps {
     fullWidth?: boolean;
+    value?: string;
+    onChange?: (value: string) => void;
+    onSearch: () => void | Promise<void>;
+    placeholder?: string;
 }
 
-function SearchBar({ fullWidth }: SearchBarProps) {
-  const navigate = useNavigate();
-  const { exploreStore } = useStore();
-  const  { predicate, pagingParams, setPredicate } = exploreStore;
+function SearchBar({ fullWidth, value, onChange, onSearch, placeholder = "Search..." }: SearchBarProps) {
+  const [loading, setLoading] = useState(false);
 
-  const onSearch = () => {
-    const qryString = retrieveQueryString({
-      searchTerm: predicate.get('searchTerm'),
-      currentPage: pagingParams.currentPage,
-      itemsPerPage: pagingParams.itemsPerPage,
-    });
-    // if(pathname != '/search')
-    navigate(`/search${qryString}`);
-    // else
-      
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => setPredicate('searchTerm', e.target.value);
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Check if the Enter key was pressed
-    if (e.key === "Enter") {
-      // Prevent the default form submit behavior if inside a form
-      e.preventDefault();
-      onSearch();
-      1;
+  const handleSearchKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    setLoading(true);
+    // Trigger the search only when the Enter key is pressed
+    try {
+      if (e.key === "Enter") {
+        // Prevent the default form submit behavior if inside a form
+        e.preventDefault();
+        await onSearch();
+      }
+    }
+    finally {
+      setLoading(false);
     }
   };
-
-  const searchQry = useMemo(() => predicate.get('searchTerm'), [predicate.values()])
 
   return (
     <div className={`relative text-gray-800 ${fullWidth ? "w-full" : "w-64 xl:w-80"} p-5 dark:text-gray-500 flex`}>
@@ -48,29 +41,16 @@ function SearchBar({ fullWidth }: SearchBarProps) {
         className="flex cursor-pointer item-center space-x-3 text-gray-400 hover:text-[#55a8c2] p-2"
         onClick={(e) => stopPropagationOnClick(e, onSearch)}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-5 h-5 items-center"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-          />
-        </svg>
+        {loading ? <ButtonLoader /> : null}
       </motion.div>
 
       <input
         onKeyDown={handleSearchKeyDown}
         onChange={handleSearchChange}
-        value={searchQry}
+        value={value}
         type="search"
         name="search"
-        placeholder="Search..."
+        placeholder={placeholder}
         className="bg-dim-700 h-10 px-10 pr-5 w-full rounded-full text-sm focus:outline-none bg-[#55a8c2]-white shadow border-0 dark:bg-gray-800 dark:text-gray-200"
       />
     </div>

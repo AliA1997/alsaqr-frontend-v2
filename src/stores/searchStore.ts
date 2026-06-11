@@ -24,6 +24,8 @@ export default class SearchStore {
     loadingPost = false;
     searchedUsersPredicate = new Map();
     searchedPostsPredicate = new Map();
+    searchedCommunitiesPredicate = new Map();
+    searchedCommunityDiscussionsPredicate = new Map();
     setSearchedUsersPredicate = (predicate: string, value: string | number | Date | undefined) => {
         if(value) {
             this.searchedUsersPredicate.set(predicate, value);

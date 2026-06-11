@@ -11,6 +11,8 @@ import { PageTitle } from "@common/Titles";
 import { ContentContainerWithRef } from "@common/Containers";
 import { PagingParams } from "@models/common";
 import UserItemComponent from "./UserItem";
+import { SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import SearchBar from "@common/SearchBar";
 
 interface Props {
   title?: string;
@@ -33,33 +35,42 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
   // const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
   const { searchStore } = useStore();
+  const {
+    searchUsersLoadingInitial,
+    searchedUsersPagingParams,
+    setSearchedUsersPagingParams,
+    searchedUsersPredicate,
+    setSearchedUsersPredicate,
+    searchedUsersPagination,
+    loadSearchedUsers
+  } = searchStore;
   const containerRef = useRef(null);
   const loaderRef = useRef(null);
 
   const feedLoadingInitial = useMemo(() => {
-    return searchStore.searchUsersLoadingInitial;
-  }, [searchStore.searchUsersLoadingInitial]);
+    return searchUsersLoadingInitial;
+  }, [searchUsersLoadingInitial]);
 
   const setUserFeedPagingParams = useMemo(() => {
-    return searchStore.setSearchedUsersPagingParams
-  }, [searchStore.searchedUsersPagingParams.currentPage]);
+    return setSearchedUsersPagingParams
+  }, [searchedUsersPagingParams.currentPage]);
   const setUserFeedPredicate = useMemo(() => {
-    return searchStore.setSearchedUsersPredicate;
+    return setSearchedUsersPredicate;
   }, []);
   
   const userFeedPagingParams = useMemo(() => {
-    return searchStore.searchedUsersPagingParams;
-  }, [searchStore.searchedUsersPagingParams.currentPage]);
+    return searchedUsersPagingParams;
+  }, [searchedUsersPagingParams.currentPage]);
   const userFeedPagination = useMemo(() => {
-    return searchStore.searchedUsersPagination;
-  }, [searchStore.searchedUsersPagingParams.currentPage]);
+    return searchedUsersPagination;
+  }, [searchedUsersPagingParams.currentPage]);
 
   const userFilterPredicate: Map<string, any> = useMemo(() => {
-    return searchStore.searchedUsersPredicate;
+    return searchedUsersPredicate;
   }, []);
 
   const loadUsers = async () => {
-    await searchStore.loadSearchedUsers();
+    await loadSearchedUsers();
   }
 
   async function getUsers() {
@@ -156,10 +167,13 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
       {title && <PageTitle>{title}</PageTitle>}
       <div>
         {loggedInUserId && (
-            <input 
-              className="bg-dim-700 h-10 px-10 pr-5 w-full rounded-full text-sm focus:outline-none bg-[#55a8c2]-white shadow border-0 dark:bg-gray-800 dark:text-gray-200"
+            <SearchBar
+              fullWidth
+              placeholder="Search users..."
+              value={(searchedUsersPredicate.get(SEARCH_TERM_KEY_FOR_PREDICATE) as string) ?? ""}
+              onChange={(value) => setSearchedUsersPredicate(SEARCH_TERM_KEY_FOR_PREDICATE, value)}
+              onSearch={loadSearchedUsers}
             />
-
         )}
       </div>
 

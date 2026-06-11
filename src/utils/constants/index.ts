@@ -419,3 +419,5 @@ export const OAUTH_OPTIONS = {
 export const DEFAULT_SMALL_ITEMS_PERPAGE = "10";
 
 export const DEFAULT_MEDIUM_ITEMS_PERPAGE = "25";
+
+export const SEARCH_TERM_KEY_FOR_PREDICATE = "searchTerm";

@@ -6,10 +6,14 @@ import { SuspenseLoader } from "@common/CustomLoader";
 import { PageTitle } from "@common/Titles";
 import { ListToDisplay } from "typings";
 import { listApiClient } from "@utils/api/listsApiClient";
+import { useStore } from "@stores/index";
+import { SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
 
 
 const ListPage = () => {
   const { list_id } = useParams();
+  const { searchStore } = useStore();
+  const { setSearchedUsersPredicate } = searchStore;
   const [selectedList, setSelectedList] = useState<ListToDisplay>();
   
   async function getListDetails() {
@@ -25,6 +29,7 @@ const ListPage = () => {
       getListDetails();
     return () => {
       setMounted(false);
+      setSearchedUsersPredicate(SEARCH_TERM_KEY_FOR_PREDICATE, '');
     }
   }, []);
 

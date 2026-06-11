@@ -220,7 +220,7 @@ export const  RegisterModal = observer(({ userInfo }: RegisterModalProps) => {
                       bgThumbnail={values.bgThumbnail}
                       username={values.username}
                   />
-
+                
                 {currentStepInUserRegistration === 0 && (
                   <PersonalInfoFormInputs />
                 )}
