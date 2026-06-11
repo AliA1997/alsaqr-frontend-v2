@@ -17,12 +17,14 @@ import TermsAndConditionsPage from "@features/TermsAndConditions";
 import CommunityPage from "@features/CommunityPage";
 import CommunityDiscussionPage from "@features/CommunityDiscussionPage";
 import ListPage from "@features/ListPage";
+import BariqAI from '@features/BariqAI';
 
 export const routes: RouteObject[] = [
   {
     element: <App />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: "bariq", element: <BariqAI /> },
       { path: "bookmarks", element: <BookmarksPage /> },
       { path: "communities", element: <CommunitiesPage /> },
       { path: "communities/:community_id", element: <CommunityPage /> },
