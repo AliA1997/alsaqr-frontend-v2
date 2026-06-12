@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
-import { CommunityToDisplay, RelationshipType } from "@typings";
+import type { CommunityToDisplay } from "@typings";
+import { RelationshipType } from '@enums';
 import { convertDateToDisplay, stopPropagationOnClick } from "@utils/index";
 import { InfoCardContainer } from "@common/Containers";
 import { TagOrLabel } from "@common/Titles";

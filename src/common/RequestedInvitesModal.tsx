@@ -1,4 +1,4 @@
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { ModalBody, ModalPortal } from "./Modal";
 import { User } from "@typings";
 import { useRef } from "react";
@@ -6,6 +6,7 @@ import { ContentContainerWithRef } from "@common/Containers";
 import { PageTitle } from "@common/Titles";
 import UserInviteItemComponent from "@components/users/UserInviteItem";
 import { observer } from "mobx-react-lite";
+import { FilterKeys } from '@enums';
 
 type Props = {
     title: string;

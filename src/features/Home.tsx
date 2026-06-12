@@ -1,6 +1,6 @@
 import React from 'react';
 const Feed = React.lazy(() => import("@components/shared/Feed"));
-import { FilterKeys } from "@stores/index";
+import { FilterKeys } from "@enums";
 
 export default function HomePage() {
 

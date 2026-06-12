@@ -3,7 +3,8 @@ import { useStore } from "@stores/index";
 import { observer } from "mobx-react-lite";
 import { PagingParams } from "@models/common";
 import { useCallback, useEffect, useState } from "react";
-import { ExploreTabs, ExploreToDisplay } from "@typings";
+import type { ExploreToDisplay } from "@typings";
+import { ExploreTabs } from '@enums';
 import ExploreItemComponent from "./ExploreItem";
 import { EXPLORE_SOURCES } from "@utils/constants";
 

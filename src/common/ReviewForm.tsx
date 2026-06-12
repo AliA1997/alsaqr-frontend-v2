@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { CommonUpsertBoxTypes, PostToDisplay, UserItemToDisplay } from "@typings";
+import type { PostToDisplay, UserItemToDisplay } from "@typings";
+import { CommonUpsertBoxTypes } from "@enums";
 import UserItemComponent from "@components/users/UserItem";
-import { FilterKeys } from "@stores/index";
+import { FilterKeys } from "@enums";
 import { ContentContainerWithRef, ProfileImagePreview } from "./Containers";
 import PostComponent from "@components/posts/Post";
 import { NoRecordsTitle } from "./Titles";

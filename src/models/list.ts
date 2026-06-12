@@ -1,27 +1,3 @@
-
-export enum ListItemType {
-    Post = 'post',
-    User = 'user',
-    Community = 'community',
-    CommunityDiscussion = 'community-discussion',
-    CommunityDiscussionMessage = 'community-discussion-message',
-    List = 'list'
-}
-
-export interface ListItem {
-    id: string;
-    savedUserId?: string;
-    postId?: string;
-    commmunityId?: string;
-    communityDiscussionId?: string;
-    communityDiscussionMessageId?: string;
-    listId?: string;
-    listItemType: ListItemType;
-    savedAt: string;
-}
-
-export interface ListItemRecord extends ListItem {}
-
 export interface ListItemToDisplay {
     listItemId: string;
     listId: string;

@@ -2,11 +2,6 @@
 // import { PostToDisplay } from "typings";
 // import TweetComponent from "../posts/Post";
 
-export enum NotificationTabs {
-  All = "All",
-  Verified = "Verified",
-  Mentions = "Mentions",
-}
 
 const NotificationTabsComponent = () => {
   // const renderer = useCallback(

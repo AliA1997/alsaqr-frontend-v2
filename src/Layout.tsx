@@ -32,15 +32,15 @@ export default observer(function ({ children }: React.PropsWithChildren<any>) {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="dark:bg-[#0e1517] h-screen overflow-hidden mb-[20vh]"
+                className="dark:bg-[#0e1517] min-h-screen flex flex-col"
             >
                         <>
-                            <div className="mx-auto max-h-screen overflow-hidden lg:w-6xl">
+                            <div className="mx-auto w-full lg:w-6xl flex-1">
                                 <main className="grid grid-cols-9">
                                     <PageContainer>{children}</PageContainer>
                                 </main>
                             </div>
-                            <footer className="fixed bottom-0 left-0 z-[900] bg-white dark:bg-[#1d2a2e] text-gray-900 dark:text-gray-300 mt-8 w-full">
+                            <footer className="bg-white dark:bg-[#1d2a2e] text-gray-900 dark:text-gray-300 mt-8 w-full">
                                 <div className="mx-auto w-full max-w-6xl px-4 py-6 lg:px-8">
                                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                                         <div id="footer-img" className="flex justify-start">

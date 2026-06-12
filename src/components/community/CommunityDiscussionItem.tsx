@@ -5,10 +5,10 @@ import {
   useState,
 } from "react";
 import { useStore } from "@stores/index";
-import { CommunityDiscussionToDisplay } from "@models/community";
+import type { CommunityDiscussionToDisplay } from "@models/community";
 import { MessagesImagePreview } from "@common/Containers";
 import { TagOrLabel } from "@common/Titles";
-import { RelationshipType } from "@typings";
+import { RelationshipType } from "@enums";
 import { InfoButton } from "@common/Buttons";
 import { ButtonLoader } from "@common/CustomLoader";
 import { PlusCircleIcon } from "@heroicons/react/solid";

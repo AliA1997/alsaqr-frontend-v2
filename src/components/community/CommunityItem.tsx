@@ -6,7 +6,8 @@ import {
 } from "react";
 import TimeAgo from "react-timeago";
 
-import { RelationshipType, type CommunityToDisplay } from "@typings";
+import type { CommunityToDisplay } from "@typings";
+import { RelationshipType } from '@enums';
 import {
   stopPropagationOnClick,
 } from "@utils/index";

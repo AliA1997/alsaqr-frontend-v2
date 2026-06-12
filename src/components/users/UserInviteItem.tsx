@@ -9,7 +9,7 @@ import {UserItemToDisplay } from "@typings";
 import {
     stopPropagationOnClick,
 } from "@utils/index";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { shortenText } from "@utils/index";
 import { MAX_BIO_LENGTH_FEED } from "@utils/constants";
 import { ButtonLoader } from "@common/CustomLoader";
@@ -18,6 +18,7 @@ import { CheckIcon } from "@heroicons/react/outline";
 import { observer } from "mobx-react-lite";
 import { AbsoluteDangerButton, AbsoluteSuccessButton } from "@common/Buttons";
 import { OptimizedImage } from "@common/Image";
+import { FilterKeys } from '@enums';
 
 interface Props {
     userItemToDisplay: UserItemToDisplay;

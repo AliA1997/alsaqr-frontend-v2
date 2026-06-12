@@ -8,7 +8,7 @@ import type {
 import PostBox from "../posts/PostBox";
 import { convertQueryStringToObject } from "@utils/index";
 import { observer } from "mobx-react-lite";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
 import { leadingDebounce } from "@utils/api/agent";
 import { ContentContainerWithRef } from "@common/Containers";
@@ -16,6 +16,7 @@ import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import PostComponent from "@components/posts/Post";
 import { SkeletonLoader } from "@common/CustomLoader";
 import { inTestMode } from "@utils/constants";
+import { FilterKeys } from '@enums';
 // import toast from "react-hot-toast";
 
 interface Props {

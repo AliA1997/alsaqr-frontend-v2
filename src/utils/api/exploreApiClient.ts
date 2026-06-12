@@ -1,6 +1,6 @@
 import axios from "axios";
 import { axiosResponseBody } from "./agent";
-import { ExploreTabs } from "typings";
+import { ExploreTabs } from "@enums";
 
 export const exploreApiClient = {
     getExplore: (params: URLSearchParams) =>

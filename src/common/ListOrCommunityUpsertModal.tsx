@@ -1,12 +1,13 @@
 ;
 import { ModalBody, ModalPortal } from "@common/Modal";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { Formik, FormikErrors } from "formik";
 import { motion } from "framer-motion";
 import { PagingParams } from "@models/common";
 import { useCallback, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { CommonUpsertBoxTypes, CreateListOrCommunityForm, PostToDisplay, UserItemToDisplay } from "@typings";
+import type { CreateListOrCommunityForm, PostToDisplay, UserItemToDisplay } from "@typings";
+import { CommonUpsertBoxTypes, FilterKeys } from "@enums";
 import { observer } from "mobx-react-lite";
 import { ListOrCommunityFormInputs } from "./ListOrCommunityForm";
 import UsersFeed from "@components/users/UsersFeed";
@@ -162,7 +163,6 @@ function ListOrCommunityUpsertModal({ type, loggedInUserId, communityId }: Props
 
         if (type === CommonUpsertBoxTypes.CommunityDiscussion) {
             await upsert(infoToUpsert, loggedInUserId, communityId);
-            debugger;
             await refreshRecords(loggedInUserId, communityId);
         } else {
             await upsert(infoToUpsert, loggedInUserId)

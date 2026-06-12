@@ -1,7 +1,8 @@
 import { useStore } from "@stores/index";
 import { observer } from "mobx-react-lite";
 import React, { MouseEventHandler, useEffect, useMemo, useState } from "react";
-import { CommonUpsertBoxTypes, CreateListOrCommunityForm } from "@typings";
+import type { CreateListOrCommunityForm } from "@typings";
+import { CommonUpsertBoxTypes } from "@enums";
 import { FormikErrors } from "formik";
 import { checkNsfwInImage, initializeClient } from "@utils/infrastructure/gradio";
 import { NOT_ALLOWED_NSFW_CHECKER_RESULTS } from "@utils/constants";

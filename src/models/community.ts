@@ -12,8 +12,6 @@ export interface CommunityDiscussion {
     isPrivate: boolean;
 }
 
-export interface CommunityDiscussionRecord extends CommunityDiscussion {}
-
 
 export interface CommunityDiscussionAdminInfo {
   discussionId: string;
@@ -103,8 +101,6 @@ export interface CommunityDiscussionMessageDto {
     content: string;
     media: string;
 }
-
-export interface CommunityDiscussionMessageRecord extends CommunityDiscussionMessage {}
 
 export interface CommunityDiscussionMessageToDisplay extends CommunityDiscussionMessage {
   userId: string;

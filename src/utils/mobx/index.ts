@@ -1,4 +1,4 @@
-import { FilterKeys } from "@stores/index";
+import { FilterKeys } from "@enums";
 import CommunityFeedStore from "@stores/communityFeedStore";
 import ExploreStore from "@stores/exploreStore";
 import FeedStore from "@stores/feedStore";

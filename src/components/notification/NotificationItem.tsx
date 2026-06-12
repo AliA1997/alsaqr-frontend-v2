@@ -26,7 +26,7 @@ function NotificationItemComponent({
   });
 
   const notificationInfo = notificationToDisplay;
-  debugger;
+
   const getNotificationTypeLabel = (): string => {
     if (notificationInfo.postId) return "Post";
     if (notificationInfo.listItemId) return "List Item";

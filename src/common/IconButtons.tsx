@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { BookmarkIcon, HeartIcon } from "@heroicons/react/outline";
 import { BookmarkIcon as BookmarkFillIcon, HeartIcon as HeartFillIcon, UploadIcon } from "@heroicons/react/solid";
-import { FilterKeys } from "@stores/index";
+import { FilterKeys } from "@enums";
 import { useNavigate } from "react-router-dom";
 
 interface CommentIconButtonProps extends React.ButtonHTMLAttributes<HTMLDivElement> {

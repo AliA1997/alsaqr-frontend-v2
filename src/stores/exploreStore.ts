@@ -1,5 +1,6 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { ExploreTabs, ExploreToDisplay, PostToDisplay } from "@typings";
+import type { ExploreToDisplay, PostToDisplay } from "@typings";
+import { ExploreTabs } from '@enums';
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 

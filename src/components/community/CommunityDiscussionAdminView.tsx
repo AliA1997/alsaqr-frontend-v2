@@ -1,10 +1,11 @@
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router";
 import { convertDateToDisplay } from "@utils/index";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import RequestedInvitesModal from "@common/RequestedInvitesModal";
 import UpdateCommunityDiscussionModal from "@common/UpdateCommunityDiscussionModal";
 import type { CommunityDiscussionAdminInfo } from "@models/community";
+import { FilterKeys } from "@enums";
 import { InfoCardContainer } from "@common/Containers";
 import { ConfirmModal } from "@common/Modal";
 import { TagOrLabel } from "@common/Titles";

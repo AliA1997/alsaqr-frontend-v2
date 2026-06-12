@@ -1,49 +1,4 @@
 
-
-export enum TypeOfFeed {
-  Feed = "feed",
-  Explore = "explore",
-  Search = "search"
-}
-
-export enum NotificationType {
-  Normal = "normal",
-  Mentioned = "mentioned",
-  Verified = "verified",
-  YourAccount = "your_account",
-  FollowUser = "follow_user",
-  BookmarkedPost = 'bookmarked_post',
-  LikedPost = 'liked_post',
-  RePostedPost = 'reposted_post',
-  CommentedPost = 'commented_post',
-  NewList = "new_list",
-  NewCommunity = "new_community",
-  UnjoinedCommunity = "user_unjoined",
-  JoinedCommunity = "user_joined",
-  RequestJoinCommunity = "user_request_join",
-  UnjoinedCommunityDiscussion = "user_unjoined_discussion",
-  JoinedCommunityDiscussion = "user_joined_discussion",
-  RequestJoinCommunityDiscussion = "user_request_join_discussion",
-  NewPost = "new_post",
-}
-
-export enum MessageType {
-  All = "All",
-  Sent = "Sent",
-  Direct = "Direct"
-}
-
-export enum CommonUpsertBoxTypes {
-  Post = "Post",
-  List = "List",
-  Community = "Community",
-  UpdateCommunity = "Update-Community",
-  CommunityDiscussion = "CommunityDiscussion",
-  UpdateCommunityDiscussion = "Update-Community-Discussion",
-  Register = "Register"
-}
-
-
 export type CommonRecordBody = {
   text: string;
   image?: string;
@@ -298,35 +253,6 @@ export interface ListToDisplay {
   };
 }
 
-export interface CommunityRecord {
-  id: string;
-  userId: string
-  name: string;
-  avatar: string;
-  createdAt: string;
-  updatedAt: string;
-  _rev: string;
-  _type: "community";
-  isPrivate: boolean;
-  tags: string[];
-  joinedUsersToDisplay: User[];
-}
-
-export interface CommunityRecordToDisplay extends CommunityRecord {
-  founder: string;
-  founderProfileImg: string;
-}
-
-export enum  RelationshipType {
-  	// founder, moderator, member, requested, invited
-  Member = 'member',
-  Invited = 'invited',
-  Moderator = 'moderator',
-  Founder = 'founder',
-  Requested = 'requested',
-  InviteRequestedForCommunityDiscussion = 'INVITE_REQUESTED_FOR_DISCUSSION',
-  None = 'none'
-};
 
 export interface CommunityToDisplay {
   communityId: string;
@@ -427,24 +353,6 @@ export interface ExploreToDisplay {
   urlToImage: string;
 }
 
-export interface ExploreNewsSourceToDisplay {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  url: string;
-}
-
-export enum ExploreTabs {
-  Popular = 'popular',
-  AlJazeeraEnglish = 'al-jazeera-english',
-  Argaam = 'argaam',
-  BleacherReport = 'bleacher-report',
-  CryptoCoinsNews = 'crypto-coins-news',
-  HackerNews = 'hacker-news',
-  SABQ = 'sabq',
-
-}
 
 // New types based on the code snippets
 export interface PersonalInfo {
@@ -460,13 +368,3 @@ export interface PersonalInterests {
   favoriteIslamicScholars?: string[];
   islamicStudyTopics?: string[];
 }
-
-// Relationship types
-export interface PostedRelationship {
-  timestamp: string;
-}
-
-export interface CommentedRelationship {
-  timestamp: string;
-}
-

@@ -3,12 +3,13 @@ import { ModalBody, ModalPortal } from "@common/Modal";
 import { Select } from "@common/Select";
 import PostComponent from "@components/posts/Post";
 import UserItemComponent from "@components/users/UserItem";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { Formik, FormikErrors } from "formik";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo } from "react";
-import { ListRecord, PostToDisplay, UserItemToDisplay } from "typings";
+import type { ListRecord, PostToDisplay, UserItemToDisplay } from "typings";
+import { FilterKeys } from "@enums";
 
 interface SaveToListModalProps {
     relatedEntityType: "post" | "user" | "community" | "list";

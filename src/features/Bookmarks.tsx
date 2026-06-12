@@ -1,5 +1,5 @@
 import Feed from "@components/shared/Feed";
-import { FilterKeys } from "@stores/index";
+import { FilterKeys } from "@enums";
 
 
 export default function BookmarksPage() {

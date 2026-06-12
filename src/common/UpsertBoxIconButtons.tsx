@@ -44,7 +44,6 @@ function UpsertBoxIconButton({ input, setInput, setImage, inputRef }: Props) {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                debugger;
                 setImage(reader.result as string);
                 // Move focus back to the message field so the user can keep
                 // typing right after the image is attached.

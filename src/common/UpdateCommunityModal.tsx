@@ -5,12 +5,13 @@ import { motion } from "framer-motion";
 import { PagingParams } from "@models/common";
 import { useCallback, useMemo } from "react";
 import toast from "react-hot-toast";
-import { CommonUpsertBoxTypes, CommunityAdminInfo } from "@typings";
+import { CommunityAdminInfo } from "@typings";
 import { observer } from "mobx-react-lite";
 import { ListOrCommunityFormInputs } from "./ListOrCommunityForm";
 import { ReviewForm, ReviewUpsertListOrCommunity } from "./ReviewForm";
 import { UpdateCommunityForm } from "@models/community";
 import { PageTitleNoPadding } from "./Titles";
+import { CommonUpsertBoxTypes } from '@enums';
 
 interface Props {
     loggedInUserId: string;

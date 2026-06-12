@@ -1,10 +1,10 @@
 import { ModalBody, ModalPortal } from "@common/Modal";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { Formik, FormikErrors } from "formik";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo } from "react";
-import { CommonUpsertBoxTypes, UserItemToDisplay, UserRegisterForm } from "@typings";
+import type { UserItemToDisplay, UserRegisterForm } from "@typings";
 import { HobbiesAndOptionalInfoFormInputs, PersonalInfoFormInputs } from "./RegisterForm";
 import UsersFeed from "@components/users/UsersFeed";
 import { ReviewForm, ReviewUserHobbiesAndOtherInfo, ReviewUserPersonalInfo, ReviewUsersAdded } from "./ReviewForm";
@@ -15,6 +15,7 @@ import { useLocation } from "react-router";
 import { PageTitleNoPadding } from "./Titles";
 import { capitalize } from "lodash";
 import agent from "@utils/api/agent";
+import { CommonUpsertBoxTypes, FilterKeys } from '@enums';
 
 
 export const LoginModal = observer(() => {

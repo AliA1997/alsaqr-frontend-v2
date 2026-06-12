@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { PagingParams } from "@models/common";
 import { useCallback, useMemo } from "react";
 import toast from "react-hot-toast";
-import { CommonUpsertBoxTypes } from "@typings";
+import { CommonUpsertBoxTypes } from "@enums";
 import { observer } from "mobx-react-lite";
 import { ListOrCommunityFormInputs } from "./ListOrCommunityForm";
 import { ReviewForm, ReviewUpsertListOrCommunity } from "./ReviewForm";

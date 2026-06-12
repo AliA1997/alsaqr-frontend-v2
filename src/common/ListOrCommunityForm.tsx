@@ -3,7 +3,7 @@ import { FileUploadInput, MyInput } from "./Inputs";
 import { RadioCard } from "./RadioBoxes";
 import { MultiSelect } from "./MultiSelect";
 import { useMemo, useCallback } from "react";
-import { CommonUpsertBoxTypes } from "@typings";
+import { CommonUpsertBoxTypes } from "@enums";
 import { observer } from "mobx-react-lite";
 import { TAG_OPTIONS } from "@utils/constants/tagOptions";
 

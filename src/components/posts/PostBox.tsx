@@ -9,7 +9,7 @@ import {
 } from "@utils/index";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
-import { FilterKeys } from "@stores/index";
+import { FilterKeys } from "@enums";
 import { XIcon } from "@heroicons/react/solid"; // Import the XMarkIcon
 
 import { loadData } from "@utils/mobx";

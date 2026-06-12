@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router";
 import type { CommunityAdminInfo } from "typings";
 import { convertDateToDisplay } from "@utils/index";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import RequestedInvitesModal from "@common/RequestedInvitesModal";
 import { CommonLink } from "@common/Links";
 import UpdateCommunityModal from "@common/UpdateCommunityModal";
@@ -12,6 +12,7 @@ import { TagOrLabel } from "@common/Titles";
 import { useEffect, useState } from "react";
 import { communityApiClient } from "@utils/api/communityApiClient";
 import { SkeletonLoader } from "@common/CustomLoader";
+import { FilterKeys } from '@enums';
 
 type Props = {
   communityId: string;

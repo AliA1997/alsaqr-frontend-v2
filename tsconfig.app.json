@@ -33,6 +33,9 @@
       "@models/*": [
         "./src/models/*"
       ],
+      "@enums": [
+        "./src/models/enums.ts"
+      ],
       "@stores/*": [
         "./src/stores/*"
       ],

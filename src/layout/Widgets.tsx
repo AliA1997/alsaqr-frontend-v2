@@ -11,7 +11,7 @@ function Widgets() {
       ${isHidden ? 'hidden' : ''}
     `}
     id="widgets">
-      <div className="overflow-y-auto fixed h-screen scrollbar-hide">
+      <div className="overflow-y-auto sticky top-0 max-h-screen scrollbar-hide">
         <div className="max-w-sm rounded-lg bg-dim-700 overflow-hidden m-4 hover:shadow-md">
           <div className="flex">
             <div className="flex-1 m-2">

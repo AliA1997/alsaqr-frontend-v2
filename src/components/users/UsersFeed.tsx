@@ -2,11 +2,12 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
   UserItemToDisplay,
 } from "@typings";
+import { FilterKeys } from "@enums";
 
 import { convertQueryStringToObject } from "@utils/index";
 import { ModalLoader } from "@common/CustomLoader";
 import { observer } from "mobx-react-lite";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { PageTitle } from "@common/Titles";
 import { ContentContainerWithRef } from "@common/Containers";
 import { PagingParams } from "@models/common";

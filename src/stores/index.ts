@@ -34,20 +34,6 @@ interface Store {
 }
 
 
-export enum FilterKeys {
-  Search = 'search',
-  SearchUsers = 'search-users',
-  SearchPosts = 'search-posts',
-  MyBookmarks = "my-bookmarks",
-  Explore = 'explore',
-  Normal = 'normal',
-  Lists = "lists",
-  Community = "community",
-  CommunityDiscussion = "community-discussion",
-  Register = "register"
-}
-
-
 export const store: Store = {
     authStore: new AuthStore(),
     bookmarkFeedStore: new BookmarkFeedStore(),

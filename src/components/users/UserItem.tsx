@@ -10,12 +10,14 @@ import {UserItemToDisplay } from "@typings";
 import {
     stopPropagationOnClick,
 } from "@utils/index";
-import { FilterKeys, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
 import { LoginModal } from "@common/AuthModals";
 import { shortenText } from "@utils/index";
 import { MAX_BIO_LENGTH_FEED } from "@utils/constants";
 import { AddOrFollowButton } from "@common/IconButtons";
 import { OptimizedImage } from "@common/Image";
+import { FilterKeys } from '@enums';
+
 
 interface Props {
     filterKey?: FilterKeys;
