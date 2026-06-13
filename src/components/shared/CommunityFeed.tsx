@@ -17,7 +17,8 @@ import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import CommunityItemComponent from "@components/community/CommunityItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
 import { useThrottle } from "@hooks/useThrottle";
-import { inTestMode } from "@utils/constants";
+import { inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import SearchBar from "@common/SearchBar";
 
 interface Props {
 }
@@ -38,6 +39,8 @@ const CommunityFeed = observer(({ }: Props) => {
     loadCommunities,
     communities
    } = communityFeedStore;
+  const authUserId = useMemo(() => inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id, [auth, currentSessionUser]);
+
 
   async function getRecords() {
     const paramsFromQryString = convertQueryStringToObject(
@@ -66,7 +69,6 @@ const CommunityFeed = observer(({ }: Props) => {
   };
   
   const loadFeedRecords = useThrottle(async () => {
-    const authUserId = inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
 
     await loadCommunities(authUserId ?? 'undefined');
   }, 5_000);
@@ -136,6 +138,19 @@ const CommunityFeed = observer(({ }: Props) => {
   return (
     <div className="col-span-7  text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
       <PageTitle>Communities</PageTitle>
+        {authUserId && (
+            <SearchBar
+              fullWidth
+              placeholder="Search communities..."
+              value={(predicate.get(SEARCH_TERM_KEY_FOR_PREDICATE) as string) ?? ""}
+              onChange={(value) => setPredicate(SEARCH_TERM_KEY_FOR_PREDICATE, value)}
+              onSearch={async () => {
+                await loadCommunities(authUserId ?? 'undefined', true);
+              }}
+              classNames="p-0"
+            />
+        )}
+
       <OpenUpsertModalButton
           testId="createcommunitybutton"      
           onClick={() => modalStore.showModal(

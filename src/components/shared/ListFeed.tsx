@@ -17,7 +17,8 @@ import { SkeletonLoader } from "@common/CustomLoader";
 import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import { OpenUpsertModalButton } from "@common/Buttons";
 import { useThrottle } from "@hooks/useThrottle";
-import { inTestMode } from "@utils/constants";
+import { inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import SearchBar from "@common/SearchBar";
 
 interface Props {
 }
@@ -38,6 +39,8 @@ const ListFeed = observer(({ }: Props) => {
     lists,
     loadLists
   } = listFeedStore;
+  const authUserId = useMemo(() => inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id, [auth, currentSessionUser]);
+
 
   async function getRecords() {
     const paramsFromQryString = convertQueryStringToObject(
@@ -65,7 +68,6 @@ const ListFeed = observer(({ }: Props) => {
     await loadFeedRecords();
   };
   const loadFeedRecords = useThrottle(async () => {
-    const authUserId = inTestMode() ? auth?.getUser()?.id : currentSessionUser?.id;
 
     await loadLists(authUserId ?? 'undefined');
   }, 5_000);
@@ -133,6 +135,18 @@ const ListFeed = observer(({ }: Props) => {
   return (
     <div className="text-left col-span-7 scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
       <PageTitle>Lists</PageTitle>
+      {authUserId && (
+        <SearchBar
+          fullWidth
+          placeholder="Search your lists..."
+          value={(predicate.get(SEARCH_TERM_KEY_FOR_PREDICATE) as string) ?? ""}
+          onChange={(value) => setPredicate(SEARCH_TERM_KEY_FOR_PREDICATE, value)}
+          onSearch={async () => {
+            await loadLists(authUserId ?? 'undefined');
+          }}
+          classNames="p-0"
+        />
+      )}
       <OpenUpsertModalButton
         testId="createlistbutton"
         onClick={() => modalStore.showModal(

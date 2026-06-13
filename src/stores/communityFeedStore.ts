@@ -1,4 +1,4 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import type { CommunityToDisplay, CreateListOrCommunityForm, CreateListOrCommunityFormDto } from "@typings";
 import { RelationshipType } from "@enums";
 import { Pagination, PagingParams } from "@models/common";
@@ -11,13 +11,6 @@ export default class CommunityFeedStore {
 
     constructor() {
         makeAutoObservable(this);
-
-        reaction(
-            () => this.predicate.keys(),
-            () => {
-                this.predicate.clear();
-            }
-        );
     }
 
     loadingInitial = false;
@@ -25,6 +18,7 @@ export default class CommunityFeedStore {
     loadingJoinCommunity = false;
     predicate = new Map();
     setPredicate = (predicate: string, value: string | number | Date | undefined) => {
+        debugger;
         if (value) {
             this.predicate.set(predicate, value);
         } else {

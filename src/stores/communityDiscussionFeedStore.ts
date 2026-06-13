@@ -1,4 +1,4 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import type { CreateListOrCommunityForm, CreateListOrCommunityFormDto } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
@@ -11,13 +11,6 @@ export default class CommunityDiscussionFeedStore {
 
     constructor() {
         makeAutoObservable(this);
-
-        reaction(
-            () => this.predicate.keys(),
-            () => {
-                this.predicate.clear();
-            }
-        );
     }
 
     loadingJoinCommunityDiscussion = false;
@@ -228,9 +221,14 @@ export default class CommunityDiscussionFeedStore {
 
     }
 
+    private clearCommunityDiscussions() {
+        this.communityDiscussionsRegistry.clear();
+    }
+
     loadCommunityDiscussions = async (communityId: string) => {
 
         this.setLoadingInitial(true);
+        this.clearCommunityDiscussions();
         try {
             const { items, pagination } = await agent.communityApiClient.getCommunityDiscussions(this.axiosParams, communityId) ?? [];
 

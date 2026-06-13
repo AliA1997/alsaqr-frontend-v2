@@ -15,12 +15,14 @@ type CommentBoxProps = {
     postId: string;
     userId: string;
     setCommentBoxOpen: (val: boolean) => void;
+    onAfterComment: () => void;
 }
 
 export default observer(function CommentBox({
     postId,
     userId,
-    setCommentBoxOpen
+    setCommentBoxOpen,
+    onAfterComment
 }: CommentBoxProps) {
     const { commentFeedStore } = useStore();
     const {
@@ -63,6 +65,7 @@ export default observer(function CommentBox({
         setInput("");
         setImage("");
         setCommentBoxOpen(false);
+        onAfterComment();
         await loadComments(postId);
         setSubmitting(false);
         

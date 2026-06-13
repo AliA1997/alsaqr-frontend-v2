@@ -17,7 +17,8 @@ import { ContentContainerWithRef } from "@common/Containers";
 import CommunityDiscussionItemComponent from "@components/community/CommunityDiscussionItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
 import { useThrottle } from "@hooks/useThrottle";
-import { inTestMode } from "@utils/constants";
+import { inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import SearchBar from "@common/SearchBar";
 
 interface Props {
   communityId: string;
@@ -65,7 +66,7 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   };
   const loadFeedRecords = useThrottle(async () => {
     await loadCommunityDiscussions(communityId!)
-  }, 30_000);
+  }, 5_000);
 
   useEffect(() => {
     const isLoggedIn = inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
@@ -137,6 +138,16 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   return (
     <div className="col-span-7 text-left scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
       <PageTitle>Community Discussions</PageTitle>
+      <SearchBar
+        fullWidth
+        placeholder="Search discussions..."
+        value={(predicate.get(SEARCH_TERM_KEY_FOR_PREDICATE) as string) ?? ""}
+        onChange={(value) => setPredicate(SEARCH_TERM_KEY_FOR_PREDICATE, value)}
+        onSearch={async () => {
+          await loadCommunityDiscussions(communityId);
+        }}
+        classNames="p-0"
+      />
       <OpenUpsertModalButton
         testId="createcommunitydiscussionbutton"
         onClick={() => modalStore.showModal(

@@ -11,7 +11,7 @@ import {
 } from "react";
 import TimeAgo from "react-timeago";
 
-import type { PostToDisplay, PostUserInfoDto } from "@typings";
+import type { PostCommentDto, PostToDisplay, PostUserInfoDto } from "@typings";
 import { FilterKeys } from "@enums";
 import {
   getPercievedNumberOfRecord,
@@ -508,6 +508,9 @@ function PostComponent({
               postId={postInfo.postId}
               userId={postInfo.userId!}
               setCommentBoxOpen={setCommentBoxOpen}
+              onAfterComment={() => {
+                postToDisplay.comments = [...postToDisplay.comments, {} as PostCommentDto]
+              }}
             />
           )}
         </>
