@@ -303,11 +303,12 @@ function PostComponent({
     return defaultOpts;
   }, [postInfo.postId, currentSessionUser?.id]);
 
-  return (
+  const postComponent = (
     <div
       className={`
         relative flex flex-col space-x-3 border-y border-x border-gray-100 p-5 
         dark:border-gray-800 ${!onlyDisplay && 'hover:shadow-lg dark:hover:bg-[#000000]'}  
+        ${canAdd ? 'w-full' : ''}
       `}
       ref={targetRef}
       data-testid="postcard"
@@ -321,13 +322,6 @@ function PostComponent({
         >
           {capitalize(postInfo.postType)}
         </TagOrLabel>
-      )}
-      {canAdd && (
-        <AddOrFollowButton
-          isAdded={isAdded ?? false}
-          filterKey={filterKey ?? FilterKeys.Normal}
-          onIsAlreadyAdded={onIsAlreadyAdded!}
-        />
       )}
 
       <div className="relative flex space-x-3 cursor-pointer">
@@ -378,20 +372,22 @@ function PostComponent({
                 />
               </svg>
             )}
-            <p
-              data-testid="postusername"
-              className="hidden text-sm text-gray-500 sm:inline dark:text-gray-400 hover:underline"
-              onClick={(e) => {
-                if (onlyDisplay)
-                  return;
-                else
-                  return stopPropagationOnClick(e, navigateToTweetUser);
-              }}
-            >
-              @
-              {postToDisplay.username ? postToDisplay.username.replace(/\s+/g, "") : ""}
-              .
-            </p>
+            {!canAdd && (
+              <p
+                data-testid="postusername"
+                className="hidden text-sm text-gray-500 sm:inline dark:text-gray-400 hover:underline"
+                onClick={(e) => {
+                  if (onlyDisplay)
+                    return;
+                  else
+                    return stopPropagationOnClick(e, navigateToTweetUser);
+                }}
+              >
+                @
+                {postToDisplay.username ? postToDisplay.username.replace(/\s+/g, "") : ""}
+                .
+              </p>
+            )}
             <TimeAgo
               className="text-sm text-gray-500 dark:text-gray-400"
               date={convertDateToDisplay(postInfo?.postCreatedAt)}
@@ -521,6 +517,25 @@ function PostComponent({
         </>
       )}
     </div>
+  );
+
+  if(canAdd)
+    return (
+      <div className="flex justify-between items-center">
+        <AddOrFollowButton
+          isAdded={isAdded ?? false}
+          filterKey={filterKey ?? FilterKeys.Normal}
+          onIsAlreadyAdded={onIsAlreadyAdded!}
+          classNames="border-none"
+        />
+        {postComponent}
+      </div>
+    );
+
+  return (
+    <>
+      {postComponent}
+    </>
   );
 }
 

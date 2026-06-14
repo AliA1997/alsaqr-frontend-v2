@@ -36,7 +36,7 @@ export default observer(function ({ children }: React.PropsWithChildren<any>) {
             >
                         <>
                             <div className="mx-auto w-full lg:w-6xl flex-1">
-                                <main className="grid grid-cols-9">
+                                <main className="grid grid-cols-12">
                                     <PageContainer>{children}</PageContainer>
                                 </main>
                             </div>

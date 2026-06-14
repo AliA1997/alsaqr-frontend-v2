@@ -1,9 +1,10 @@
 
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useMemo, useRef } from "react";
 const SideBar = React.lazy(() => import('./Sidebar'));
 import Widgets from "./Widgets";
 import { useStore } from "@stores/index";
 import { observer } from "mobx-react-lite";
+import { useLocation } from "react-router-dom";
 import {  RegisterModal } from "@common/AuthModals";
 import { leadingDebounce } from "@utils/api/agent";
 
@@ -15,6 +16,8 @@ type PageContainerProps = {
 const PageContainer = ({
   children,
 }: React.PropsWithChildren<PageContainerProps>) => {
+  const location = useLocation();
+  const isHomepage = useMemo(() => location.pathname === "/", [location.pathname]);
   const { authStore, modalStore } = useStore();
   const { currentSessionUser } = authStore;
   const { 
@@ -52,10 +55,10 @@ const PageContainer = ({
   return (
     <>
       <SideBar />
-      <div className="col-span-7 lg:col-span-7">
+      <div className={`col-span-9 ${isHomepage ? 'lg:col-span-7' : 'lg:col-span-9'}`}>
         {children ? children : null}
       </div>
-      <Widgets />
+      {isHomepage && <Widgets />}
       {modalToShow && modalToShow}
     </>
   );

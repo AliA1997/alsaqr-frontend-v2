@@ -25,6 +25,7 @@ interface AddOrFollowIconButtonProps extends React.ButtonHTMLAttributes<HTMLButt
     filterKey: FilterKeys;
     onIsAlreadyAdded: () => Promise<void>;
     onIsAlreadyFollowing?: () => Promise<void>;
+    classNames?: string;
 }
 
 interface GoBackButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
@@ -169,10 +170,10 @@ export function BookmarkedIconButton({ onClick, isBookmarked }: BookmarkIconButt
 }
 
 
-export function AddOrFollowButton({ isAdded, isFollowing, onIsAlreadyAdded, onIsAlreadyFollowing, filterKey }: AddOrFollowIconButtonProps) {
+export function AddOrFollowButton({ isAdded, isFollowing, onIsAlreadyAdded, onIsAlreadyFollowing, filterKey, classNames }: AddOrFollowIconButtonProps) {
 
     return (
-        <div className='p-1'>
+        <div className={`p-1 ${classNames ? classNames : ''}`}>
 
             {isAdded || isFollowing
                 ? (

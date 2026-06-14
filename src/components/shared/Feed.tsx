@@ -15,7 +15,7 @@ import { ContentContainerWithRef } from "@common/Containers";
 import { NoRecordsTitle, PageTitle } from "@common/Titles";
 import PostComponent from "@components/posts/Post";
 import { SkeletonLoader } from "@common/CustomLoader";
-import { inTestMode } from "@utils/constants";
+import { DEFAULT_MEDIUM_ITEMS_PERPAGE, inTestMode } from "@utils/constants";
 import { FilterKeys } from '@enums';
 // import toast from "react-hot-toast";
 
@@ -182,7 +182,7 @@ const Feed = observer(({
 
   const fetchMoreItems = useCallback(
     async (pageNum: number) => {
-      setFeedPagingParams(new PagingParams(pageNum, 10))
+      setFeedPagingParams(new PagingParams(pageNum, +DEFAULT_MEDIUM_ITEMS_PERPAGE))
       await loadPosts();
     },
     [feedPagingParams?.currentPage, filterKey]
@@ -193,7 +193,7 @@ const Feed = observer(({
       (entries) => {
         const firstEntry = entries[0];
         const currentPage = feedPagination?.currentPage ?? 1;
-        const itemsPerPage = feedPagination?.itemsPerPage ?? 10;
+        const itemsPerPage = feedPagination?.itemsPerPage ?? +DEFAULT_MEDIUM_ITEMS_PERPAGE;
         const totalItems = feedPagination?.totalItems ?? 0;
 
         const nextPage = currentPage + 1;

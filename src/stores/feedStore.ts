@@ -3,6 +3,7 @@ import { CreatePostForm, PostToDisplay } from "@typings";
 import { Pagination, PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
+import { DEFAULT_MEDIUM_ITEMS_PERPAGE } from "@utils/constants";
 
 export default class FeedStore {
 
@@ -28,7 +29,7 @@ export default class FeedStore {
             this.predicate.delete(predicate);
         }
     }
-    pagingParams: PagingParams = new PagingParams(1, 10);
+    pagingParams: PagingParams = new PagingParams(1, +DEFAULT_MEDIUM_ITEMS_PERPAGE);
     pagination: Pagination | undefined = undefined;
 
     postsRegistry: Map<string, PostToDisplay> = new Map<string, PostToDisplay>();

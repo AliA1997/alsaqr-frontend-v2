@@ -253,6 +253,13 @@ export default class ExploreStore {
         return Array.from(this.exploreNewsRegistry.values());
     }
 
+    get widgetExploreNews() {
+        return Array.from(this.exploreNewsRegistry.values() ?? []).map(eN =>({
+            title: eN.title,
+            link: eN.url
+        }))
+    }
+
     get ajNews() {
         return Array.from(this.ajNewsRegistry.values());
     }

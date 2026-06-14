@@ -8,10 +8,13 @@ import { ThemeProvider } from './ThemeProvider.tsx'
 import { supabase } from '@utils/infrastructure/supabase.ts'
 import { userApiClient } from '@utils/api/userApiClient.ts'
 import { prefetchUserData } from '@utils/workerFunctions/prefetchUserData.ts'
+import { prefetchWidgetData } from '@utils/workerFunctions/prefetchWidgetData.ts'
 
-store.authStore.initializeFromStorage().then(() => {
-  console.log("Welcome to alsaqr")
-});
+store.authStore.initializeFromStorage()
+  .then(() => console.log("Welcome to alsaqr"));
+
+// Prefetch news from all explore sources for the homepage widget
+prefetchWidgetData();
 
 supabase.auth.getSession()
   .then(async sessionInfo => {

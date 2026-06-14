@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import type { PostToDisplay, UserItemToDisplay } from "@typings";
 import { CommonUpsertBoxTypes } from "@enums";
 import UserItemComponent from "@components/users/UserItem";
 import { FilterKeys } from "@enums";
-import { ContentContainerWithRef, ProfileImagePreview } from "./Containers";
+import { ProfileImagePreview } from "./Containers";
 import PostComponent from "@components/posts/Post";
 import { NoRecordsTitle } from "./Titles";
 
@@ -44,34 +44,21 @@ interface ReviewPostsAddedProps {
 export const ReviewUsersAdded = ({
     usersAdded
 }: ReviewUsersAddedProps) => {
-    const containerRef = useRef(null);
     const usersAddedByIds = useMemo(() => usersAdded.map(u => u.id), [usersAdded]);
     return (
-        <div 
-            className={`
-            scrollbar-hide border-x max-h-[15rem] dark:border-gray-800
-            `}
-        >
-            <ContentContainerWithRef 
-                classNames={`
-                text-center overflow-y-auto scrollbar-thin min-h-[30vh] max-h-[40vh] 
-                scrollbar-
-                `}
-                innerRef={containerRef} 
-            >
-                {usersAdded && usersAdded.length
-                    ? usersAdded.map((u: UserItemToDisplay, uIdx: number) => (
-                        <UserItemComponent
-                            key={u.id ?? uIdx}
-                            userItemToDisplay={u}
-                            filterKey={FilterKeys.SearchUsers}
-                            usersAlreadyFollowedOrAddedIds={usersAddedByIds}
-                            canAddOrFollow={false}
-                            onModal={true}
-                        />
-                    ))
-                    :  <NoRecordsTitle>No Users Added</NoRecordsTitle>}
-            </ContentContainerWithRef>
+        <div className="border rounded-lg max-h-[15rem] overflow-y-auto scrollbar-thin dark:border-gray-800">
+            {usersAdded && usersAdded.length
+                ? usersAdded.map((u: UserItemToDisplay, uIdx: number) => (
+                    <UserItemComponent
+                        key={u.id ?? uIdx}
+                        userItemToDisplay={u}
+                        filterKey={FilterKeys.SearchUsers}
+                        usersAlreadyFollowedOrAddedIds={usersAddedByIds}
+                        canAddOrFollow={false}
+                        onModal={true}
+                    />
+                ))
+                : <NoRecordsTitle>No Users Added</NoRecordsTitle>}
         </div>
     )
 };
@@ -80,7 +67,7 @@ export const ReviewPostsAdded = ({
     postsAdded
 }: ReviewPostsAddedProps) => {
     return (
-        <div className='flex flex-col'>
+        <div className="border rounded-lg max-h-[15rem] overflow-y-auto scrollbar-thin dark:border-gray-800">
             {postsAdded && postsAdded.length
                 ? postsAdded.map((postToDisplay: PostToDisplay, postIdx: number) => (
                 <PostComponent
