@@ -1,16 +1,24 @@
 // WidgetDataWorker — prefetches news from all explore sources off the main thread
 import agent from "@utils/api/agent";
-import { ExploreTabs } from "@enums";
-import type { ExploreToDisplay } from "@typings";
+
+enum ExploreTabs {
+  Popular = 'popular',
+  AlJazeeraEnglish = 'al-jazeera-english',
+  Argaam = 'argaam',
+  BleacherReport = 'bleacher-report',
+  CryptoCoinsNews = 'crypto-coins-news',
+  HackerNews = 'hacker-news',
+  SABQ = 'sabq',
+}
 
 export type WidgetPrefetchPayloadData = {
-    explore: ExploreToDisplay[];
-    aj: ExploreToDisplay[];
-    argaam: ExploreToDisplay[];
-    bleacherReport: ExploreToDisplay[];
-    cryptoCoin: ExploreToDisplay[];
-    hackerNews: ExploreToDisplay[];
-    sabq: ExploreToDisplay[];
+    explore: any[];
+    aj: any[];
+    argaam: any[];
+    bleacherReport: any[];
+    cryptoCoin: any[];
+    hackerNews: any[];
+    sabq: any[];
 };
 
 if (typeof self !== 'undefined') {
