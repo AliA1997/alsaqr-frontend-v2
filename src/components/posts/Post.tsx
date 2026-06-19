@@ -409,7 +409,7 @@ function PostComponent({
               </span>
             ))}
           </div>
-          {postInfo.postBannerImage && (
+          {postInfo.postBannerImage ? (
             <div className=" w-[200px] h-[150px] md:w-[300px] md:h-[200px] overflow-hidden flex justify-center items-center">
               <OptimizedPostImage
                 src={postInfo.postBannerImage}
@@ -418,7 +418,15 @@ function PostComponent({
               />
             </div>
 
-          )}
+          ) : postInfo.bannerImage ? (
+            <div className=" w-[200px] h-[150px] md:w-[300px] md:h-[200px] overflow-hidden flex justify-center items-center">
+              <OptimizedPostImage
+                src={postInfo.bannerImage}
+                alt="img/post"
+                classNames="m-5 ml-0 w-full h-full object-cover shadow-sm"
+              />
+            </div>
+          ) : null}
         </div>
       </div>
 

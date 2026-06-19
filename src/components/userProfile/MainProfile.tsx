@@ -1,6 +1,7 @@
 import { useCallback, useLayoutEffect, useState } from "react";
 import type {
   DashboardPostToDisplay,
+  PostToDisplay,
   ProfileUser,
   UserProfileDashboardPosts,
 } from "@typings";
@@ -12,12 +13,15 @@ import { useStore } from "@stores/index";
 import { SkeletonLoader } from "@common/CustomLoader";
 import Tabs from "@common/Tabs";
 import PostComponent from "../posts/Post";
+import MediaFeed from "../shared/MediaFeed";
 import UserHeader from "./UserHeader";
 import agent from "@utils/api/agent";
+import { MEDIA_TAB } from "@utils/constants";
 
 const MainProfile = () => {
   const [profileInfo, setProfileInfo] = useState<ProfileUser | undefined>(undefined);
   const [profilePosts, setProfilePosts] = useState<UserProfileDashboardPosts | undefined>(undefined);
+  const [profileMediaPosts, setProfileMediaPosts] = useState<PostToDisplay[]>([]);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
 
   const { userStore } = useStore();
@@ -36,6 +40,20 @@ const MainProfile = () => {
       })
       .catch(err => {
         console.log('Get Profile Posts error:', err);
+      })
+      .finally(() => {
+        setLoadingPosts(false);
+      });
+  }
+
+  async function loadProfileMediaPosts() {
+    setLoadingPosts(true);
+    await agent.userApiClient.getUserProfileMediaPosts(username, axiosParams)
+      .then(mediaPosts => {
+        setProfileMediaPosts(mediaPosts ?? []);
+      })
+      .catch(err => {
+        console.log('Get Profile Media Posts error:', err);
       })
       .finally(() => {
         setLoadingPosts(false);
@@ -69,6 +87,21 @@ const MainProfile = () => {
       />
     ),
     []
+  );
+
+  const mediaRenderer = useCallback(
+    (mediaPosts: PostToDisplay[]) => (
+      <MediaFeed mediaPosts={mediaPosts} />
+    ),
+    []
+  );
+
+  const loadOnTabSwitch = useCallback(
+    async (tab: string) => {
+      if (tab === MEDIA_TAB)
+        await loadProfileMediaPosts();
+    },
+    [username]
   );
 
   if(profileInfo) 
@@ -127,8 +160,17 @@ const MainProfile = () => {
                     renderer,
                     noRecordsContent: `No liked posts found`
                   },
+                  {
+                    tabKey: "media",
+                    title: "Media",
+                    testId: 'mediatab',
+                    content: profileMediaPosts.length ? [profileMediaPosts] : [],
+                    renderer: mediaRenderer,
+                    noRecordsContent: `No media found`
+                  },
                 ]}
                 loading={loadingPosts}
+                loadOnTabSwitch={loadOnTabSwitch}
               />
 
             </>

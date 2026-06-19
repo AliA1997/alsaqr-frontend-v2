@@ -421,3 +421,7 @@ export const DEFAULT_SMALL_ITEMS_PERPAGE = "10";
 export const DEFAULT_MEDIUM_ITEMS_PERPAGE = "25";
 
 export const SEARCH_TERM_KEY_FOR_PREDICATE = "searchTerm";
+
+export const MEDIA_TAB = "media";
+
+export const REELS_POST_TYPE = "reels";

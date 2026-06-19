@@ -160,6 +160,7 @@ export interface PostRecord extends CommonRecordBody {
   relatedPostId?: string | null;
   postAvatar?: string | null;
   postBannerImage?: string | null;
+  bannerImage?: string | null;
 }
 
 export interface CreatePostForm {

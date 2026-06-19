@@ -8,19 +8,20 @@ interface ModalBodyProps {
   children: React.ReactNode;
   headerChildren?: React.ReactNode;
   classNames?: string;
+  bodyClassNames?: string;
   style?: CSSProperties;
 }
 
-const ModalBody = ({ onClose, headerChildren, children, classNames, ...otherProps }: ModalBodyProps) => {
+const ModalBody = ({ onClose, headerChildren, children, classNames, bodyClassNames, ...otherProps }: ModalBodyProps) => {
 
   return (
     <div 
       className={`
-        fixed inset-0 z-[999] flex items-center justify-center bg-white dark:bg-black h-screen ${classNames ?? ""}
+        fixed inset-0 z-[999] flex items-center justify-center bg-black/75 h-screen ${classNames ?? ""}
       `}
       {...otherProps}
     >
-      <div className="relative bg-white dark:bg-[#000000] rounded-lg shadow-lg w-11/12 max-w-lg mx-auto">
+      <div className={`relative bg-white dark:bg-[#000000] rounded-lg shadow-lg w-11/12 mx-auto ${bodyClassNames ?? "max-w-lg"}`}>
         <div className="relative p-4">
           {headerChildren
             ? headerChildren

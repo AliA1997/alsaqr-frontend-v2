@@ -19,6 +19,8 @@ export const userApiClient = {
         axios.get(`/api/Users/usersToAdd`, { params }).then(axiosResponseBody),
     getUserProfilePosts: (username: string, params: URLSearchParams) =>
         axios.get(`/api/Profile/${username}/posts`, { params }).then(axiosResponseBody),
+    getUserProfileMediaPosts: (username: string, params: URLSearchParams) =>
+        axios.get(`/api/Profile/${username}/media-posts`, { params }).then(axiosResponseBody),
     
     completeRegistration: (userId: string, values: UserRegisterFormDto) =>
         axios.post(`/api/Users/${userId}`, { values }).then(axiosResponseBody),
