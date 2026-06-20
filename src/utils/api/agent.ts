@@ -1,5 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import { PaginatedResult } from '../../models/common';
+import { supabase } from '../infrastructure/supabase';
 import { exploreApiClient } from "./exploreApiClient";
 import { listApiClient } from "./listsApiClient";
 import { mutatePostApiClient } from "./mutatePostApiClient";
@@ -41,6 +42,18 @@ export const axiosRequests = {
   patch: <T>(url: string, body: {}) => axios.patch<T>(url, body).then(axiosResponseBody),
   del: <T>(url: string) => axios.delete<T>(url).then(axiosResponseBody),
 };
+
+// Attach jwt from supabase.
+axios.interceptors.request.use(async (config) => {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
 
 axios.interceptors.response.use(
   async (response) => {
