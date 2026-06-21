@@ -1,6 +1,5 @@
 import { OptimizedPostImage } from "@common/Image";
 import type { GroupRecord } from "@models/group";
-import { useNavigate } from "react-router-dom";
 
 // Ported from alsaqr-meetup (https://github.com/AliA1997/alsaqr-meetup)
 interface GroupCardProps {
@@ -18,7 +17,6 @@ export default function GroupCard({
   showDistance,
   testId,
 }: GroupCardProps) {
-  const navigate = useNavigate();
 
   const imageUrl =
     group.images && group.images.length > 0
@@ -27,7 +25,7 @@ export default function GroupCard({
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate(`/groups/${group.slug}`);
+    window.open(`${import.meta.env.VITE_PUBLIC_MEETUP_URL}/groups/${group.slug}`, "_blank");
   };
 
   const topicNames =

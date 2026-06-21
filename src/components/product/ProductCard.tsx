@@ -1,7 +1,6 @@
 import { OptimizedPostImage } from "@common/Image";
 import type { ProductRecord } from "@models/product";
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 
 // Ported from alsaqr-zook (https://github.com/AliA1997/alsaqr-zook)
 interface ProductCardProps {
@@ -21,7 +20,6 @@ export default function ProductCard({
   showCategory,
   testId,
 }: ProductCardProps) {
-  const navigate = useNavigate();
 
   const imageUrl = useMemo(() => {
     return product.images && product.images.length > 0
@@ -35,7 +33,7 @@ export default function ProductCard({
       onClick={(e) => {
         e.preventDefault();
         if (onClick) onClick();
-        else navigate(`/products/${product.slug}`);
+        else window.open(`${import.meta.env.VITE_PUBLIC_ZOOK_URL}/products/${product.slug}`, "_blank");
       }}
       className={`block transition-transform duration-200 hover:scale-[1.02] ${classNames ?? ""}`}
       data-testid={testId ?? "productcard"}

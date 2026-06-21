@@ -1,6 +1,5 @@
 import { OptimizedPostImage } from "@common/Image";
 import type { EventRecord } from "@models/event";
-import { useNavigate } from "react-router-dom";
 
 // Ported from alsaqr-meetup (https://github.com/AliA1997/alsaqr-meetup)
 interface EventCardProps {
@@ -18,7 +17,6 @@ export default function EventCard({
   showDistance,
   testId,
 }: EventCardProps) {
-  const navigate = useNavigate();
 
   const imageUrl =
     event.images && event.images.length > 0
@@ -27,7 +25,7 @@ export default function EventCard({
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate(`/events/${event.slug}`);
+    window.open(`${import.meta.env.VITE_PUBLIC_MEETUP_URL}/events/${event.slug}`, "_blank");
   };
 
   const hostedCities =
