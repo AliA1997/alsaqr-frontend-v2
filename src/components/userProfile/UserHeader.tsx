@@ -116,25 +116,22 @@ const UserHeader = ({
         >
         </div>
         <div className="relative p-4">
-          <div className="relative flex w-full">
-            <div className="flex flex-1">
-              <div className='relative' style={{ marginTop: "-6rem" }}>
-                <div
-                  style={{ height: "9rem", width: "9rem" }}
-                  className="md rounded-full relative avatar"
-                >
+          <div className="flex flex-col md:flex-row w-full md:items-start">
+            <div className="flex flex-1 items-start justify-center md:justify-start">
+              <div className="relative -mt-28 md:-mt-24">
+                <div className="relative h-24 w-24 md:h-36 md:w-36 rounded-full">
                   <OptimizedImage
                       src={profileInfo.avatar ?? ''}
                       alt={profileInfo.username}
                       loadedHeight={150}
                       loadedWidth={150}
-                      classNames="md rounded-full relative border-4 border-gray-900 h-[9rem] w-[9rem]"
+                      classNames="rounded-full relative border-4 border-gray-900 object-cover bg-white dark:bg-black h-24 w-24 md:h-36 md:w-36"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="absolute w-full flex justify-end top-0 right-0">
+            <div className="flex shrink-0 justify-end items-start gap-2">
               {
                 profileIsLoggedInUser
                   ? (
@@ -162,7 +159,7 @@ const UserHeader = ({
                         animatedLink={false}
                         classNames='border border-[0.1rem]'
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-9">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                         </svg>
                       </CommonLink>

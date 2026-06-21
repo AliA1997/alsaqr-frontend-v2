@@ -55,7 +55,7 @@ const PageContainer = ({
   return (
     <>
       <SideBar />
-      <div className={`col-span-9 ${isHomepage ? 'lg:col-span-7' : 'lg:col-span-9'}`}>
+      <div className={`col-span-9 min-w-0 ${isHomepage ? 'lg:col-span-8' : 'lg:col-span-9'}`}>
         {children ? children : null}
       </div>
       {isHomepage && <Widgets />}

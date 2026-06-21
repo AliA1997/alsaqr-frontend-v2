@@ -62,9 +62,9 @@ export function UserProfileLink({ profileInfo }: React.PropsWithChildren<UserPro
         />
         {/* <div className="flex flex-col justify-center  p-3 opacity-50 text-xs sm:text-sm lg:text-md"> */}
         <div className={`
-            flex flex-col display-none md:display-initial hidden 
+            flex flex-col display-none md:display-initial hidden
             group-hover:text-[#55a8c2] dark:text-gray-50
-            md:inline-flex text-base font-light text-xs lg:text-sm
+            lg:inline-flex text-base font-light text-xs lg:text-sm
           `}>
           <p>{profileInfo?.username}</p>
           <p className="ml-2">@{getEmailUsername(profileInfo?.username!)}</p>

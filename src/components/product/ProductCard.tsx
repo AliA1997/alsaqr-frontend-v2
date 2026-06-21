@@ -41,20 +41,20 @@ export default function ProductCard({
       data-testid={testId ?? "productcard"}
     >
       <div
-        className={`flex h-full w-fit flex-col justify-around rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-[#0e1517] ${cardClassNames ?? ""}`}
+        className={`flex h-full w-full flex-col rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-[#0e1517] ${cardClassNames ?? ""}`}
       >
-        <div className="flex items-center justify-center p-1 relative">
+        <div className="relative flex items-center justify-center p-1">
           <OptimizedPostImage
             src={imageUrl}
             alt={product.title}
-            classNames="rounded-md object-cover"
+            classNames="h-40 w-full rounded-md object-cover"
           />
         </div>
 
         <div className="p-2 pt-0">
           <h3
             data-testid="producttext"
-            className="line-clamp-2 max-w-[180px] text-sm font-medium leading-tight sm:text-base"
+            className="line-clamp-2 w-full text-sm font-medium leading-tight sm:text-base"
           >
             {product.title}
           </h3>

@@ -50,6 +50,43 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
     if(loadOnTabSwitch)
       loadOnTabSwitch(tab);
   }, []);
+
+  // Horizontal drag-to-scroll for the tab bar.
+  const tabBarRef = useRef<HTMLDivElement | null>(null);
+  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false });
+
+  const onTabBarMouseDown = useCallback((e: React.MouseEvent) => {
+    const el = tabBarRef.current;
+    if (!el) return;
+    dragState.current = {
+      isDown: true,
+      startX: e.pageX - el.offsetLeft,
+      scrollLeft: el.scrollLeft,
+      moved: false,
+    };
+  }, []);
+
+  const onTabBarMouseMove = useCallback((e: React.MouseEvent) => {
+    const el = tabBarRef.current;
+    if (!el || !dragState.current.isDown) return;
+    e.preventDefault();
+    const walk = e.pageX - el.offsetLeft - dragState.current.startX;
+    if (Math.abs(walk) > 5) dragState.current.moved = true;
+    el.scrollLeft = dragState.current.scrollLeft - walk;
+  }, []);
+
+  const endTabBarDrag = useCallback(() => {
+    dragState.current.isDown = false;
+  }, []);
+
+  // Swallow the click that fires after a drag so tabs don't switch mid-drag.
+  const onTabBarClickCapture = useCallback((e: React.MouseEvent) => {
+    if (dragState.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragState.current.moved = false;
+    }
+  }, []);
   return (
     <ContentContainerWithRef
       classNames={`
@@ -59,7 +96,20 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
         `}
       innerRef={containerRef}
     >
-      <div className={`flex justify-around`}>
+      <div
+        ref={tabBarRef}
+        onMouseDown={onTabBarMouseDown}
+        onMouseMove={onTabBarMouseMove}
+        onMouseUp={endTabBarDrag}
+        onMouseLeave={endTabBarDrag}
+        onClickCapture={onTabBarClickCapture}
+        className={`
+          flex flex-nowrap items-center gap-2 px-2 py-2
+          overflow-x-auto scrollbar-hide
+          border-b border-gray-100 dark:border-gray-800
+          cursor-grab active:cursor-grabbing select-none
+        `}
+      >
         {tabLinks.map(
           (
             tl: { tabKey: string; title: string, image?: string; numberOfRecords: number, testId?: string },
@@ -71,6 +121,7 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
               activeInd={activeTab === tl.tabKey}
               animatedLink={false}
               testId={tl.testId ?? "tab"}
+              classNames={`shrink-0 whitespace-nowrap text-sm ${activeTab === tl.tabKey ? "font-semibold" : ""}`}
             >
               {tl.image ? (
                 <OptimizedImage

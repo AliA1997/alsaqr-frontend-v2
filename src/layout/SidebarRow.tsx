@@ -72,7 +72,7 @@ function SidebarRow({
         {Icon && <Icon className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0" />}
         {IconImage && IconImage}
         <p 
-          className={`${showText ? '' : 'hidden'} group-hover:text-[#55a8c2] md:inline-flex text-base font-light ${active ? 'text-[#55a8c2]' : ''}`}
+          className={`${showText ? '' : 'hidden'} group-hover:text-[#55a8c2] lg:inline-flex text-base font-light ${active ? 'text-[#55a8c2]' : ''}`}
         >
           {title}
         </p>

@@ -111,7 +111,7 @@ const MainProfile = () => {
   // 2) Community discussions the user joined.
   async function loadProfileDiscussions() {
     setLoadingPosts(true);
-    await agent.userApiClient.getUserProfileDiscussions(username, axiosParams)
+    await agent.userApiClient.getUserProfileCommunityDiscussions(username, axiosParams)
       .then(res => {
         setProfileDiscussions(extractItems<CommunityDiscussionToDisplay>(res));
       })
@@ -126,7 +126,7 @@ const MainProfile = () => {
   // 3) Meetup groups the user is part of (alsaqr-meetup).
   async function loadUserGroups() {
     setLoadingPosts(true);
-    await agent.groupsApiClient.getMyGroups(axiosParams)
+    await agent.userApiClient.getUserProfileGroups(username, axiosParams)
       .then(res => {
         setUserGroups(extractItems<GroupRecord>(res));
       })
@@ -141,7 +141,7 @@ const MainProfile = () => {
   // 4) Meetup events the user attended (alsaqr-meetup).
   async function loadUserEvents() {
     setLoadingPosts(true);
-    await agent.eventsApiClient.getMyEvents(axiosParams)
+    await agent.userApiClient.getUserProfileEvents(username, axiosParams)
       .then(res => {
         setUserEvents(extractItems<EventRecord>(res));
       })
@@ -156,7 +156,7 @@ const MainProfile = () => {
   // 5) Zook products the user is selling (alsaqr-zook).
   async function loadSellingProducts() {
     setLoadingPosts(true);
-    await agent.productApiClient.getSellingProducts(axiosParams)
+    await agent.userApiClient.getUserProfileProducts(username, axiosParams)
       .then(res => {
         setSellingProducts(extractItems<ProductRecord>(res));
       })
@@ -266,7 +266,7 @@ const MainProfile = () => {
 
   if(profileInfo)
     return (
-      <div className="col-span-7 scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
+      <div className="w-full md:col-span-7 scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
         <div className="mb-[7rem]">
           {profileInfo && (
             <>
@@ -362,7 +362,7 @@ const MainProfile = () => {
                   },
                   {
                     tabKey: PRODUCTS_SELLING_TAB,
-                    title: "Zook Selling Products",
+                    title: "Selling Products",
                     testId: 'sellingproductstab',
                     content: sellingProducts.length ? [sellingProducts] : [],
                     renderer: sellingProductsRenderer,

@@ -82,8 +82,8 @@ const SideBar = ({ }: SideBarProps) => {
   return (
     <>
       <div className={`
-          ${hideSidebar ? 'col-span-2' : 'col-span-1 md:col-span-2'}
-          flex flex-col item-center mt-2 md:mt-0 md:px-4 md:items-start
+          ${hideSidebar ? 'col-span-2' : 'col-span-2 md:col-span-2'}
+          flex flex-col item-start md:item-center mt-2 md:mt-0 px-1 md:px-4 md:items-start
         `}
         onClick={() => setIsDropdownOpen(false)}
       >
@@ -91,7 +91,7 @@ const SideBar = ({ }: SideBarProps) => {
           <img
             data-testid="navlogo"
             className={`
-              m-0 h-full w-full md:w-[90%] transition-all duration-200 
+              m-0 h-full w-full lg:w-[90%] transition-all duration-200
               sidebarLogo
               cursor-pointer
           `}

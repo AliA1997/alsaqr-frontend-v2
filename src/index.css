@@ -142,14 +142,20 @@ h1 {
 }
 
 @media(min-width: 768px) {
-  .sidebarLogo {
+  /* Footer logo can grow on tablet — it lives in a full-width row with room to spare. */
+  #footer-img>.sidebarLogo {
     content: url('https://res.cloudinary.com/aa1997/image/upload/v1751518818/new-desktop-logo_ocwyft.svg');
     height: 5rem;
     width: 7rem;
     padding-left: 1em;
   }
 
-  #footer-img>.sidebarLogo {
+}
+
+@media(min-width: 1024px) {
+  /* Sidebar logo only grows once the rail itself widens (lg+); on tablet it stays a
+     compact favicon so it never overflows the narrow 2/12 sidebar column. */
+  .sidebarLogo {
     content: url('https://res.cloudinary.com/aa1997/image/upload/v1751518818/new-desktop-logo_ocwyft.svg');
     height: 5rem;
     width: 7rem;

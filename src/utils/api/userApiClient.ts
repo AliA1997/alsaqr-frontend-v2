@@ -23,8 +23,14 @@ export const userApiClient = {
         axios.get(`/api/Profile/${username}/media-posts`, { params }).then(axiosResponseBody),
     getUserProfileCommunities: (username: string, params: URLSearchParams) =>
         axios.get(`/api/Profile/${username}/communities`, { params }).then(axiosResponseBody),
-    getUserProfileDiscussions: (username: string, params: URLSearchParams) =>
-        axios.get(`/api/Profile/${username}/discussions`, { params }).then(axiosResponseBody),
+    getUserProfileCommunityDiscussions: (username: string, params: URLSearchParams) =>
+        axios.get(`/api/Profile/${username}/communityDiscussions`, { params }).then(axiosResponseBody),
+    getUserProfileGroups: (username: string, params: URLSearchParams) =>
+        axios.get(`/api/Profile/${username}/groups`, { params }).then(axiosResponseBody),
+    getUserProfileEvents: (username: string, params: URLSearchParams) =>
+        axios.get(`/api/Profile/${username}/events`, { params }).then(axiosResponseBody),
+    getUserProfileProducts: (username: string, params: URLSearchParams) =>
+        axios.get(`/api/Profile/${username}/products`, { params }).then(axiosResponseBody),
     
     completeRegistration: (userId: string, values: UserRegisterFormDto) =>
         axios.post(`/api/Users/${userId}`, { values }).then(axiosResponseBody),
