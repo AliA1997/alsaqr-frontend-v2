@@ -69,7 +69,7 @@ const ListFeed = observer(({ }: Props) => {
   };
   const loadFeedRecords = useThrottle(async () => {
 
-    await loadLists(authUserId ?? 'undefined');
+    await loadLists();
   }, 5_000);
 
   useEffect(() => {
@@ -142,7 +142,7 @@ const ListFeed = observer(({ }: Props) => {
           value={(predicate.get(SEARCH_TERM_KEY_FOR_PREDICATE) as string) ?? ""}
           onChange={(value) => setPredicate(SEARCH_TERM_KEY_FOR_PREDICATE, value)}
           onSearch={async () => {
-            await loadLists(authUserId ?? 'undefined');
+            await loadLists();
           }}
           classNames="p-0"
         />

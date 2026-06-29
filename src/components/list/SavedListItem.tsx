@@ -22,7 +22,7 @@ function SavedListItem({
   savedListItemToDisplay,
   selectedList
 }: Props) {
-  const { authStore, listFeedStore, modalStore } = useStore();
+  const { listFeedStore, modalStore } = useStore();
   const { showModal, closeModal } = modalStore;
   const { loadingUpsert, deleteSavedListItem, loadSavedListItems } = listFeedStore;
 
@@ -104,8 +104,8 @@ function SavedListItem({
               confirmMessage=""
               confirmButtonClassNames="bg-red-700"
               confirmFunc={async () => {
-                await deleteSavedListItem(authStore.currentSessionUser?.id!, savedListItemToDisplay?.listId!, savedListItemToDisplay.listItemId);
-                await loadSavedListItems(authStore.currentSessionUser?.id!, selectedList?.listId!)
+                await deleteSavedListItem(savedListItemToDisplay?.listId!, savedListItemToDisplay.listItemId);
+                await loadSavedListItems(selectedList?.listId!)
                 closeModal();
               }}
               declineButtonText="Cancel"

@@ -35,7 +35,7 @@ export const SaveToListModal = observer(({
     const { closeModal } = modalStore;
 
     async function loadListData() {
-        await loadLists(currentSessionUser?.id!);
+        await loadLists();
     }
 
     async function saveItemToList(listId: string) {
@@ -43,12 +43,12 @@ export const SaveToListModal = observer(({
         if (relatedEntityType === "post") {
             castedRecord = info as PostToDisplay;
          
-            await savePostToList(castedRecord.postId, currentSessionUser?.id!, listId);
+            await savePostToList(castedRecord.postId, listId);
         }
         if (relatedEntityType === "user") {
             castedRecord = info as UserItemToDisplay;
 
-            await saveUserToList(castedRecord.id, currentSessionUser?.id!, listId);
+            await saveUserToList(castedRecord.id, listId);
         }
     }
 

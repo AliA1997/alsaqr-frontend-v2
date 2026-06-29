@@ -28,7 +28,7 @@ const SavedListItemsFeed = observer(({ listId, selectedList }: Props) => {
   async function getListItems() {
     setLoading(true);
     try {
-      await loadSavedListItems(currentSessionUser?.id ?? '', listId);
+      await loadSavedListItems(listId);
     } catch(error){
       console.log("Load saved list items", error);
     } finally {

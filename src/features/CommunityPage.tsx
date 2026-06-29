@@ -21,7 +21,7 @@ const CommunityPage = observer(() => {
     
     async function getCommunityInfo() {
         const communityInfoResult = await communityApiClient
-            .getCommunityInfo(undefined, currentSessionUser?.id!, community_id!);
+            .getCommunityInfo(undefined, community_id!);
 
         setCommunityInfo(communityInfoResult);
         setLoading(false);

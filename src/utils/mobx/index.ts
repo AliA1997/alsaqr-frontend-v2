@@ -10,14 +10,13 @@ import BookmarkFeedStore from "@stores/bookmarkFeedStore";
 
 export const loadData = async (
   storeToUse: FeedStore | ListFeedStore | CommunityFeedStore,
-  userId?: string
 ) => {
   if (storeToUse instanceof FeedStore)
     await storeToUse.loadPosts();
   else if (storeToUse instanceof ListFeedStore)
-    await storeToUse.loadLists(userId!);
+    await storeToUse.loadLists();
   else if (storeToUse instanceof CommunityFeedStore)
-    await storeToUse.loadCommunities(userId!);
+    await storeToUse.loadCommunities();
 };
 
 

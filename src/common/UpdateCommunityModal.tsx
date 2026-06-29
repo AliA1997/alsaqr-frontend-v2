@@ -14,12 +14,11 @@ import { PageTitleNoPadding } from "./Titles";
 import { CommonUpsertBoxTypes } from '@enums';
 
 interface Props {
-    loggedInUserId: string;
     communityAdminInfo: CommunityAdminInfo;
     refreshCommunityAdminInfo: (communityId: string) => Promise<void>;
 }
 
-function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommunityAdminInfo }: Props) {
+function UpdateCommunityModal({ communityAdminInfo, refreshCommunityAdminInfo }: Props) {
     const toastMessage = useMemo(
                             () => "Community Updated",
                             []
@@ -44,9 +43,9 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
         communityFeedStore.setPagingParams(new PagingParams(1, 10));
     }, []);
     
-    const upsert: (form: UpdateCommunityForm, userId: string) => Promise<void> = useCallback(
-        async (form: UpdateCommunityForm, userId: string) => {
-            await communityFeedStore.updateCommunity(form, userId, communityAdminInfo.communityId);
+    const upsert: (form: UpdateCommunityForm) => Promise<void> = useCallback(
+        async (form: UpdateCommunityForm) => {
+            await communityFeedStore.updateCommunity(form, communityAdminInfo.communityId);
         },
         [communityFeedStore.updateCommunityForm]
     );
@@ -61,7 +60,7 @@ function UpdateCommunityModal({ loggedInUserId, communityAdminInfo, refreshCommu
             tags: values.tags
         }
 
-        await upsert(communityToUpdate, loggedInUserId);
+        await upsert(communityToUpdate);
         resetPagingParams();
 
         await refreshCommunityAdminInfo(communityToUpdate.id);

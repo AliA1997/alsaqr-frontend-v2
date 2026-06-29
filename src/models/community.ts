@@ -151,6 +151,7 @@ export interface CommunityInviteConfirmationDto {
 }
 
 export interface AcceptOrDenyCommunityInviteConfirmationDto {
+  invitedUserId?: string;
   accept?: boolean;
   deny?: boolean;
 }

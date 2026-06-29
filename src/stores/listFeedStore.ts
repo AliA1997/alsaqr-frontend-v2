@@ -109,7 +109,7 @@ export default class ListFeedStore {
         return params;
     }
 
-    addList = async (newList: CreateListOrCommunityForm, userId: string) => {
+    addList = async (newList: CreateListOrCommunityForm) => {
 
         this.setLoadingUpsert(true);
         try {
@@ -121,7 +121,7 @@ export default class ListFeedStore {
                 postsAdded: newList.postsAdded.map(p => p.postId),
                 isPrivate: 'private'
             };
-            await agent.listApiClient.addList(newListDto, userId)
+            await agent.listApiClient.addList(newListDto)
             runInAction(() => {
                 this.setListCreationForm(DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM);
                 this.setCurrentStepInListCreation(0);
@@ -129,29 +129,29 @@ export default class ListFeedStore {
 
             store.modalStore.closeModal();
 
-            await this.loadLists(userId);
+            await this.loadLists();
         } finally {
             this.setLoadingUpsert(false);
         }
 
     }
 
-    savePostToList = async (postId: string, userId: string, listId: string) => {
+    savePostToList = async (postId: string, listId: string) => {
 
         this.setLoadingUpsert(true);
         try {
-            await agent.listApiClient.saveItemToList(postId, "post", userId, listId)
+            await agent.listApiClient.saveItemToList(postId, "post", listId)
 
         } finally {
             this.setLoadingUpsert(false);
         }
 
     }
-    saveUserToList = async (userToSaveId: string, userId: string, listId: string) => {
+    saveUserToList = async (userToSaveId: string, listId: string) => {
 
         this.setLoadingUpsert(true);
         try {
-            await agent.listApiClient.saveItemToList(userToSaveId, "user", userId, listId)
+            await agent.listApiClient.saveItemToList(userToSaveId, "user", listId)
 
         } finally {
             this.setLoadingUpsert(false);
@@ -159,14 +159,14 @@ export default class ListFeedStore {
 
     }
 
-    loadLists = async (userId: string) => {
+    loadLists = async () => {
         this.setLoadingInitial(true);
         runInAction(() => {
             this.listsRegistry.clear();
         });
 
         try {
-            const { items, pagination } = await agent.listApiClient.getLists(this.axiosParams, userId);
+            const { items, pagination } = await agent.listApiClient.getLists(this.axiosParams);
             runInAction(() => {
                 items.forEach((list: ListToDisplay) => {
                     this.setList(list.listId, list)
@@ -182,18 +182,18 @@ export default class ListFeedStore {
 
     }
 
-    deleteList = async (userId: string, listId: string) => {
+    deleteList = async (listId: string) => {
         this.setLoadingUpsert(true);
         try {
-            await agent.listApiClient.deleteList(userId, listId);
+            await agent.listApiClient.deleteList(listId);
 
-            await this.loadLists(userId);
+            await this.loadLists();
         } finally {
             this.setLoadingUpsert(false);
         }
     }
 
-    loadSavedListItems = async (userId: string, listId: string) => {
+    loadSavedListItems = async (listId: string) => {
         this.setLoadingListItems(true);
         runInAction(() => {
             this.savedListItemsRegistry.clear();
@@ -201,7 +201,7 @@ export default class ListFeedStore {
 
         try {
 
-            const { items, pagination } = await agent.listApiClient.getSavedListItems(this.savedListItemsAxiosParams, userId, listId);
+            const { items, pagination } = await agent.listApiClient.getSavedListItems(this.savedListItemsAxiosParams, listId);
             runInAction(() => {
                 items.forEach((listItem: ListItemToDisplay) => {
                     this.setSavedListItem(listItem.listItemId, listItem)
@@ -216,10 +216,10 @@ export default class ListFeedStore {
 
     }
 
-    deleteSavedListItem = async (userId: string, listId: string, listItemId: string) => {
+    deleteSavedListItem = async (listId: string, listItemId: string) => {
         this.setLoadingUpsert(true);
         try {
-            await agent.listApiClient.deleteSavedListItem(userId, listId, listItemId);
+            await agent.listApiClient.deleteSavedListItem(listId, listItemId);
 
         } finally {
             this.setLoadingUpsert(false);

@@ -49,8 +49,8 @@ self.onmessage = async (event) => {
         const { items: notifications, pagination: notificationsPagination } = await agent.notificationApiClient.getNotifications(loggedInUserId, defineCommonUrlParams());
         const { items: bookmarks, pagination: bookmarksPagination } = await agent.postApiClient.getBookmarkedPosts(defineCommonUrlParams(), loggedInUserId);
 
-        const { items: communities, pagination: communitiesPagination } = await agent.communityApiClient.getCommunities(defineCommonUrlParams(), loggedInUserId);
-        const { items: lists, pagination: listsPagination } = await agent.listApiClient.getLists(defineListUrlParams(), loggedInUserId);
+        const { items: communities, pagination: communitiesPagination } = await agent.communityApiClient.getCommunities(defineCommonUrlParams());
+        const { items: lists, pagination: listsPagination } = await agent.listApiClient.getLists(defineListUrlParams());
         const { items: messageHistory, pagination: messageHistoryPagination } = await agent.messageApiClient.loadDirectMessageThreads(defineCommonUrlParams());
         
         result = {

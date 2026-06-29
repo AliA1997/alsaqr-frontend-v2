@@ -94,12 +94,12 @@ export default class CommunityFeedStore {
         return params;
     }
 
-    updateCommunity = async (values: UpdateCommunityForm, userId: string, communityId: string) => {
+    updateCommunity = async (values: UpdateCommunityForm, communityId: string) => {
 
         this.setLoadingUpsert(true);
         try {
             const updatedCommunityDto: UpdateCommunityFormDto = values;
-            await agent.communityApiClient.updateCommunity(updatedCommunityDto, userId, communityId);
+            await agent.communityApiClient.updateCommunity(updatedCommunityDto, communityId);
 
             runInAction(() => {
                 store.modalStore.closeModal();
@@ -112,11 +112,11 @@ export default class CommunityFeedStore {
 
     }
 
-    deleteCommunity = async (userId: string, communityId: string) => {
+    deleteCommunity = async (communityId: string) => {
 
         this.setLoadingUpsert(true);
         try {
-            await agent.communityApiClient.deleteCommunity(userId, communityId);
+            await agent.communityApiClient.deleteCommunity(communityId);
 
             runInAction(() => {
                 this.communityRegistry.delete(communityId);
@@ -133,12 +133,11 @@ export default class CommunityFeedStore {
         this.setLoadingJoinCommunity(true);
         try {
             const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
             }
-            await agent.communityApiClient.unjoinCommunity(joinCommunityDto, userId, communityId)
+            await agent.communityApiClient.unjoinCommunity(joinCommunityDto, communityId)
 
             runInAction(() => {
                 this.updateCommunityRelationship(communityId, RelationshipType.None);
@@ -153,12 +152,12 @@ export default class CommunityFeedStore {
         this.setLoadingJoinCommunity(true);
         try {
             const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
+
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
             }
-            await agent.communityApiClient.joinCommunity(joinCommunityDto, userId, communityId)
+            await agent.communityApiClient.joinCommunity(joinCommunityDto, communityId)
 
             runInAction(() => {
                 this.updateCommunityRelationship(communityId, RelationshipType.Member);
@@ -173,12 +172,11 @@ export default class CommunityFeedStore {
         this.setLoadingJoinCommunity(true);
         try {
             const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
             }
-            await agent.communityApiClient.requestToJoinCommunity(joinCommunityDto, userId, communityId)
+            await agent.communityApiClient.requestToJoinCommunity(joinCommunityDto, communityId)
 
             runInAction(() => {
                 this.updateCommunityRelationship(communityId, RelationshipType.Requested);
@@ -195,12 +193,11 @@ export default class CommunityFeedStore {
 
         this.setLoadingJoinCommunity(true);
         try {
-            const authUserSession = store.authStore.currentSessionUser;
-            const userId = authUserSession?.id ?? "";
-            await agent.communityApiClient.acceptOrDenyToJoinRequestToCommunity(acceptToDenyRequest, invitedUserId, communityId)
+            acceptToDenyRequest.invitedUserId = invitedUserId;
+            await agent.communityApiClient.acceptOrDenyToJoinRequestToCommunity(acceptToDenyRequest, communityId)
 
             runInAction(async () => {
-                await this.loadCommunities(userId);
+                await this.loadCommunities();
             });
         } finally {
             this.setLoadingJoinCommunity(false);
@@ -208,7 +205,7 @@ export default class CommunityFeedStore {
 
     }
 
-    addCommunity = async (newCommunity: CreateListOrCommunityForm, userId: string) => {
+    addCommunity = async (newCommunity: CreateListOrCommunityForm) => {
 
         this.setLoadingUpsert(true);
         try {
@@ -217,7 +214,7 @@ export default class CommunityFeedStore {
                 usersAdded: newCommunity.usersAdded.map(u => u.id),
                 postsAdded: newCommunity.postsAdded.map(p => p.postId)
             };
-            await agent.communityApiClient.addCommunity(newCommunityDto, userId)
+            await agent.communityApiClient.addCommunity(newCommunityDto)
 
             runInAction(() => {
                 this.setCurrentStepInCommunityCreation(0);
@@ -225,14 +222,14 @@ export default class CommunityFeedStore {
             });
 
             store.modalStore.closeModal();
-            await this.loadCommunities(userId, true);
+            await this.loadCommunities(true);
         } finally {
             this.setLoadingUpsert(false);
         }
 
     }
 
-    loadCommunities = async (userId: string, refresh?: boolean) => {
+    loadCommunities = async (refresh?: boolean) => {
 
         this.setLoadingInitial(true);
         if (refresh) {
@@ -240,7 +237,7 @@ export default class CommunityFeedStore {
             this.setPagingParams(new PagingParams(1, 25));
         }
         try {
-            const { items, pagination } = await agent.communityApiClient.getCommunities(this.axiosParams, userId) ?? [];
+            const { items, pagination } = await agent.communityApiClient.getCommunities(this.axiosParams) ?? [];
 
             runInAction(() => {
                 items.forEach((community: CommunityToDisplay) => {

@@ -3,19 +3,19 @@ import { axiosRequests, axiosResponseBody } from "./agent";
 import { CreateListOrCommunityFormDto } from "typings";
 
 export const listApiClient = {
-    addList: (values: CreateListOrCommunityFormDto, userId: string) =>
-        axiosRequests.post(`/api/Lists/${userId}`, { values }).then(axiosResponseBody),
-    deleteList: (userId: string, listId: string) =>
-        axiosRequests.del(`/api/Lists/${userId}/${listId}`).then(axiosResponseBody),
-    saveItemToList: (relatedEntityId: string, type: string, userId: string, listId: string) => 
-        axiosRequests.patch(`/api/Lists/${userId}/${listId}`, { values: { relatedEntityId, type } }).then(axiosResponseBody),
-    getLists: (params: URLSearchParams | undefined, userId: string) =>
-        axios.get(`/api/Lists/${userId}`, { params }).then(axiosResponseBody),
+    addList: (values: CreateListOrCommunityFormDto) =>
+        axiosRequests.post(`/api/Lists`, { values }).then(axiosResponseBody),
+    deleteList: (listId: string) =>
+        axiosRequests.del(`/api/Lists/${listId}`).then(axiosResponseBody),
+    saveItemToList: (relatedEntityId: string, type: string, listId: string) => 
+        axiosRequests.patch(`/api/Lists/${listId}`, { values: { relatedEntityId, type } }).then(axiosResponseBody),
+    getLists: (params: URLSearchParams | undefined) =>
+        axios.get(`/api/Lists`, { params }).then(axiosResponseBody),
     getListDetails: (listId: string) =>
         axios.get(`/api/Lists/${listId}/details`).then(axiosResponseBody),
     
-    getSavedListItems: (params: URLSearchParams | undefined, userId: string, listId: string) =>
-        axios.get(`/api/Lists/${userId}/${listId}`, { params }).then(axiosResponseBody),
-    deleteSavedListItem: (userId: string, listId: string, listItemId: string) =>
-        axiosRequests.del(`/api/Lists/${userId}/${listId}/${listItemId}`).then(axiosResponseBody),
+    getSavedListItems: (params: URLSearchParams | undefined, listId: string) =>
+        axios.get(`/api/Lists/${listId}`, { params }).then(axiosResponseBody),
+    deleteSavedListItem: (listId: string, listItemId: string) =>
+        axiosRequests.del(`/api/Lists/${listId}/${listItemId}`).then(axiosResponseBody),
 }

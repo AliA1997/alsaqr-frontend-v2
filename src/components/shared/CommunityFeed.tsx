@@ -70,7 +70,7 @@ const CommunityFeed = observer(({ }: Props) => {
   
   const loadFeedRecords = useThrottle(async () => {
 
-    await loadCommunities(authUserId ?? 'undefined');
+    await loadCommunities();
   }, 5_000);
 
   useEffect(() => {
@@ -145,7 +145,7 @@ const CommunityFeed = observer(({ }: Props) => {
               value={(predicate.get(SEARCH_TERM_KEY_FOR_PREDICATE) as string) ?? ""}
               onChange={(value) => setPredicate(SEARCH_TERM_KEY_FOR_PREDICATE, value)}
               onSearch={async () => {
-                await loadCommunities(authUserId ?? 'undefined', true);
+                await loadCommunities(true);
               }}
               classNames="p-0"
             />

@@ -83,7 +83,7 @@ function ListItemComponent({
               onClose={() => closeModal()}
               declineButtonText="Cancel"
               confirmFunc={async () => {
-                await deleteList(listInfo.owner?.userId, listInfo.listId);
+                await deleteList(listInfo.listId);
                 closeModal();
               }}
               confirmMessage="Are you sure you want to delete this list forever?"

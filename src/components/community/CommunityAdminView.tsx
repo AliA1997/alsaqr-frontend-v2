@@ -28,7 +28,6 @@ function CommunityAdminView({ communityId }: Props) {
     const communityAdminInfoResult =
       await communityApiClient.getAdminCommunityInfo(
         undefined,
-        currentSessionUser?.id!,
         communityId!,
       );
 
@@ -40,7 +39,6 @@ function CommunityAdminView({ communityId }: Props) {
     setLoading(true);
     const communityInfoResult = await communityApiClient.getAdminCommunityInfo(
       undefined,
-      currentSessionUser?.id!,
       communityId,
     );
 
@@ -49,8 +47,7 @@ function CommunityAdminView({ communityId }: Props) {
   }
 
   const navigate = useNavigate();
-  const { authStore, modalStore, communityFeedStore } = useStore();
-  const { currentSessionUser } = authStore;
+  const { modalStore, communityFeedStore } = useStore();
   const { showModal, closeModal } = modalStore;
 
   useEffect(() => {
@@ -69,7 +66,6 @@ function CommunityAdminView({ communityId }: Props) {
               onClick={() =>
                 showModal(
                   <UpdateCommunityModal
-                    loggedInUserId={currentSessionUser?.id!}
                     communityAdminInfo={adminCommunityInfo}
                     refreshCommunityAdminInfo={refreshAdminCommunityInfo}
                   />,
@@ -92,7 +88,6 @@ function CommunityAdminView({ communityId }: Props) {
                     confirmButtonClassNames="bg-red-600"
                     confirmFunc={async () => {
                       await communityFeedStore.deleteCommunity(
-                        currentSessionUser?.id!,
                         adminCommunityInfo.communityId,
                       );
                       navigate(-1);

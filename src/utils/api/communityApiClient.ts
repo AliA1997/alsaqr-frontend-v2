@@ -4,29 +4,29 @@ import { CreateListOrCommunityFormDto } from "typings";
 import { AcceptOrDenyCommunityInviteConfirmationDto, CommunityDiscussionMessageDto, CommunityInviteConfirmationDto, UpdateCommunityDiscussionFormDto, UpdateCommunityFormDto } from "@models/community";
 
 export const communityApiClient = {
-    updateCommunity: (values: UpdateCommunityFormDto, userId: string, communityId: string) =>
-        axiosRequests.put(`/api/Communities/${userId}/${communityId}`, { values }).then(axiosResponseBody),
-    deleteCommunity: (userId: string, communityId: string) =>
-        axiosRequests.del(`/api/Communities/${userId}/${communityId}`).then(axiosResponseBody),
+    updateCommunity: (values: UpdateCommunityFormDto,communityId: string) =>
+        axiosRequests.put(`/api/Communities/${communityId}`, { values }).then(axiosResponseBody),
+    deleteCommunity: (communityId: string) =>
+        axiosRequests.del(`/api/Communities/${communityId}`).then(axiosResponseBody),
     
-    requestToJoinCommunity: (values: CommunityInviteConfirmationDto, userId: string, communityId: string) =>
-        axiosRequests.post(`/api/Communities/${userId}/${communityId}/request-join`, { values }).then(axiosResponseBody),
-    acceptOrDenyToJoinRequestToCommunity: (values: AcceptOrDenyCommunityInviteConfirmationDto, userId: string, communityId: string) =>
-        axiosRequests.patch(`/api/Communities/${userId}/${communityId}/request-join`, { values }).then(axiosResponseBody),
-    joinCommunity: (values: CommunityInviteConfirmationDto, userId: string, communityId: string) =>
-        axiosRequests.patch(`/api/Communities/${userId}/${communityId}/join`, { values }).then(axiosResponseBody),
-    unjoinCommunity: (values: any, userId: string, communityId: string) =>
-        axiosRequests.patch(`/api/Communities/${userId}/${communityId}/unjoin`, { values }).then(axiosResponseBody),
+    requestToJoinCommunity: (values: CommunityInviteConfirmationDto, communityId: string) =>
+        axiosRequests.post(`/api/Communities/${communityId}/request-join`, { values }).then(axiosResponseBody),
+    acceptOrDenyToJoinRequestToCommunity: (values: AcceptOrDenyCommunityInviteConfirmationDto, communityId: string) =>
+        axiosRequests.patch(`/api/Communities/${communityId}/request-join`, { values }).then(axiosResponseBody),
+    joinCommunity: (values: CommunityInviteConfirmationDto, communityId: string) =>
+        axiosRequests.patch(`/api/Communities/${communityId}/join`, { values }).then(axiosResponseBody),
+    unjoinCommunity: (values: any, communityId: string) =>
+        axiosRequests.patch(`/api/Communities/${communityId}/unjoin`, { values }).then(axiosResponseBody),
     
-    getAdminCommunityInfo: (params: URLSearchParams | undefined, userId: string, communityId: string) =>
-        axios.get(`/api/Communities/${userId}/${communityId}/admin`, { params }).then(axiosResponseBody),
-    getCommunityInfo: (params: URLSearchParams | undefined, userId: string, communityId: string) =>
-        axios.get(`/api/Communities/${userId}/${communityId}`, { params }).then(axiosResponseBody),
+    getAdminCommunityInfo: (params: URLSearchParams | undefined, communityId: string) =>
+        axios.get(`/api/Communities/${communityId}/admin`, { params }).then(axiosResponseBody),
+    getCommunityInfo: (params: URLSearchParams | undefined, communityId: string) =>
+        axios.get(`/api/Communities/${communityId}`, { params }).then(axiosResponseBody),
     
-    addCommunity: (values: CreateListOrCommunityFormDto, userId: string) =>
-        axiosRequests.post(`/api/Communities/${userId}`, { values }).then(axiosResponseBody),
-    getCommunities: (params: URLSearchParams | undefined, userId: string) =>
-        axios.get(`/api/Communities/${userId}`, { params }).then(axiosResponseBody),
+    addCommunity: (values: CreateListOrCommunityFormDto) =>
+        axiosRequests.post(`/api/Communities`, { values }).then(axiosResponseBody),
+    getCommunities: (params: URLSearchParams | undefined) =>
+        axios.get(`/api/Communities`, { params }).then(axiosResponseBody),
     
     getAdminCommunityDiscussionInfo: (communityId: string, communityDiscussionId: string) =>
         axios.get(`/api/CommunityDiscussion/${communityId}/${communityDiscussionId}/admin`, {  }).then(axiosResponseBody),
