@@ -107,9 +107,10 @@ const SideBar = ({ }: SideBarProps) => {
           {hideSidebar
             ? (
               <>
-                <SidebarRow active={currentTabIdx === SettingsTabs.PersonalInfo} isShow={true} title="Personal Info" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalInfo)} />
-                <SidebarRow active={currentTabIdx === SettingsTabs.PersonalizeAccount} isShow={true} title="Peronalize Account" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalizeAccount)} />
-                <SidebarRow active={currentTabIdx === SettingsTabs.DeleteYourAccount} isShow={true} title="Delete Your Account" onClick={() => setCurrentTabIdx(SettingsTabs.DeleteYourAccount)} />
+                <SidebarRow classNames="mx-auto" active={currentTabIdx === SettingsTabs.PersonalInfo} isShow={true} title="Personal Info" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalInfo)} />
+                <SidebarRow classNames="mx-auto" active={currentTabIdx === SettingsTabs.PersonalizeAccount} isShow={true} title="Peronalize Account" onClick={() => setCurrentTabIdx(SettingsTabs.PersonalizeAccount)} />
+                <SidebarRow classNames="mx-auto" active={currentTabIdx === SettingsTabs.Usage} isShow={true} title="Usage" onClick={() => setCurrentTabIdx(SettingsTabs.Usage)} />
+                <SidebarRow classNames="mx-auto" active={currentTabIdx === SettingsTabs.DeleteYourAccount} isShow={true} title="Delete Your Account" onClick={() => setCurrentTabIdx(SettingsTabs.DeleteYourAccount)} />
               </>
             )
             : (
@@ -241,6 +242,28 @@ const SideBar = ({ }: SideBarProps) => {
                     navigate("/communities");
                   }}
                   active={currentTab === SidebarTabs.Communities}
+                />
+                <SidebarRow
+                  IconImage={
+                    <>
+                      <img
+                        src="/icons/yumna-ai.svg"
+                        alt="Yumna AI Icon"
+                        className="h-4 w-4 md:h-6 md:w-6 flex-shrink-0 mr-2 p-0"
+                      />
+                    </>
+                  }
+                  title="YumnaAI"
+                  href="/yumna"
+                  onClick={() => {
+                    setCurrentTab(SidebarTabs.YumnaAI);
+                    const notLoggedIn = checkIfNotLoggedIn();
+                    if(notLoggedIn)
+                      return;
+
+                    navigate("/yumna");
+                  }}
+                  active={currentTab === SidebarTabs.YumnaAI}
                 />
                 <SidebarRow
                   IconImage={

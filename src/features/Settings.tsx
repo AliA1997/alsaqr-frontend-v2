@@ -5,6 +5,7 @@ import { ProfileImagePreview } from '@common/Containers';
 import PersonalInfo from './settings/PersonalInfo';
 import PersonalizeAccount from './settings/PersonalizeAccount';
 import DeleteYourAccount from './settings/DeleteYourAccount';
+import Usage from './settings/Usage';
 
 
 const SettingsPage = observer(() => {
@@ -23,6 +24,10 @@ const SettingsPage = observer(() => {
             )}
             {currentTabIdx === SettingsTabs.PersonalizeAccount && (
                 <PersonalizeAccount />
+            )}
+
+            {currentTabIdx === SettingsTabs.Usage && (
+                <Usage />
             )}
 
             {currentTabIdx === SettingsTabs.DeleteYourAccount && (

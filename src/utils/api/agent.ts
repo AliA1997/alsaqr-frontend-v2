@@ -13,6 +13,8 @@ import { commentApiClient } from "./commentApiClient";
 import { groupsApiClient } from "./groupsApiClient";
 import { eventsApiClient } from "./eventsApiClient";
 import { productApiClient } from "./productApiClient";
+import { subscriptionApiClient } from "./subscriptionApiClient";
+import { yumnaApiClient } from "./yumnaApiClient";
 
 export const extractQryParams = (request: any, paramsToExtract: string[]): (string | null)[] => {
   const qryParams = new URL(request.url!).searchParams;
@@ -137,7 +139,9 @@ const agent = {
   userApiClient,
   groupsApiClient,
   eventsApiClient,
-  productApiClient
+  productApiClient,
+  subscriptionApiClient,
+  yumnaApiClient
 };
 
 export function leadingDebounce<F extends (...args: any[]) => any>(

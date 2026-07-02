@@ -16,13 +16,15 @@ export enum SidebarTabs {
   Lists = 4,
   Communities = 5,
   Zook = 6,
-  Meetup = 7
+  Meetup = 7,
+  YumnaAI = 8
 }
 
 export enum SettingsTabs {
   PersonalInfo = 0,
   PersonalizeAccount = 1,
-  DeleteYourAccount = 2
+  DeleteYourAccount = 2,
+  Usage = 3
 }
 
 export enum  RelationshipType {

@@ -14,6 +14,7 @@ import CommunityDiscussionFeedStore from './communityDiscussionFeedStore';
 import MessageStore from './messageStore';
 import SettingsStore from './settingsStore';
 import CommentFeedStore from './commentFeedStore';
+import YumnaFeedStore from './yumnaFeedStore';
 
 interface Store {
     authStore: AuthStore;
@@ -31,6 +32,7 @@ interface Store {
     searchStore: SearchStore;
     settingsStore: SettingsStore;
     userStore: UserStore;
+    yumnaFeedStore: YumnaFeedStore;
 }
 
 
@@ -49,7 +51,8 @@ export const store: Store = {
     notificationStore: new NotificationStore(),
     searchStore: new SearchStore(),
     settingsStore: new SettingsStore(),
-    userStore: new UserStore()
+    userStore: new UserStore(),
+    yumnaFeedStore: new YumnaFeedStore()
 };
 
 export const StoreContext = createContext(store);

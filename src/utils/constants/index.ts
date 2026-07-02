@@ -6,11 +6,13 @@ export const ROUTES_USER_CANT_ACCESS = [
   '/bookmarks',
   '/lists',
   '/messages',
-  '/notifications'
+  '/notifications',
+  '/yumna'
 ];
 
 export const ROUTES_WIDGETS_HIDDEN = [
-  "/messages"
+  "/messages",
+  "/yumna"
 ]
 
 export const MAX_BIO_LENGTH_FEED = 40;
@@ -425,3 +427,16 @@ export const SEARCH_TERM_KEY_FOR_PREDICATE = "searchTerm";
 export const MEDIA_TAB = "media";
 
 export const REELS_POST_TYPE = "reels";
+
+// Yumna AI chatbot
+export const YUMNA_AVATAR_URL = "/icons/yumna-ai.svg";
+
+export const YUMNA_MAX_PROMPT_LENGTH = 256;
+
+export const BASIC_SUBSCRIPTION_DAILY_LIMIT = 30;
+
+export const PRO_SUBSCRIPTION_DAILY_LIMIT = 5000;
+
+export const YUMNA_REMAINING_REQUESTS_WARNING_THRESHOLD = 10;
+
+export const YUMNA_DEFAULT_CONTEXT = `You are Yumna, an AI assistant designed to help with a wide range of tasks, including answering questions, providing explanations, offering suggestions, and assisting with problem-solving.`;

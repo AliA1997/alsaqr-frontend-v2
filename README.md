@@ -73,7 +73,7 @@ npm run dev
 
 ## Roadmap
 
-- Integrate the **BariqAI** assistant across the app
+- Integrate the **YumnaAI** assistant across the app
 - Streaming and short-form ("reels") functionality
 - Expanded search and discovery
 

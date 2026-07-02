@@ -29,6 +29,7 @@ function SidebarRow({
   active,
   isShow,
   onClick,
+  classNames,
   href
 }: SidebarRowProps) {
   const { authStore } = useStore();
@@ -61,7 +62,7 @@ function SidebarRow({
     onClick: sidebarOnClick,
     animatedLink: title === SIGN_IN_TITLE || title === DELETE_YOUR_ACCOUNT,
     activeInd: active ?? false,
-    classNames: "py-[1rem]",
+    classNames: `py-[1rem] ${classNames || ''}`,
     testId: title.toLowerCase()
   };
   const showText = useMemo(() => [SIGN_IN_TITLE, SIGN_OUT_TITLE].some((showTextTitle: string) => showTextTitle == title) || (isShow ?? false), [title]);

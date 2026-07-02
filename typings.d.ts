@@ -100,6 +100,7 @@ export interface User extends UserInfo {
   likedPosts: string[];
   isCompleted: boolean;
   verified: boolean;
+  subscriptionId?: string;
 }
 
 export type UserInfo = {
@@ -120,6 +121,7 @@ export interface UserProfileDashboardPosts {
   likedPosts: DashboardPostToDisplay[];
   repostedPosts: DashboardPostToDisplay[];
   repliedPosts: DashboardPostToDisplay[];
+  dailyUse?: number;
 }
 
 export interface DashboardPostToDisplay extends PostToDisplay {
