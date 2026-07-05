@@ -40,7 +40,7 @@ function Widgets() {
 
   return (
     <div
-      className="col-span-3 min-w-[100px] max-w-[300px] inline-flex "
+      className="col-span-3 min-w-[100px] max-w-[300px] hidden lg:inline-flex"
       id="widgets"
     >
       <div className="overflow-y-auto sticky top-0 max-h-screen scrollbar-hide">
@@ -58,7 +58,7 @@ function Widgets() {
         <div className="max-w-sm rounded-lg bg-dim-700 overflow-hidden m-4 hover:shadow-md">
           <div className="flex">
             <div className="flex-1 m-2">
-              <h2 className="px-1 py-2 text-xl w-48 font-semibold text-gray-700 dark:text-gray-200">
+              <h2 className="px-1 py-2 text-lg w-48 font-semibold text-gray-700 dark:text-gray-200">
                 What's happening
               </h2>
             </div>
@@ -81,9 +81,9 @@ function Widgets() {
                   rel="noopener noreferrer"
                   className="block px-3 py-3 hover:bg-dim-500 transition"
                 >
-                  <h2 className="font-bold text-gray-700 dark:text-gray-200 hover:text-[#55a8c2]">
+                  <h6 className="text-sm lg:text-md font-bold text-gray-700 dark:text-gray-200 hover:text-[#55a8c2]">
                     {item.title}
-                  </h2>
+                  </h6>
                 </a>
                 {idx < headlines.length - 1 && (
                   <hr className="border-gray-800" />
