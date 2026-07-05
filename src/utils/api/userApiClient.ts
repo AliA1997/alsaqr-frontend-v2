@@ -5,7 +5,7 @@ import { FollowUserFormDto, UnFollowUserFormDto, UpdateUserFormDto } from "@mode
 
 export const userApiClient = {
     sessionSignin: (oauthData: any) => 
-        axiosRequests.post(`/api/Session/signin`, { values: oauthData }).then(axiosResponseBody),
+        axiosRequests.post(`/api/auth/signin`, { values: oauthData }).then(axiosResponseBody),
     sessionCheck: (email: string) => 
         axios.post(`/api/Session/check `, { values: { email } }, { headers: {
             "Content-Type": "application/json"
