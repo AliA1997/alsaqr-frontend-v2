@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "react-virtuoso": {
+      "source": "virtuoso-dev/skills",
+      "sourceType": "github",
+      "skillPath": "react-virtuoso/SKILL.md",
+      "computedHash": "182a01a2561a55fd5e36b2de023e0553f0aae2ff8560f8c8ed88ef4ac502dd12"
+    }
+  }
+}

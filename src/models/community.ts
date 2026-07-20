@@ -87,19 +87,19 @@ export interface CommunityDiscussionToDisplay {
 
 
 export interface CommunityDiscussionMessage {
-    id: string;
-    userId: string;
-    communityDiscussionId: string;
-    communityId: string;
-    messageText: string;
-    image: string;
-    createdAt: string;
+  id: string;
+  userId: string;
+  communityDiscussionId: string;
+  communityId: string;
+  messageText: string;
+  image: string;
+  createdAt: string;
 }
 
 export interface CommunityDiscussionMessageDto {
-    creatorId: string;
-    content: string;
-    media: string;
+  creatorId: string;
+  content: string;
+  media: string;
 }
 
 export interface CommunityDiscussionMessageToDisplay extends CommunityDiscussionMessage {
@@ -148,6 +148,7 @@ export interface CommunityDiscussionInviteConfirmation extends CommunityInviteCo
 export interface CommunityInviteConfirmationDto {
   username: string;
   email: string;
+  web3Address: string;
 }
 
 export interface AcceptOrDenyCommunityInviteConfirmationDto {

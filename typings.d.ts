@@ -55,6 +55,7 @@ export interface UserRegisterFormDto extends UserRegisterForm {
 }
 
 export interface UserRegisterForm extends UserInfo {
+  walletAddress?: string;
   firstName: string;
   lastName: string;
   dateOfBirth?: Date;
@@ -67,6 +68,9 @@ export interface UserRegisterForm extends UserInfo {
 
 export interface User extends UserInfo {
   id: string;
+  web3_address?: string;
+  web3Address?: string;
+  isWeb3?: boolean;
   createdAt: Date;
   updatedAt: Date;
   firstName?: string;

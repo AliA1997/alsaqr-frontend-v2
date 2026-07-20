@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import { PaginatedResult } from '../../models/common';
-import { supabase } from '../infrastructure/supabase';
+// import { supabase } from '../infrastructure/supabase';
 import { exploreApiClient } from "./exploreApiClient";
 import { listApiClient } from "./listsApiClient";
 import { mutatePostApiClient } from "./mutatePostApiClient";
@@ -15,6 +15,16 @@ import { eventsApiClient } from "./eventsApiClient";
 import { productApiClient } from "./productApiClient";
 import { subscriptionApiClient } from "./subscriptionApiClient";
 import { yumnaApiClient } from "./yumnaApiClient";
+import { spaceApiClient } from "./spaceApiClient";
+import Auth from '@utils/auth';
+
+// The jwt cookie is read straight from `Auth` rather than through
+// `store.authStore.auth`. Worker bundles import this module, so importing
+// @stores/index here dragged the whole MobX graph into every worker — including
+// modalStore, which imports prefetchModalData, whose module scope constructs a
+// Worker. Each worker therefore spawned another worker, forever. `authStore.auth`
+// is only ever `new Auth()` over the same cookie, so this reads identically.
+const auth = new Auth();
 
 export const extractQryParams = (request: any, paramsToExtract: string[]): (string | null)[] => {
   const qryParams = new URL(request.url!).searchParams;
@@ -50,8 +60,7 @@ export const axiosRequests = {
 
 // Attach jwt from supabase.
 axios.interceptors.request.use(async (config) => {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
+  const token = auth.getToken();
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -141,7 +150,8 @@ const agent = {
   eventsApiClient,
   productApiClient,
   subscriptionApiClient,
-  yumnaApiClient
+  yumnaApiClient,
+  spaceApiClient
 };
 
 export function leadingDebounce<F extends (...args: any[]) => any>(

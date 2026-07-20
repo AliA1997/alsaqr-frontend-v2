@@ -8,7 +8,7 @@ import { CommonLink } from "@common/Links";
 import UpdateCommunityModal from "@common/UpdateCommunityModal";
 import { InfoCardContainer } from "@common/Containers";
 import { ConfirmModal } from "@common/Modal";
-import { TagOrLabel } from "@common/Titles";
+import { AdminViewPanelSubTitle, AdminViewPanelTitle, TagOrLabel } from "@common/Titles";
 import { useEffect, useState } from "react";
 import { communityApiClient } from "@utils/api/communityApiClient";
 import { SkeletonLoader } from "@common/CustomLoader";
@@ -60,7 +60,7 @@ function CommunityAdminView({ communityId }: Props) {
     return (
       <>
         <div className="flex justify-between items-center p-5">
-          <h1 className="text-4xl">{`A Founder's Welcome `}</h1>
+          <h1 className="text-base lg:text-4xl">{`A Founder's Welcome `}</h1>
           <div className="flex space-x-2">
             <CommonLink
               onClick={() =>
@@ -109,7 +109,7 @@ function CommunityAdminView({ communityId }: Props) {
             alt={adminCommunityInfo.communityName}
           />
           <InfoCardContainer>
-            <h1 className="text-3xl">{adminCommunityInfo.communityName}</h1>
+            <AdminViewPanelTitle>{adminCommunityInfo.communityName}</AdminViewPanelTitle>
           </InfoCardContainer>
           <TagOrLabel
             color={adminCommunityInfo.isPrivate ? "danger" : "info"}
@@ -124,26 +124,26 @@ function CommunityAdminView({ communityId }: Props) {
             <p className="absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100">
               Invited Users:
             </p>
-            <h1 className="w-full text-center text-3xl">
+            <AdminViewPanelSubTitle>
               {adminCommunityInfo.invitedCount}
-            </h1>
+            </AdminViewPanelSubTitle>
           </InfoCardContainer>
           <InfoCardContainer>
             <p className="absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100">
               Joined Users:
             </p>
-            <h1 className="w-full text-center text-3xl">
+            <AdminViewPanelSubTitle>
               {adminCommunityInfo.joinedCount}
-            </h1>
+            </AdminViewPanelSubTitle>
           </InfoCardContainer>
           {adminCommunityInfo.isPrivate && (
             <InfoCardContainer>
               <p className="absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100">
                 Pending Invites:
               </p>
-              <h1 className="w-full text-center text-3xl">
+              <AdminViewPanelSubTitle>
                 {adminCommunityInfo.inviteRequestedUsers?.length ?? 0}
-              </h1>
+              </AdminViewPanelSubTitle>
               <button
                 type="button"
                 onClick={async (e) => {
@@ -177,17 +177,17 @@ function CommunityAdminView({ communityId }: Props) {
             <p className="absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100">
               Created on:{" "}
             </p>
-            <h1 className="w-full text-center mt-2">
+            <AdminViewPanelSubTitle>
               {new Date(
                 convertDateToDisplay(adminCommunityInfo.communityCreatedAt),
               ).toLocaleString("default", { dateStyle: "short" })}
-            </h1>
+            </AdminViewPanelSubTitle>
           </InfoCardContainer>
         </div>
       </>
     );
 
-  return <></>;
+  return <SkeletonLoader count={2} />;
 }
 
 export default observer(CommunityAdminView);

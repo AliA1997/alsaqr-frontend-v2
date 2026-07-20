@@ -123,7 +123,7 @@ export const SaveToListModal = observer(({
                                         placeholder="Select a List to Save to"
                                         value={values.listToSaveTo}
                                         options={listOptions}
-                                        className="mb-2 h-8 text-md"
+                                        className="mb-2 h-8 text-base"
                                     />
                                     <button
                                         disabled={loadingUpsert}

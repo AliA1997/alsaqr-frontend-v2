@@ -6,13 +6,14 @@ import { createPortal } from 'react-dom';
 interface ModalBodyProps {
   onClose: () => void;
   children: React.ReactNode;
+  canCloseLoginModal?: boolean;
   headerChildren?: React.ReactNode;
   classNames?: string;
   bodyClassNames?: string;
   style?: CSSProperties;
 }
 
-const ModalBody = ({ onClose, headerChildren, children, classNames, bodyClassNames, ...otherProps }: ModalBodyProps) => {
+const ModalBody = ({ onClose, canCloseLoginModal, headerChildren, children, classNames, bodyClassNames, ...otherProps }: ModalBodyProps) => {
 
   return (
     <div 
@@ -25,27 +26,29 @@ const ModalBody = ({ onClose, headerChildren, children, classNames, bodyClassNam
         <div className="relative p-4">
           {headerChildren
             ? headerChildren
-            : (
-              <button
-                onClick={onClose}
-                className="absolute right-5 top-3 text-gray-400 hover:text-gray-600 block float-right cursor-pointer"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+            : canCloseLoginModal 
+              ? null 
+              : (
+                <button
+                  onClick={onClose}
+                  className="absolute right-5 top-3 text-gray-400 hover:text-gray-600 block float-right cursor-pointer"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            )}
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
 
         </div>
         <div className="flex flex-col align-center justify-center p-4">

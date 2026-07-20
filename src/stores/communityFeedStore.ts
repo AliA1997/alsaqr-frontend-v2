@@ -18,7 +18,6 @@ export default class CommunityFeedStore {
     loadingJoinCommunity = false;
     predicate = new Map();
     setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        debugger;
         if (value) {
             this.predicate.set(predicate, value);
         } else {
@@ -136,6 +135,7 @@ export default class CommunityFeedStore {
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
+                web3Address: authUserSession?.web3Address ?? "",
             }
             await agent.communityApiClient.unjoinCommunity(joinCommunityDto, communityId)
 
@@ -156,6 +156,7 @@ export default class CommunityFeedStore {
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
+                web3Address: authUserSession?.web3Address ?? "",
             }
             await agent.communityApiClient.joinCommunity(joinCommunityDto, communityId)
 
@@ -175,6 +176,7 @@ export default class CommunityFeedStore {
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
+                web3Address: authUserSession?.web3Address ?? "",
             }
             await agent.communityApiClient.requestToJoinCommunity(joinCommunityDto, communityId)
 

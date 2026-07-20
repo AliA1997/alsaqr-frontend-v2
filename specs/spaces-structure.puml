@@ -1,0 +1,133 @@
+@startuml spaces-structure
+title ALSaqr Audio Spaces — structure & data flow
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+
+' ─────────────────────────────────────────────────────────────
+' The two independent truths. Never conflate them: an SFU track
+' is not proof of membership, and presence is not proof of audio.
+' ─────────────────────────────────────────────────────────────
+package "Presence — Supabase Realtime" #E8F4F8 {
+  [channel space:{spaceId}] as Channel
+  note right of Channel
+    Backend-emitted (service-role key):
+      role_changed, space_ended,
+      track_added, track_closed
+    Client-emitted (backend never re-emits):
+      mute_changed, hand_raised
+  end note
+}
+
+package "Media — Cloudflare Calls SFU" #FFF4E5 {
+  [SFU sessions / tracks] as SFU
+  note right of SFU
+    Publish  = client OFFERS, SFU ANSWERS
+    Subscribe = SFU OFFERS, client ANSWERS
+                (via /renegotiate)
+    Always proxied — the app secret
+    never reaches the browser.
+  end note
+}
+
+' ─────────────────────────────────────────────────────────────
+' Backend — authoritative for roles and permissions
+' ─────────────────────────────────────────────────────────────
+package "alsaqr-backend-api-v2" #EFEFEF {
+  [SpacesController] as Ctrl
+  [SpaceRepository] as Repo
+  [CloudflareCallsService] as CF
+  [SpaceEventBroadcaster] as Bcast
+  [SpaceReaperService\n(~30s sweep)] as Reaper
+
+  database "Postgres (alsaqr-2026)" as DB {
+    frame "spaces" as TSpaces {
+      card "id, kind, community_id,\ncommunity_discussion_id,\ntitle, host_id,\nstarted_at, ended_at" as SpaceRow
+    }
+    frame "space_participants" as TParts {
+      card "space_id, user_id, role,\nmuted, hand_raised,\nsfu_session_id, track_name,\njoined_at, left_at, last_seen_at" as PartRow
+    }
+  }
+
+  note bottom of TSpaces
+    **THE constraint that shapes the UI:**
+    partial UNIQUE index where ended_at IS NULL
+      · spaces_one_live_per_community
+      · spaces_one_live_per_discussion
+    => AT MOST ONE live space per community,
+       and one per discussion. A second start = 409.
+    isLive == (ended_at IS NULL)
+  end note
+
+  Ctrl --> Repo
+  Ctrl --> CF
+  Ctrl --> Bcast
+  Repo --> DB
+  Reaper --> Repo : reap participants stale >60s;\nauto-end empty spaces
+  CF ..> SFU
+  Bcast ..> Channel
+}
+
+' ─────────────────────────────────────────────────────────────
+' Frontend
+' ─────────────────────────────────────────────────────────────
+package "alsaqr-frontend-v2" #F4F9F4 {
+
+  [CommunityPage] as CPage
+  [CommunityDiscussionMessageRoom] as DPage
+  [SpacePanel] as Panel
+  [SpaceRoom] as Room
+  [spaceApiClient] as ApiClient
+  [spaceRtc\n(RTCPeerConnection helpers)] as Rtc
+
+  package "SpaceStore (MobX)" as Store {
+    card "**Discovery state**\nspacesRegistry: Map<spaceId, SpaceToDisplay>\ndiscussionTitleRegistry: Map<discussionId, title>" as Disc
+    card "**Session state** (one at a time)\nactiveSpace, localRole, localMuted,\nconnection: idle|connecting|live|reconnecting\nparticipantRegistry" as Sess
+    card "**Imperative handles** (not observable)\nchannel, publishPeer,\nlocalStream, subscriberPeers" as Handles
+    card "**Computed views**\nspaceListItems  (community first,\n  then discussions newest-first)\nprimarySpaceItem → rendered on top\notherSpaceItems  → rendered below" as Computed
+  }
+
+  Disc --> Computed
+  Sess --> Computed
+
+  CPage --> Panel : kind="community"
+  DPage --> Panel : kind="community-discussion"
+  Panel --> Room : only when the user\nis IN the top space
+  Panel --> Store
+  Room --> Store
+  Store --> ApiClient
+  Store --> Rtc
+  Store --> Channel : presence + broadcast
+  Rtc ..> SFU : ICE / SDP
+  ApiClient --> Ctrl : /api/Spaces/*
+}
+
+note as N1 #FFFFDD
+  **How the community page builds its list (fan-out)**
+  The backend has no bulk "list spaces" endpoint —
+  audio-spaces.md keeps discovery feeds out of scope.
+  So loadCommunitySpaces() does:
+    1. GET /api/Spaces/community/{id}/live          → the community's own space
+    2. GET /api/CommunityDiscussion/{id}            → the community's discussions
+    3. GET .../discussion/{did}/live  × N           → one per discussion (parallel,
+                                                       each caught independently)
+  Live lookups are NOT membership-gated, so discussions the
+  user hasn't joined still surface — that is precisely the
+  "spaces you're not part of" list.
+end note
+
+note as N2 #FFE8E8
+  **One space at a time**
+  joinSpace() refuses re-entry into the same space and
+  ignores a join already in flight. Joining a *different*
+  space calls leaveSpace() first — full teardown: close
+  tracks + peer connections, removeChannel, POST /leave.
+  SpacePanel gates that behind a confirm prompt, so live
+  audio is never torn down implicitly.
+end note
+
+Panel .. N1
+Store .. N2
+
+@enduml

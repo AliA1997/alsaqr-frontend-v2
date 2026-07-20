@@ -68,7 +68,7 @@ function MessageHistoryItemComponent({
                         <p className='text-sm'>
                             {messageHistoryItem.receiverUsername}
                         </p>
-                        <p className='text-md'>
+                        <p className='text-base'>
                             {messageHistoryItem.messageCount} Messages
                         </p>
                         {messageHistoryItem.lastMessageDate && (

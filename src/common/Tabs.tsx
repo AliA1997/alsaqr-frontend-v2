@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { ModalLoader } from "./CustomLoader";
+import {  SkeletonLoader } from "./CustomLoader";
 import { OptimizedImage } from "./Image";
 import { ContentContainerWithRef } from "./Containers";
 import { CommonLink } from "./Links";
@@ -116,7 +116,7 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
             tlIdx: number
           ) => (
             <CommonLink
-              key={tlIdx}
+              key={`${tl.tabKey}-${tlIdx}`}
               onClick={() => handleTabSwitch(tl.tabKey)}
               activeInd={activeTab === tl.tabKey}
               animatedLink={false}
@@ -150,13 +150,13 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
           tCIdx: number
         ) => (
           <div
-            key={tCIdx}
+            key={`${tC.tabKey}-${tCIdx}`}
             id={`${tC.tabKey}`}
             className={`tab-content p-4 ${activeTab === tC.tabKey ? "" : "hidden" }  ${containerClassNames ? containerClassNames : ''}`}
           >
 
             {loading 
-              ? <ModalLoader />
+              ? <SkeletonLoader count={6} />
               : tC.content && tC.content.length ? (
                   tC.content.map(tC.renderer)
                 ) : (

@@ -23,29 +23,37 @@ export default class Auth {
             sameSite: 'strict',
         });
     }
+    // The session user does NOT fit in a cookie: `User` carries following[],
+    // followers[], bookmarks[], reposts[] and likedPosts[], which serializes
+    // well past the ~4KB per-cookie limit — browsers then drop the cookie
+    // silently and the session looks logged-out on refresh. localStorage has
+    // no such cap and is independent of supabase, which web3 sessions need.
     setUser(value: User, key: string='user') {
-        const expires = new Date();
-        expires.setDate(expires.getDate() + 3);
-        this.cookie.set(key, JSON.stringify(value), {
-            path: '/',
-            expires: expires,
-            secure: true,
-            sameSite: 'strict',
-        });
+        localStorage.setItem(key, JSON.stringify(value));
     }
     getUser(key: string='user'): User | null {
-        return this.cookie.get(key) ? JSON.parse(JSON.stringify(this.cookie.get(key))) : null;
+        const stored = localStorage.getItem(key);
+        if (!stored) return null;
+
+        try {
+            return JSON.parse(stored) as User;
+        } catch {
+            localStorage.removeItem(key);
+            return null;
+        }
     }
     isLoggedIn() {
-        return !!this.cookie.get('user')
+        return !!this.getUser();
     }
     isTestUser() {
         return (this.isLoggedIn() && this.getUser()?.email === testAuthUser.email)
     }
-    clearUser() {
-        return this.cookie.remove('user');
+    clearUser(key: string='user') {
+        localStorage.removeItem(key);
+        // Drop the legacy cookie copy so a stale one can never win.
+        this.cookie.remove(key, { path: '/' });
     }
     clearToken(key: string = 'jwt') {
-        this.cookie.remove(key);
+        this.cookie.remove(key, { path: '/' });
     }
 }

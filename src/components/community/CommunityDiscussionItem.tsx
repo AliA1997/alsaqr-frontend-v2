@@ -17,10 +17,13 @@ import { stopPropagationOnClick } from "@utils/index";
 
 interface Props {
   communityDiscussionToDisplay: CommunityDiscussionToDisplay;
+  // Fill the parent cell instead of self-sizing (used inside virtualized grid feeds).
+  fitParent?: boolean;
 }
 
 const CommunityDiscussionItemComponent = observer(({
   communityDiscussionToDisplay,
+  fitParent,
 }: Props) => {
   const navigate = useNavigate();
 
@@ -51,26 +54,28 @@ const CommunityDiscussionItemComponent = observer(({
   const navigateToCommunityDiscussion = () => {
     navigate(`/communities/${communityDiscussionInfo.communityId}/${communityDiscussionInfo.communityDiscussionId}`);
   };
-
   const hasToRequestPermissionToJoin = useMemo(() => {
     return (communityDiscussionInfo.isPrivate && currentRelationshipType === RelationshipType.None)
   }, [currentRelationshipType, communityDiscussionToDisplay.relationshipType])
   const hasToJoin = useMemo(() => currentRelationshipType === RelationshipType.None, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
   const requestedInvite = useMemo(() => currentRelationshipType === RelationshipType.Requested, [currentRelationshipType, communityDiscussionToDisplay.relationshipType]);
-  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Member || communityDiscussionInfo.creatorId === currentSessionUser?.id || joined, [currentRelationshipType, communityDiscussionToDisplay.relationshipType, joined]);
+  const canUnJoin = useMemo(() => currentRelationshipType === RelationshipType.Member || joined, [currentRelationshipType, communityDiscussionToDisplay.relationshipType, joined]);
+  const isFounder = communityDiscussionInfo.creatorId === currentSessionUser?.id;
 
   return (
     <>
       <div
         className={`
-          flex flex-col relative justify-around space-x-3 border-y border-gray-100 
+          flex flex-col relative justify-around space-x-3 border-y border-gray-100
           p-5 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#0e1517] rounded-full
-          w-full       /* Full width on mobile */
-          md:w-[21rem] 
-          lg:w-[49%]
-          3xl:w-[30%]
           h-[10rem]
-          mb-4         /* Add some bottom margin between items */
+          ${fitParent
+            ? 'w-full'
+            : `w-full       /* Full width on mobile */
+               md:w-[21rem]
+               lg:w-[49%]
+               3xl:w-[30%]
+               mb-4         /* Add some bottom margin between items */`}
         `}
         data-testid="communitydiscussioncard"
       >
@@ -99,7 +104,7 @@ const CommunityDiscussionItemComponent = observer(({
           <div className='flex justify-start'>
             <TagOrLabel
               color={
-                (communityDiscussionInfo.creatorId === currentSessionUser?.id) ? 'gold'
+                isFounder ? 'gold'
                   : (currentRelationshipType as RelationshipType) === RelationshipType.Invited ? 'success'
                     : (currentRelationshipType as RelationshipType) === RelationshipType.Member ? 'primary'
                       : (currentRelationshipType as RelationshipType) === RelationshipType.Requested ? 'secondary'
@@ -108,7 +113,7 @@ const CommunityDiscussionItemComponent = observer(({
               size="sm"
               className='w-full max-w-fit self-end self-[unset]'
             >
-              {communityDiscussionInfo.creatorId === currentSessionUser?.id ? 'Founder' : 
+              {isFounder ? 'Founder' : 
                 requestedInvite ? 'PENDING REQUEST TO JOIN' : currentRelationshipType.toUpperCase()}
             </TagOrLabel>
             <TagOrLabel
@@ -152,10 +157,14 @@ const CommunityDiscussionItemComponent = observer(({
                   flex font-[1rem]
                   min-w-[4rem] max-w-[15rem] cursor-pointer hover:underline ${canUnJoin ? 'hover:text-red-400' : 'hover:text-[#55a8c2]'}
                 `}>
-                    <span className={`mt-1 text-inherit`}>
-                      {canUnJoin ? 'Leave' : hasToRequestPermissionToJoin ? 'Request to Join' : 'Join'}
-                    </span>
-                    {!canUnJoin && <PlusCircleIcon className="ml-0 h-[1.5rem] w-[1.5rem] py-1" />}
+                    {!isFounder ? (
+                      <>
+                        <span className={`mt-1 text-inherit`}>
+                          {canUnJoin ? 'Leave' : hasToRequestPermissionToJoin ? 'Request to Join' : 'Join'}
+                        </span>
+                        {!canUnJoin && <PlusCircleIcon className="ml-0 h-[1.5rem] w-[1.5rem] py-1" />}
+                      </>
+                    ) : null}
                   </p>
                 )}
               </InfoButton>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CommonUpsertBoxTypes,
 } from '@models/enums';
@@ -10,15 +10,15 @@ import { convertQueryStringToObject } from "@utils/index";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
-import { NoRecordsTitle, PageTitle } from '@common/Titles';
-import { ContentContainerWithRef } from "@common/Containers";
+import { PageTitle } from '@common/Titles';
 import ListItemComponent from "@components/list/ListItem";
 import { SkeletonLoader } from "@common/CustomLoader";
 import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import { OpenUpsertModalButton } from "@common/Buttons";
 import { useThrottle } from "@hooks/useThrottle";
-import { inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import { DEFAULT_VIRTUALIZED_ITEMS_PERPAGE, inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
 import SearchBar from "@common/SearchBar";
+import { VirtualizedCardFeed } from "./VirtualizedFeed";
 
 interface Props {
 }
@@ -26,12 +26,9 @@ interface Props {
 const ListFeed = observer(({ }: Props) => {
   const { authStore, modalStore, listFeedStore } = useStore();
   const { auth, currentSessionUser } = authStore;
-  const containerRef = useRef(null);
-  const loaderRef = useRef(null);
   const [mounted, setMounted] = useState<boolean>(false);
   const {
     setPagingParams,
-    pagingParams,
     setPredicate,
     predicate,
     pagination,
@@ -56,6 +53,9 @@ const ListFeed = observer(({ }: Props) => {
 
       setPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
       setPredicate('searchTerm', paramsFromQryString.searchTerm);
+    } else {
+      // Virtualized feeds load a large first page; paging kicks in at end of list.
+      setPagingParams(new PagingParams(1, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE));
     }
 
     if (!lists.length)
@@ -64,7 +64,7 @@ const ListFeed = observer(({ }: Props) => {
   }
 
   const fetchMoreItems = async (pageNum: number) => {
-    setPagingParams(new PagingParams(pageNum, 25))
+    setPagingParams(new PagingParams(pageNum, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE))
     await loadFeedRecords();
   };
   const loadFeedRecords = useThrottle(async () => {
@@ -85,48 +85,12 @@ const ListFeed = observer(({ }: Props) => {
     }
   }, [currentSessionUser?.id, auth]);
 
-
-  const LoadMoreTrigger = () => {
-    return (
-      <div ref={loaderRef} style={{ height: '20px' }}>
-        {loadingInitial && <div>Loading more lists...</div>}
-      </div>
-    );
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = pagination?.currentPage ?? 1;
-        const itemsPerPage = pagination?.itemsPerPage ?? 25;
-        const totalItems = pagination?.totalItems ?? 0;
-
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = (totalItems > totalItemsOnNextPage);
-        if (firstEntry?.isIntersecting && !loadingInitial && hasMoreItems && mounted) {
-          fetchMoreItems(pagingParams.currentPage + 1);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '10px',
-        threshold: 0.2
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
-  }, []);
+  const renderList = useCallback(
+    (_: number, record: ListToDisplay) => (
+      <ListItemComponent listToDisplay={record} fitParent />
+    ),
+    []
+  );
 
   const commonUpsertBoxType = useMemo(() => CommonUpsertBoxTypes.List, [])
 
@@ -161,22 +125,18 @@ const ListFeed = observer(({ }: Props) => {
       {loadingInitial || !mounted ? (
         <SkeletonLoader count={8} />
       ) : (
-        <ContentContainerWithRef
-          classNames='flex flex-wrap min-h-100 md:justify-start px-5'
-          innerRef={containerRef}
-        >
-          <>
-            {lists && lists.length
-              ? lists.map((record: ListToDisplay, recordKey) => (
-                <ListItemComponent
-                  key={record.listId ?? recordKey}
-                  listToDisplay={record}
-                />
-              ))
-              : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}
-            <LoadMoreTrigger />
-          </>
-        </ContentContainerWithRef>
+        <div className="px-5">
+          <VirtualizedCardFeed<ListToDisplay>
+            items={lists}
+            pagination={pagination}
+            loading={loadingInitial}
+            onEndReached={fetchMoreItems}
+            itemContent={renderList}
+            computeItemKey={(index, record) => record.listId ?? index}
+            emptyText={noRecordsTitle}
+            itemClassNames="w-[30rem] lg:w-[20rem] pr-4 pb-2"
+          />
+        </div>
       )}
     </div>
   );

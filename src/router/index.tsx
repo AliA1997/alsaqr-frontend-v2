@@ -18,10 +18,14 @@ import CommunityPage from "@features/CommunityPage";
 import CommunityDiscussionPage from "@features/CommunityDiscussionPage";
 import ListPage from "@features/ListPage";
 import YumnaAI from '@features/YumnaAI';
+import { RouteErrorElement } from '@common/ErrorBoundary';
 
 export const routes: RouteObject[] = [
   {
     element: <App />,
+    // Without this, react-router renders its own unstyled fallback for anything
+    // thrown inside the layout shell, and it wins over any React boundary above.
+    errorElement: <RouteErrorElement />,
     children: [
       { index: true, element: <HomePage /> },
       { path: "yumna", element: <YumnaAI /> },

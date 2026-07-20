@@ -95,6 +95,7 @@ export default class CommunityDiscussionFeedStore {
             const joinCommunityDiscussionDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
+                web3Address:  authUserSession?.web3Address ?? "",
             }
             await agent.communityApiClient.unjoinCommunityDiscussion(joinCommunityDiscussionDto, communityId, communityDiscussionId)
 
@@ -114,6 +115,7 @@ export default class CommunityDiscussionFeedStore {
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
+                web3Address:  authUserSession?.web3Address ?? "",
             }
             await agent.communityApiClient.joinCommunityDiscussion(joinCommunityDto, communityId, communityDiscussionId)
 
@@ -133,6 +135,7 @@ export default class CommunityDiscussionFeedStore {
             const joinCommunityDto = {
                 username: authUserSession?.username ?? "",
                 email: authUserSession?.email ?? "",
+                web3Address:  authUserSession?.web3Address ?? "",
             }
             await agent.communityApiClient.requestToJoinCommunityDiscussion(joinCommunityDto, communityId, communityDiscussionId)
 

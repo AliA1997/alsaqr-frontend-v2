@@ -1,12 +1,13 @@
 
-import React, { useLayoutEffect, useMemo, useRef } from "react";
+import React, { useLayoutEffect, useMemo } from "react";
 const SideBar = React.lazy(() => import('./Sidebar'));
 import Widgets from "./Widgets";
 import { useStore } from "@stores/index";
 import { observer } from "mobx-react-lite";
 import { useLocation } from "react-router-dom";
 import {  RegisterModal } from "@common/AuthModals";
-import { leadingDebounce } from "@utils/api/agent";
+// import { leadingDebounce } from "@utils/api/agent";
+import { useCheckSession } from "@hooks/useCheckSession";
 
 type PageContainerProps = {
   title?: string;
@@ -17,31 +18,27 @@ const PageContainer = ({
   children,
 }: React.PropsWithChildren<PageContainerProps>) => {
   const location = useLocation();
+  
   const isHomepage = useMemo(() => location.pathname === "/", [location.pathname]);
+
   const { authStore, modalStore } = useStore();
-  const { currentSessionUser } = authStore;
+  const {
+    setCurrentSessionUser, 
+    resetAuthState,
+    currentSessionUser, 
+    auth,
+  } = authStore;
   const { 
     completeRegistrationModalShown,
     modalToShow, 
     setCompleteRegistrationModalShown,
     showModal, 
   } = modalStore;
-  const retryCount = useRef(0);
 
-  useLayoutEffect(() => {
-    
-    if(currentSessionUser && !currentSessionUser.isCompleted && !completeRegistrationModalShown)
-      leadingDebounce(() => {
-        setCompleteRegistrationModalShown(true)
-        showModal(<RegisterModal userInfo={currentSessionUser!} />);
-      }, 15000);
-
-    retryCount.current += 1;
-
-    return () => {
-      retryCount.current = 0;
-    }
-  }, [currentSessionUser])
+  const openCompleteRegistrationModal = (userInfo: {[key: string]: any }) => {
+    setCompleteRegistrationModalShown(true);
+    showModal(<RegisterModal userInfo={userInfo} />);
+  }
 
   useLayoutEffect(() => {
     if (window.location.hash === "#_=_") {
@@ -51,6 +48,15 @@ const PageContainer = ({
         : window.location.hash = "";
     }
   }, [window.location.hash])
+
+  useCheckSession(
+    auth,
+    setCurrentSessionUser, 
+    resetAuthState,
+    currentSessionUser,
+    openCompleteRegistrationModal,
+    completeRegistrationModalShown
+  );
 
   return (
     <>

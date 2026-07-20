@@ -140,6 +140,7 @@ interface ReviewUserPersonalInfoProps {
     firstName: string;
     lastName: string;
     dateOfBirth: Date | undefined;
+    web3Address?: string;
 }
 
 interface ReviewUserHobbiesAndOtherInfoProps {
@@ -154,7 +155,8 @@ export const ReviewUserPersonalInfo = ({
     email,
     firstName,
     lastName,
-    dateOfBirth
+    dateOfBirth,
+    web3Address
 }: ReviewUserPersonalInfoProps) => (
     <div className='flex flex-col'>
 
@@ -167,15 +169,33 @@ export const ReviewUserPersonalInfo = ({
             <h5 className='font-bold mr-2'>Name:</h5>
             <p>{firstName.trim()} {lastName.trim()}</p>
         </div>
-
-        <div className='flex x-space-3 justify-items-between'>
-            <h5 className='font-bold mr-2'>Email:</h5>
-            <p>{email}</p>
+        
+        <div className='flex space-x-1 justify-between w-full'>
+            {web3Address 
+                ? (
+                    <>
+                        <h5 className='font-bold mr-2  w-1/3 min-w-0 shrink-0'>Web3 Address:</h5>
+                        <code className='flex-1 min-w-0 overflow-x-auto w-2/3 min-w-0'>{web3Address}</code>
+                    </>
+                )
+                : (
+                    <>
+                        <h5 className='font-bold mr-2  w-1/2 min-w-0 shrink-0'>Email:</h5>
+                        <p className='flex-1 min-w-0 overflow-x-auto w-1/2 min-w-0'>{email}</p>
+                    </>
+                )}
+            
         </div>
         
         <div className='flex x-space-3 justify-items-between'>
             <h5 className='font-bold mr-2'>Date of Birth:</h5>
-            <p>{dateOfBirth ? new Intl.DateTimeFormat("en-US").format(dateOfBirth) : ''}</p>
+            <p>
+                {dateOfBirth 
+                    ? dateOfBirth instanceof Date 
+                        ? new Intl.DateTimeFormat("en-US").format(dateOfBirth) 
+                        : new Intl.DateTimeFormat("en-US").format(new Date(dateOfBirth))      
+                        : ''}
+            </p>
         </div>
     </div>
 );
@@ -290,7 +310,7 @@ export const ReviewForm = observer(({ sections, hideTitle, previewInfo, type }: 
                         >
                             <div
                                 id={`section-${index}`}
-                                className="px-4 pb-4"
+                                className="px-0 pb-4"
                             >
                                 {section.jsx}
                             </div>

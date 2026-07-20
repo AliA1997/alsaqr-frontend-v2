@@ -1,5 +1,9 @@
 export const COUNTRY_OPTIONS = [ 
     {
+        label: 'United States',
+        value: 'United States'
+    },
+    {
         label: 'Afghanistan',
         value: 'Afghanistan'
     }, 
@@ -910,10 +914,6 @@ export const COUNTRY_OPTIONS = [
     {
         label: 'United Kingdom',
         value: 'United Kingdom'
-    }, 
-    {
-        label: 'United States',
-        value: 'United States'
     }, 
     {
         label: 'United States Minor Outlying Islands',

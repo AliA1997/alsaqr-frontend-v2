@@ -3,7 +3,7 @@ import type { CommunityToDisplay } from "@typings";
 import { RelationshipType } from '@enums';
 import { convertDateToDisplay, stopPropagationOnClick } from "@utils/index";
 import { InfoCardContainer } from "@common/Containers";
-import { TagOrLabel } from "@common/Titles";
+import { AdminViewPanelSubTitle, AdminViewPanelTitle, TagOrLabel } from "@common/Titles";
 import { OptimizedImage } from "@common/Image";
 import { useNavigate } from "react-router";
 
@@ -30,9 +30,9 @@ function CommunityNonAdminView({
                         alt={communityInfo.communityName}
                     />
                     <InfoCardContainer>
-                        <h6 className='text-3xl'>
+                        <AdminViewPanelTitle>
                             {`Welcome to ${communityInfo.communityName}`}
-                        </h6>
+                        </AdminViewPanelTitle>
                     </InfoCardContainer>
                     <div className="absolute bottom-0 right-0 flex">
                         <TagOrLabel
@@ -58,15 +58,15 @@ function CommunityNonAdminView({
                 <div className="relative flex flex-5">
                     <InfoCardContainer>
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Members:</p>
-                        <h6 className='w-full text-center text-3xl'>
+                        <AdminViewPanelSubTitle>
                             {communityInfo.totalMembers}
-                        </h6>
+                        </AdminViewPanelSubTitle>
                     </InfoCardContainer>
                     <InfoCardContainer>
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Created on: </p>
-                        <h6 className='w-full text-center mt-2'>
+                        <AdminViewPanelSubTitle>
                             {new Date(convertDateToDisplay(communityInfo.communityCreatedAt)).toLocaleString('default', { dateStyle: 'short' })}
-                        </h6>
+                        </AdminViewPanelSubTitle>
                     </InfoCardContainer>
                     <InfoCardContainer>
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Founder: </p>

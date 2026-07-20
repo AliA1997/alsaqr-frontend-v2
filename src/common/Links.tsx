@@ -1,4 +1,4 @@
-import { getEmailUsername, stopPropagationOnClick } from "@utils/index";
+import { displayUsername, getEmailUsername, stopPropagationOnClick } from "@utils/index";
 import { OptimizedImage } from "./Image";
 import { User } from "typings";
 import { useNavigate } from "react-router";
@@ -60,14 +60,14 @@ export function UserProfileLink({ profileInfo }: React.PropsWithChildren<UserPro
           src={profileInfo?.avatar ?? ''}
           alt="Avatar"
         />
-        {/* <div className="flex flex-col justify-center  p-3 opacity-50 text-xs sm:text-sm lg:text-md"> */}
+        {/* <div className="flex flex-col justify-center  p-3 opacity-50 text-xs sm:text-sm lg:text-base"> */}
         <div className={`
             flex flex-col display-none md:display-initial hidden
             group-hover:text-[#55a8c2] dark:text-gray-50
             lg:inline-flex text-base font-light text-xs lg:text-sm
           `}>
-          <p>{profileInfo?.username}</p>
-          <p className="ml-2">@{getEmailUsername(profileInfo?.username!)}</p>
+          <p>{displayUsername(profileInfo?.username!)}</p>
+          <p className="ml-2">@{getEmailUsername(displayUsername(profileInfo?.username!))}</p>
         </div>
       </div>
     </>

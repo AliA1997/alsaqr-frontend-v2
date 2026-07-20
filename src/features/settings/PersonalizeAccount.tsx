@@ -9,6 +9,7 @@ import { PersonalizeAccountForm } from "@models/settings";
 import { UpdateUserForm } from "@models/users";
 import toast from "react-hot-toast";
 import { PageTitle } from "@common/Titles";
+import { SkeletonLoader } from "@common/CustomLoader";
 
 
 const PersonalizeAccount = observer(() => {
@@ -37,6 +38,9 @@ const PersonalizeAccount = observer(() => {
             navigateBackToHome();
         }
     };
+
+    if(!currentSessionUser)
+        return <SkeletonLoader count={6} />
 
     return (
         <div className='mb-[10rem]'>
@@ -85,7 +89,7 @@ const PersonalizeAccount = observer(() => {
                                 label="Religion"
                                 placeholder="Select a Religion"
                                 options={RELIGION_OPTIONS}
-                                className="mb-1 h-8 text-md"
+                                className="mb-1 h-8 text-base"
                             />
 
                             <MultiSelect 
@@ -96,7 +100,7 @@ const PersonalizeAccount = observer(() => {
                             />
 
                             <div>
-                                <label htmlFor="maritalStatus" className="block text-md font-medium text-gray-700 dark:text-gray-200">
+                                <label htmlFor="maritalStatus" className="block text-base font-medium text-gray-700 dark:text-gray-200">
                                     Marital Status:
                                 </label>
 
@@ -120,7 +124,7 @@ const PersonalizeAccount = observer(() => {
                                         label="Preferred Madhab"
                                         placeholder="Select your preferred madhab"
                                         options={PREFERRED_MADHAB_OPTIONS}
-                                        className="mb-1 h-8 text-md"
+                                        className="mb-1 h-8 text-base"
                                     />
                               
                                     <Select
@@ -128,7 +132,7 @@ const PersonalizeAccount = observer(() => {
                                         label="How often you go the masjid or mosque?"
                                         placeholder="Select how often you go"
                                         options={FREQUENT_MASJID_OPTIONS}
-                                        className="mb-1 h-8 text-md"
+                                        className="mb-1 h-8 text-base"
                                     />
                               
 

@@ -26,6 +26,21 @@ export function NoRecordsTitle({ children }: React.PropsWithChildren<any>) {
     );
 }
 
+export function AdminViewPanelTitle({ children }: React.PropsWithChildren<any>) {
+    return (
+        <p className='text-2xl'>
+            {children}
+        </p>
+    );
+}
+export function AdminViewPanelSubTitle({ children }: React.PropsWithChildren<any>) {
+    return (
+        <p className='text-lg'>
+            {children}
+        </p>
+    );
+}
+
 interface TagOrLabelProps extends React.ButtonHTMLAttributes<HTMLSpanElement> {
     color?: 'primary' | 'gold' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'neutral'
     | "postGradient" | "userGradient" | "communityGradient" | "commentGradient"

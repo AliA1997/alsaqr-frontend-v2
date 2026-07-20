@@ -21,10 +21,13 @@ import { InfoButton } from "@common/Buttons";
 
 interface Props {
   community: CommunityToDisplay;
+  // Fill the parent cell instead of self-sizing (used inside virtualized grid feeds).
+  fitParent?: boolean;
 }
 
 function CommunityItemComponent({
-  community
+  community,
+  fitParent
 }: Props) {
   const navigate = useNavigate();
   const { communityFeedStore } = useStore();
@@ -59,14 +62,16 @@ function CommunityItemComponent({
     <>
       <div
         className={`
-          flex flex-col relative justify-between space-x-3 border-y border-gray-100 p-5 
-          hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] rounded-full hover:underline 
+          flex flex-col relative justify-between space-x-3 border-y border-gray-100 p-5
+          hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] rounded-full hover:underline
           p-2 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#0e1517] rounded-full
-          w-full       /* Full width on mobile */
-          mb-2
-          lg:w-[49%]
-          3xl:w-[30%]
           h-[7.5rem]
+          ${fitParent
+            ? 'w-full'
+            : `w-full       /* Full width on mobile */
+               mb-2
+               lg:w-[49%]
+               3xl:w-[30%]`}
         `}
         data-testid="communitycard"
       >

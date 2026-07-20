@@ -74,7 +74,6 @@ export default class YumnaFeedStore {
         this.setLoadingDailyUse(true);
         try {
             const usage: number = await agent.subscriptionApiClient.getSubscriptionDailyUse(undefined);
-            debugger;
             runInAction(() => {
                 this.setSubscriptionUsage({
                     subscriptionName: 'Basic',

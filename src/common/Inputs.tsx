@@ -16,7 +16,7 @@ export function MyInput({ label, prefix, disabled, ...props }: MyInputProps) {
     return (
         <div className="w-full">
             {label && (
-                <label htmlFor={props.id || props.name} className="block mb-2 text-md font-medium dark:text-gray-50">
+                <label htmlFor={props.id || props.name} className="block mb-2 text-base font-medium dark:text-gray-50">
                     {label}
                 </label>
             )}
@@ -59,7 +59,7 @@ export function FileUploadInput({ label, ...props }: FileUploadInputProps) {
     return (
         <div className="mb-4">
             {label && (
-                <label className="block text-md font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {label}
                 </label>
             )}
@@ -101,7 +101,7 @@ export function MyDatePicker({ label, ...props }: MyDatePickerProps) {
     return (
         <div className="w-full">
             {label && (
-                <label htmlFor={props.id || props.name} className="block mb-2 text-md font-medium">
+                <label htmlFor={props.id || props.name} className="block mb-2 text-base font-medium">
                     {label}
                 </label>
             )}

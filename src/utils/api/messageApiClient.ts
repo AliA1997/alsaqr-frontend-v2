@@ -14,6 +14,9 @@ export const messageApiClient = {
         axios.post(`/api/messages/sendMessage`, { values }).then(axiosResponseBody),
     loadDirectMessageThreads: (
         params: URLSearchParams, 
+        webWorkerAccessToken?: string
     ) =>
-        axios.get(`/api/users/messageThreads`, { params }).then(axiosResponseBody),
+        !!webWorkerAccessToken 
+            ? axios.get(`/api/users/messageThreads`, { params, headers: { Authorization: `Bearer ${webWorkerAccessToken}` } }).then(axiosResponseBody) 
+            : axios.get(`/api/users/messageThreads`, { params }).then(axiosResponseBody),
 };

@@ -9,6 +9,7 @@ import { User, UserRegisterForm, UserRegisterFormDto } from 'typings';
 export default class AuthStore {
   processingUserCheck: boolean = false;
   currentSessionUser: User | undefined = undefined;
+  web3Address: string | undefined = undefined;
   auth: Auth | undefined = undefined;
   constructor() {
     this.auth = new Auth();
@@ -26,9 +27,10 @@ export default class AuthStore {
       return;      
     } else {
       const loggedInUser = this.auth?.getUser();
-
       if (loggedInUser) {
         this.setCurrentSessionUser(loggedInUser);
+        if (loggedInUser.web3_address)
+          this.setWeb3Address(loggedInUser.web3_address);
         return loggedInUser.id;
       }
       return this.currentSessionUser?.id;
@@ -56,6 +58,15 @@ export default class AuthStore {
     this.currentRegistrationForm = val;
   }
 
+  setToken = (accessToken: string) => {
+    if(this.auth) 
+      this.auth.setToken(accessToken);
+  }
+
+  setWeb3Address = (val: string | undefined) => {
+    this.web3Address = val;
+  }
+
   setCurrentSessionUser = (currentUserPayload: User | undefined) => {
     this.currentSessionUser = currentUserPayload;
     if(currentUserPayload)
@@ -73,25 +84,49 @@ export default class AuthStore {
       this.auth?.clearUser();
     }
     this.currentSessionUser = undefined;
+    this.web3Address = undefined;
+  };
+
+  loginWithWeb3 = async (walletAddress: string) => {
+    this.setProcessingUserCheck(true);
+    try {
+      await agent.userApiClient.web3SessionSignin(walletAddress);
+      const checkData = await agent.userApiClient.web3SessionCheck(walletAddress);
+
+      return runInAction(() => {
+        this.setWeb3Address(walletAddress);
+
+        if (checkData?.result) {
+          const sessionUser: User = { ...checkData.result, web3_address: walletAddress };
+          this.setCurrentSessionUser(sessionUser);
+          return sessionUser;
+        }
+        return undefined;
+      });
+    } finally {
+      this.setProcessingUserCheck(false);
+    }
   };
 
   completeRegistration = async (userId: string, registerForm: UserRegisterForm) => {
 
       this.setLoadingRegistration(true);
       try {
-        const registerFormDto: UserRegisterFormDto = {...registerForm, followingUsers: registerForm.followingUsers.map(u => u.id)};
+        const registerFormDto: UserRegisterFormDto = {...registerForm, followingUsers: registerForm.followingUsers.filter(u => !!u).map(u => u.id)};
 
         await agent.userApiClient.completeRegistration(userId, registerFormDto) ?? {};
 
-        runInAction(() => {
-          this.setCurrentRegistrationForm(DEFAULT_USER_REGISTRATION_FORM);
-          this.setCurrentStepInUserRegistration(0);
-        });
 
       } finally {
           this.setLoadingRegistration(false);
       }
 
+  }
+  resetCompleteRegistration = () => {
+    runInAction(() => {
+      this.setCurrentRegistrationForm(DEFAULT_USER_REGISTRATION_FORM);
+      this.setCurrentStepInUserRegistration(0);
+    });
   }
   
 }

@@ -13,7 +13,9 @@ import { Select } from "./Select";
 import { COUNTRY_OPTIONS } from "@utils/constants/countriesOptions";
 import Accordion from "./Accordion";
 
-interface PersonalInfoFormInputsProps {}
+interface PersonalInfoFormInputsProps {
+  isWeb3: boolean;
+}
 
 export const PersonalInfoFormInputs = observer(
   ({}: PersonalInfoFormInputsProps) => {
@@ -46,16 +48,16 @@ export const PersonalInfoFormInputs = observer(
                 label="Username"
                 aria-label="username"
                 placeholder="Your @username"
-                className="mb-1 h-8 text-md"
+                className="mb-1 h-8 text-base"
               />
             </div>
-
+            
             <MyInput
               name="bio"
               label="Your Introduction to Others"
               aria-label="Your Introduction to Others"
               placeholder="Provide a proper introduction"
-              className="mb-1 h-8 text-md"
+              className="mb-1 h-8 text-base"
             />
           </>
         ),
@@ -70,14 +72,14 @@ export const PersonalInfoFormInputs = observer(
                 label="First Name"
                 aria-label="firstName"
                 placeholder="Your first name"
-                className="mb-1 h-8 text-md"
+                className="mb-1 h-8 text-base"
               />
               <MyInput
                 name="lastName"
                 label="Last Name"
                 aria-label="lastName"
                 placeholder="Your last name"
-                className="mb-1 h-8 text-md"
+                className="mb-1 h-8 text-base"
               />
             </div>
             <FileUploadInput
@@ -105,7 +107,7 @@ export const PersonalInfoFormInputs = observer(
           label="Date of Birth"
           aria-label="dateOfBirth"
           placeholder="05/01/2000"
-          className="mb-1 h-8 text-md"
+          className="mb-1 h-8 text-base"
         />
       </>
     );
@@ -123,7 +125,7 @@ export const HobbiesAndOptionalInfoFormInputs = observer(
           label="Country of Origin"
           placeholder="Select a Country"
           options={COUNTRY_OPTIONS}
-          className="mb-1 h-8 text-md"
+          className="mb-1 h-8 text-base"
         />
 
         <MultiSelect
@@ -136,7 +138,7 @@ export const HobbiesAndOptionalInfoFormInputs = observer(
         <div>
           <label
             htmlFor="maritalStatus"
-            className="block text-md font-medium text-gray-700 dark:text-gray-200"
+            className="block text-base font-medium text-gray-700 dark:text-gray-200"
           >
             Marital Status:
           </label>
@@ -159,7 +161,7 @@ export const HobbiesAndOptionalInfoFormInputs = observer(
           label="Religion"
           placeholder="Select a Religion"
           options={RELIGION_OPTIONS}
-          className="mb-1 h-8 text-md"
+          className="mb-1 h-8 text-base"
         />
       </>
     );

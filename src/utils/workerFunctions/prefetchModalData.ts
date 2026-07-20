@@ -6,7 +6,12 @@ import ModalDataWorker from '@webWorkers/modalDataWorker?worker';
 
 import { PostToDisplay, UserItemToDisplay } from 'typings';
 
-const worker = new ModalDataWorker();
+// Constructed on first use, never at module scope: importing a module must not
+// have the side effect of spawning a worker. Worker bundles transitively import
+// this file, so a module-scope `new ModalDataWorker()` made every worker spawn
+// another worker.
+let worker: Worker | undefined;
+const getWorker = () => (worker ??= new ModalDataWorker());
 
 export type PrefetchPayloadMessageEvent = {
     data: {
@@ -31,6 +36,8 @@ function setPostsToAdd(postsToAdd: PostToDisplay[], postsToAddPagination: Pagina
 
 
 export const prefetchModalData = (loggedInUserId: string) => {
+  const worker = getWorker();
+
   // Send command to worker
   worker.postMessage({ loggedInUserId });
 

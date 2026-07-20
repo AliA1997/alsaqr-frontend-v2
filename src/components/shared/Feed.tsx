@@ -1,23 +1,20 @@
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-// import { RefreshIcon } from "@heroicons/react/outline";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   PostToDisplay,
 } from "@typings";
 
 import PostBox from "../posts/PostBox";
-import { convertQueryStringToObject } from "@utils/index";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
 import { leadingDebounce } from "@utils/api/agent";
-import { ContentContainerWithRef } from "@common/Containers";
-import { NoRecordsTitle, PageTitle } from "@common/Titles";
+import { PageTitle } from "@common/Titles";
 import PostComponent from "@components/posts/Post";
 import { SkeletonLoader } from "@common/CustomLoader";
-import { DEFAULT_MEDIUM_ITEMS_PERPAGE, inTestMode } from "@utils/constants";
+import { DEFAULT_VIRTUALIZED_ITEMS_PERPAGE, inTestMode } from "@utils/constants";
 import { FilterKeys } from '@enums';
-// import toast from "react-hot-toast";
+import { VirtualizedFeed } from "./VirtualizedFeed";
 
 interface Props {
   title?: string;
@@ -37,21 +34,19 @@ function FeedContainer({ children }: React.PropsWithChildren<any>) {
 }
 
 
-const Feed = observer(({ 
-  title, 
-  filterKey, 
-  hideTweetBox, 
+const Feed = observer(({
+  title,
+  filterKey,
+  hideTweetBox,
   canAdd,
   onAdd,
-  postsAlreadyAddedByIds 
+  postsAlreadyAddedByIds
 }: Props) => {
   const { authStore, bookmarkFeedStore, exploreStore, feedStore, searchStore } = useStore();
   const { auth, currentSessionUser, processingUserCheck } = authStore;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [_, setMounted] = useState<boolean>(false);
-  const containerRef = useRef(null);
-  const loaderRef = useRef(null);
 
 
   const feedLoadingInitial = useMemo(() => {
@@ -61,8 +56,8 @@ const Feed = observer(({
     else return feedStore.loadingInitial;
   }, [
     searchStore.searchPostsLoadingInitial,
-    feedStore.loadingInitial, 
-    exploreStore.loadingInitial, 
+    feedStore.loadingInitial,
+    exploreStore.loadingInitial,
     bookmarkFeedStore.loadingInitial
   ]);
 
@@ -73,27 +68,11 @@ const Feed = observer(({
     else return feedStore.setPagingParams;
   }, [
     searchStore.searchedPostsPagingParams.currentPage,
-    feedStore.pagingParams.currentPage, 
-    exploreStore.pagingParams.currentPage, 
+    feedStore.pagingParams.currentPage,
+    exploreStore.pagingParams.currentPage,
     bookmarkFeedStore.pagingParams.currentPage
   ]);
-  const setFeedPredicate = useMemo(() => {
-    if (filterKey === FilterKeys.Explore) return exploreStore.setPredicate;
-    else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.setPredicate;
-    else return feedStore.setPredicate;
-  }, []);
-  
-  const feedPagingParams = useMemo(() => {
-    if (filterKey === FilterKeys.Explore) return exploreStore.pagingParams;
-    else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.pagingParams;
-    else if (filterKey === FilterKeys.SearchPosts) return searchStore.searchedPostsPagingParams;
-    else return feedStore.pagingParams;
-  }, [
-    searchStore.searchedPostsPagingParams.currentPage,
-    feedStore.pagingParams.currentPage, 
-    exploreStore.pagingParams.currentPage, 
-    bookmarkFeedStore.pagingParams.currentPage
-  ]);
+
   const feedPagination = useMemo(() => {
     if (filterKey === FilterKeys.Explore) return exploreStore.pagination;
     else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.pagination;
@@ -101,26 +80,19 @@ const Feed = observer(({
     else return feedStore.pagination;
   }, [
     searchStore.searchedPosts,
-    searchStore.searchedPostsPagingParams.currentPage, 
+    searchStore.searchedPostsPagingParams.currentPage,
     feedStore.posts,
-    feedStore.pagingParams.currentPage, 
+    feedStore.pagingParams.currentPage,
     exploreStore.explorePosts,
-    exploreStore.pagingParams.currentPage, 
+    exploreStore.pagingParams.currentPage,
     bookmarkFeedStore.bookmarkedPosts,
     bookmarkFeedStore.pagingParams.currentPage
   ]);
 
-  const filterPredicate: Map<string, any> = useMemo(() => {
-    if (filterKey === FilterKeys.Explore) return exploreStore.predicate;
-    else if(filterKey === FilterKeys.MyBookmarks) return bookmarkFeedStore.predicate;
-    else if (filterKey === FilterKeys.SearchPosts) return searchStore.searchedPostsPredicate;
-    else return feedStore.predicate;
-  }, []);
-
   const loadPosts = async () => {
-    if(filterKey === FilterKeys.SearchPosts && userId) 
+    if(filterKey === FilterKeys.SearchPosts && userId)
       await searchStore.loadSearchedPosts();
-    else if(filterKey === FilterKeys.MyBookmarks && userId) 
+    else if(filterKey === FilterKeys.MyBookmarks && userId)
       await bookmarkFeedStore.loadBookmarkedPosts(userId);
     else if(filterKey === FilterKeys.Normal)
       await feedStore.loadPosts();
@@ -133,20 +105,9 @@ const Feed = observer(({
 
       setLoading(true);
       try {
-        const paramsFromQryString = convertQueryStringToObject(
-          window.location.search
-        );
-  
-        if (
-          (paramsFromQryString.currentPage && paramsFromQryString.itemsPerPage)
-          && (paramsFromQryString.currentPage !== filterPredicate.get('currentPage')
-            || paramsFromQryString.itemsPerPage !== filterPredicate.get('itemsPerPage')
-            || paramsFromQryString.searchTerm != filterPredicate.get('searchTerm'))) {
-    
-          setFeedPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
-          setFeedPredicate('searchTerm', paramsFromQryString.searchTerm);
-        }
-          
+        // Virtualized feeds load a large first page; paging kicks in at end of list.
+        setFeedPagingParams(new PagingParams(1, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE));
+
         await loadPosts();
       } finally {
         setLoading(false);
@@ -158,8 +119,8 @@ const Feed = observer(({
 
     if (!filterKey) return;
     setMounted(true);
-    getPosts(); 
-  
+    getPosts();
+
   }, []);
 
   const loadedPosts = useMemo(() => {
@@ -182,119 +143,64 @@ const Feed = observer(({
 
   const fetchMoreItems = useCallback(
     async (pageNum: number) => {
-      setFeedPagingParams(new PagingParams(pageNum, +DEFAULT_MEDIUM_ITEMS_PERPAGE))
+      setFeedPagingParams(new PagingParams(pageNum, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE))
       await loadPosts();
     },
-    [feedPagingParams?.currentPage, filterKey]
+    [feedPagination?.currentPage, filterKey]
   );
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = feedPagination?.currentPage ?? 1;
-        const itemsPerPage = feedPagination?.itemsPerPage ?? +DEFAULT_MEDIUM_ITEMS_PERPAGE;
-        const totalItems = feedPagination?.totalItems ?? 0;
-
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = totalItems >= totalItemsOnNextPage;
-
-        if (firstEntry?.isIntersecting && !feedLoadingInitial && hasMoreItems) {
-          fetchMoreItems(feedPagingParams.currentPage + 1);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '10px',
-        threshold: 0.1
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
-  }, [feedPagination, feedLoadingInitial, fetchMoreItems]);
-
-  const userId = useMemo(() => 
+  const userId = useMemo(() =>
       inTestMode()
-      ? auth?.getUser()?.id : currentSessionUser ? currentSessionUser.id 
-      : "", 
+      ? auth?.getUser()?.id : currentSessionUser ? currentSessionUser.id
+      : "",
     [currentSessionUser?.id, auth?.getUser()?.id]);
 
+  const renderPost = useCallback(
+    (_: number, postRec: PostToDisplay) => (
+      <PostComponent
+        filterKey={filterKey}
+        postToDisplay={postRec}
+        onAdd={onAdd}
+        canAdd={canAdd}
+        postsAlreadyAddedByIds={postsAlreadyAddedByIds}
+      />
+    ),
+    [filterKey, onAdd, canAdd, postsAlreadyAddedByIds]
+  );
 
-  const LoadMoreTrigger = () => {
-    return (
-      <div className=" dark:text-gray-500 italic" ref={loaderRef} style={{ height: '20px' }}>
-        {feedLoadingInitial && feedPagination?.currentPage == 1 ? <SkeletonLoader /> : null}
-      </div>
-    );
-  };
+  const isFirstPage = (feedPagination?.currentPage ?? 1) <= 1;
+  const isInitialLoading = feedLoadingInitial || (loading && isFirstPage);
+  const hasPosts = !!loadedPosts?.length;
 
   return (
-    <div 
+    <div
       className="col-span-7 text-left scrollbar-hide max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800"
     >
       {title && <PageTitle>{title}</PageTitle>}
       <div>
-        {processingUserCheck 
+        {processingUserCheck
           ? <SkeletonLoader />
           : currentSessionUser && !hideTweetBox && (
           <PostBox filterKey={filterKey ? filterKey : FilterKeys.Normal} />
           )}
       </div>
-      <ContentContainerWithRef 
-        classNames={`
-          text-left overflow-y-auto scrollbar-hide
-          ${filterKey === FilterKeys.SearchPosts ? 'min-h-[30vh] max-h-[40vh]' : 'min-h-[100vh] max-h-[100vh]'}  
-        `}
-        innerRef={containerRef}
-        data-testid="feedcontaineritems"
-      >
-        {(() => {
-          const isFirstPage = (feedPagination?.currentPage ?? 1) <= 1;
-          const isInitialLoading = feedLoadingInitial || (loading && isFirstPage);
-          const hasPosts = !!loadedPosts?.length;
-
-          // 1. First load, no data yet → skeleton screen (prevents blank flash)
-          if (isInitialLoading && !hasPosts) {
-            return <SkeletonLoader count={filterKey === FilterKeys.SearchPosts ? 2 : 5} />;
-          }
-
-          // 2. Have posts → render them + keep the infinite-scroll trigger
-          if (hasPosts) {
-            return (
-              <>
-                {loadedPosts.map((postRec, postKey) => (
-                  <PostComponent
-                    filterKey={filterKey}
-                    key={postRec.postId ?? postKey}
-                    postToDisplay={postRec}
-                    onAdd={onAdd}
-                    canAdd={canAdd}
-                    postsAlreadyAddedByIds={postsAlreadyAddedByIds}
-                  />
-                ))}
-                <LoadMoreTrigger />
-              </>
-            );
-          }
-
-          // 3. Done loading, genuinely empty
-          return (
-            <NoRecordsTitle>
-              {filterKey === FilterKeys.SearchPosts ? 'No Similar Posts to show' : 'No Posts to show'}
-            </NoRecordsTitle>
-          );
-        })()}
-      </ContentContainerWithRef>
+      <div className="text-left" data-testid="feedcontaineritems">
+        {isInitialLoading && !hasPosts ? (
+          // First load, no data yet → skeleton screen (prevents blank flash)
+          <SkeletonLoader count={filterKey === FilterKeys.SearchPosts ? 2 : 5} />
+        ) : (
+          <VirtualizedFeed<PostToDisplay>
+            items={loadedPosts}
+            pagination={feedPagination}
+            loading={feedLoadingInitial}
+            onEndReached={fetchMoreItems}
+            itemContent={renderPost}
+            computeItemKey={(index, post) => post.postId ?? index}
+            emptyText={filterKey === FilterKeys.SearchPosts ? 'No Similar Posts to show' : 'No Posts to show'}
+            height={filterKey === FilterKeys.SearchPosts ? '40vh' : '100vh'}
+          />
+        )}
+      </div>
     </div>
   );
 });

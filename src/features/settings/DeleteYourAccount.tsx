@@ -9,6 +9,7 @@ const DeleteYourAccount = observer(() => {
     const {settingsStore, modalStore } = useStore();
     const { loadingUpsert, deleteYourAccount } = settingsStore;
     const { showModal, closeModal } = modalStore;
+    
     return (
         <div>
             <h1 className='text-bold text-3xl my-2'>Before you go...</h1>

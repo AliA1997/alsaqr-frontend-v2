@@ -8,6 +8,7 @@ import { PersonalInfoForm } from "@models/settings";
 import { UpdateUserForm } from "@models/users";
 import toast from "react-hot-toast";
 import { PageTitle } from "@common/Titles";
+import { SkeletonLoader } from "@common/CustomLoader";
 
 
 const PersonalInfo = observer(() => {
@@ -38,6 +39,10 @@ const PersonalInfo = observer(() => {
         }
     };
 
+    
+    if(!currentSessionUser)
+        return <SkeletonLoader count={6} />;
+    
     return (
         <div className='mb-[10rem]'>
             <PageTitle className="text-2xl">Your Personal Info</PageTitle>
@@ -87,14 +92,14 @@ const PersonalInfo = observer(() => {
                         handleSubmit,
                     }) => (
                         <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
-                            <PersonalInfoFormInputs />
+                            <PersonalInfoFormInputs isWeb3={!!currentSessionUser?.web3Address} />
 
                             <Select
                                 name="countryOfOrigin"
                                 label="Country of Origin"
                                 placeholder="Select a Country"
                                 options={COUNTRY_OPTIONS}
-                                className="mb-1 h-8 text-md"
+                                className="mb-1 h-8 text-base"
                             />
 
                             <button

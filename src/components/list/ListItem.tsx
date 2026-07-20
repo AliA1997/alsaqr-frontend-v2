@@ -20,10 +20,13 @@ import { OptimizedImage } from "@common/Image";
 interface Props {
   listToDisplay: ListToDisplay;
   onlyDisplay?: boolean;
+  // Fill the parent cell instead of self-sizing (used inside virtualized grid feeds).
+  fitParent?: boolean;
 }
 
 function ListItemComponent({
   listToDisplay,
+  fitParent,
 }: Props) {
   const navigate = useNavigate();
   const { authStore, modalStore, listFeedStore } = useStore();
@@ -106,8 +109,9 @@ function ListItemComponent({
     <>
       <div
         className={`
-          flex flex-col relative justify-between space-x-3 border-y border-gray-100 mr-[1rem]
-          p-5 mr-1 mb-2 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] h-[8.5rem] w-[30rem] lg:w-[20rem]
+          flex flex-col relative justify-between space-x-3 border-y border-gray-100
+          p-5 hover:shadow-lg dark:border-gray-800 dark:hover:bg-[#000000] h-[8.5rem]
+          ${fitParent ? 'w-full' : 'mr-[1rem] mr-1 mb-2 w-[30rem] lg:w-[20rem]'}
           hover:cursor-pointer`}
         style={{ backgroundImage: `url('${listInfo.listBannerImage}')`, objectFit: "scale-down" }}
         data-testid='listcard'

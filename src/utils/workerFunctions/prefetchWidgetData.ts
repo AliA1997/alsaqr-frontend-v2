@@ -4,7 +4,9 @@ import { WidgetPrefetchPayloadData } from '@webWorkers/prefetchWidgetDataWorker'
 import PrefetchWidgetDataWorker from '@webWorkers/prefetchWidgetDataWorker?worker';
 import { ExploreToDisplay } from 'typings';
 
-const worker = new PrefetchWidgetDataWorker();
+// Constructed on first use — see prefetchModalData for why module scope is unsafe.
+let worker: Worker | undefined;
+const getWorker = () => (worker ??= new PrefetchWidgetDataWorker());
 
 export type WidgetPrefetchMessageEvent = {
     data: {
@@ -14,6 +16,8 @@ export type WidgetPrefetchMessageEvent = {
 };
 
 export const prefetchWidgetData = () => {
+    const worker = getWorker();
+
     // Kick off the background fetch
     worker.postMessage({});
 

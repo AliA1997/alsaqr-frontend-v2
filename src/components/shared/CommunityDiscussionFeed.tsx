@@ -1,24 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { 
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
   CommonUpsertBoxTypes,
 } from '@models/enums';
-import { convertQueryStringToObject } from "@utils/index";
-
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
-import { NoRecordsTitle, PageTitle } from '@common/Titles';
+import { PageTitle } from '@common/Titles';
 
 
 import type { CommunityDiscussionToDisplay } from "@models/community";
 import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import { SkeletonLoader } from "@common/CustomLoader";
-import { ContentContainerWithRef } from "@common/Containers";
 import CommunityDiscussionItemComponent from "@components/community/CommunityDiscussionItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
-import { useThrottle } from "@hooks/useThrottle";
-import { inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import { DEFAULT_VIRTUALIZED_ITEMS_PERPAGE, inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
 import SearchBar from "@common/SearchBar";
+import { VirtualizedCardFeed } from "./VirtualizedFeed";
+import { leadingDebounce } from "@utils/api/agent";
 
 interface Props {
   communityId: string;
@@ -27,11 +25,8 @@ interface Props {
 const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   const { authStore, modalStore, communityDiscussionFeedStore } = useStore();
   const { auth, currentSessionUser } = authStore;
-  const containerRef = useRef(null);
-  const loaderRef = useRef(null);
   const [mounted, setMounted] = useState<boolean>(false);
   const {
-    pagingParams,
     setPagingParams,
     setPredicate,
     predicate,
@@ -41,39 +36,24 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
   } = communityDiscussionFeedStore;
 
   async function getRecords() {
-    const paramsFromQryString = convertQueryStringToObject(
-      window.location.search
-    );
+    // Virtualized feeds load a large first page; paging kicks in at end of list.
+    setPagingParams(new PagingParams(1, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE));
 
-
-    if (
-      (paramsFromQryString.currentPage && paramsFromQryString.itemsPerPage)
-      && (paramsFromQryString.currentPage !== predicate.get('currentPage')
-        || paramsFromQryString.itemsPerPage !== predicate.get('itemsPerPage')
-        || paramsFromQryString.searchTerm != predicate.get('searchTerm'))) {
-
-      setPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
-      setPredicate('searchTerm', paramsFromQryString.searchTerm);
-    }
-
-    if(!communityDiscussionFeedStore.communityDiscussions.length)
-      await loadFeedRecords();
-
+    await loadCommunityDiscussions(communityId!);
   }
   const fetchMoreItems = async (pageNum: number) => {
-    setPagingParams(new PagingParams(pageNum, 25))
-    await loadFeedRecords();
+    setPagingParams(new PagingParams(pageNum, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE))
+    await loadCommunityDiscussions(communityId!);
   };
-  const loadFeedRecords = useThrottle(async () => {
-    await loadCommunityDiscussions(communityId!)
-  }, 5_000);
-
+  
   useEffect(() => {
     const isLoggedIn = inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
 
     if(isLoggedIn) {
-      getRecords();
-      setMounted(true);
+      leadingDebounce(async () => {
+        await getRecords();
+        setMounted(true);
+      }, 10000);
     }
 
     return () => {
@@ -86,47 +66,15 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
 
   }, [loadingInitial]);
 
-  const LoadMoreTrigger = () => {
-    return (
-      <div ref={loaderRef} style={{ height: '20px' }}>
-        {loadingInitial && <div>Loading more community discussions...</div>}
-      </div>
-    );
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = pagination?.currentPage ?? 1;
-        const itemsPerPage = pagination?.itemsPerPage ?? 25;
-        const totalItems = pagination?.totalItems ?? 0;
-
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = (totalItems > totalItemsOnNextPage);
-        if (firstEntry?.isIntersecting && !loadingInitial && hasMoreItems && mounted) {
-          fetchMoreItems(pagingParams.currentPage + 1);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '100px',
-        threshold: 0.1
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
-  }, []);
+  const renderDiscussion = useCallback(
+    (_: number, record: CommunityDiscussionToDisplay) => (
+      <CommunityDiscussionItemComponent
+        communityDiscussionToDisplay={record}
+        fitParent
+      />
+    ),
+    []
+  );
 
   const commonUpsertBoxType = useMemo(() => CommonUpsertBoxTypes.CommunityDiscussion, [])
 
@@ -151,8 +99,8 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
       <OpenUpsertModalButton
         testId="createcommunitydiscussionbutton"
         onClick={() => modalStore.showModal(
-                        <ListOrCommunityUpsertModal 
-                          loggedInUserId={currentSessionUser?.id!} 
+                        <ListOrCommunityUpsertModal
+                          loggedInUserId={currentSessionUser?.id!}
                           type={commonUpsertBoxType}
                           communityId={communityId}
                         />
@@ -163,20 +111,16 @@ const CommunityDiscussionFeed = observer(({ communityId }: Props) => {
       {loadingInitial || !mounted ? (
         <SkeletonLoader count={8} />
       ) : (
-        <ContentContainerWithRef
-          classNames='flex flex-wrap min-h-100 md:justify-start'
-          innerRef={containerRef}
-        >
-          <>
-            {loadedRecords && loadedRecords.length 
-              ? loadedRecords.map((record: CommunityDiscussionToDisplay, recordKey) => <CommunityDiscussionItemComponent
-                                                                                            key={record.communityDiscussionId ?? recordKey}
-                                                                                            communityDiscussionToDisplay={record}
-                                                                                        />)
-                : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}
-              <LoadMoreTrigger />
-          </>
-        </ContentContainerWithRef>
+        <VirtualizedCardFeed<CommunityDiscussionToDisplay>
+          items={loadedRecords}
+          pagination={pagination}
+          loading={loadingInitial}
+          onEndReached={fetchMoreItems}
+          itemContent={renderDiscussion}
+          computeItemKey={(index, record) => record.communityDiscussionId ?? index}
+          emptyText={noRecordsTitle}
+          itemClassNames="w-full pb-4 md:w-[21rem] lg:w-[49%] 3xl:w-[30%]"
+        />
       )}
     </div>
   );

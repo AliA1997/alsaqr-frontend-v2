@@ -304,6 +304,7 @@ export const ISLAMIC_STUDY_TOPICS_OPTIONS = [
 
 export const DEFAULT_USER_REGISTRATION_FORM: UserRegisterForm = {
   username: "",
+  walletAddress: "",
   avatar: "",
   bgThumbnail: "",
   email: "",
@@ -421,6 +422,11 @@ export const OAUTH_OPTIONS = {
 export const DEFAULT_SMALL_ITEMS_PERPAGE = "10";
 
 export const DEFAULT_MEDIUM_ITEMS_PERPAGE = "25";
+
+// Virtualized feeds page on end-of-list (react-virtuoso). Virtualization caps how
+// many rows are MOUNTED, not how many are fetched and pushed into the observable
+// registries — so the page size still has to stay small.
+export const DEFAULT_VIRTUALIZED_ITEMS_PERPAGE = "25";
 
 export const SEARCH_TERM_KEY_FOR_PREDICATE = "searchTerm";
 

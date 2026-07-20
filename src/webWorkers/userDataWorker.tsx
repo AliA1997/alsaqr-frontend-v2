@@ -42,29 +42,36 @@ function defineCommonUrlParams() {
 
 // User Data Worker
 self.onmessage = async (event) => {
-    const { loggedInUserId } = event.data;
+    const { loggedInUserId, accessToken } = event.data;
     let result: PrefetchPayloadData | null = null;
     // 1. Perform heavy background fetching/processing
     try {
-        const { items: notifications, pagination: notificationsPagination } = await agent.notificationApiClient.getNotifications(loggedInUserId, defineCommonUrlParams());
-        const { items: bookmarks, pagination: bookmarksPagination } = await agent.postApiClient.getBookmarkedPosts(defineCommonUrlParams(), loggedInUserId);
-
-        const { items: communities, pagination: communitiesPagination } = await agent.communityApiClient.getCommunities(defineCommonUrlParams());
-        const { items: lists, pagination: listsPagination } = await agent.listApiClient.getLists(defineListUrlParams());
-        const { items: messageHistory, pagination: messageHistoryPagination } = await agent.messageApiClient.loadDirectMessageThreads(defineCommonUrlParams());
+        if(!accessToken || !loggedInUserId) {
+            console.log("No logged in user ID provided for data prefetching.");
+            self.postMessage({ type: 'USER_NOT_LOGGED_IN', payload: null });
+        }
+        if(accessToken) {
+            const { items: notifications, pagination: notificationsPagination } = await agent.notificationApiClient.getNotifications(loggedInUserId, defineCommonUrlParams(), accessToken);
+            const { items: bookmarks, pagination: bookmarksPagination } = await agent.postApiClient.getBookmarkedPosts(defineCommonUrlParams(), loggedInUserId, accessToken);
+    
+            const { items: communities, pagination: communitiesPagination } = await agent.communityApiClient.getCommunities(defineCommonUrlParams(), accessToken);
+            const { items: lists, pagination: listsPagination } = await agent.listApiClient.getLists(defineListUrlParams(), accessToken);
+            const { items: messageHistory, pagination: messageHistoryPagination } = await agent.messageApiClient.loadDirectMessageThreads(defineCommonUrlParams(), accessToken);
+            
+            result = {
+                notifications,
+                notificationsPagination,
+                bookmarks,
+                bookmarksPagination,
+                communities,
+                communitiesPagination,
+                lists,
+                listsPagination,
+                messageHistory,
+                messageHistoryPagination
+            };
+        }
         
-        result = {
-            notifications,
-            notificationsPagination,
-            bookmarks,
-            bookmarksPagination,
-            communities,
-            communitiesPagination,
-            lists,
-            listsPagination,
-            messageHistory,
-            messageHistoryPagination
-        };
     } catch {
         console.log("Error prefetching data for loggedin user.");
     }

@@ -1,24 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { 
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
   CommonUpsertBoxTypes,
 } from '@models/enums';
 import type {
   CommunityToDisplay,
 } from "@typings";
-import { convertQueryStringToObject } from "@utils/index";
 
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
-import { NoRecordsTitle, PageTitle } from '@common/Titles';
-import { ContentContainerWithRef } from "@common/Containers";
+import { PageTitle } from '@common/Titles';
 import { SkeletonLoader } from "@common/CustomLoader";
 import ListOrCommunityUpsertModal from "@common/ListOrCommunityUpsertModal";
 import CommunityItemComponent from "@components/community/CommunityItem";
 import { OpenUpsertModalButton } from "@common/Buttons";
-import { useThrottle } from "@hooks/useThrottle";
-import { inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import { DEFAULT_VIRTUALIZED_ITEMS_PERPAGE, inTestMode, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
 import SearchBar from "@common/SearchBar";
+import { VirtualizedCardFeed } from "./VirtualizedFeed";
+import { leadingDebounce } from "@utils/api/agent";
 
 interface Props {
 }
@@ -26,11 +25,8 @@ interface Props {
 const CommunityFeed = observer(({ }: Props) => {
   const { authStore, modalStore, communityFeedStore } = useStore();
   const { auth, currentSessionUser } = authStore;
-  const containerRef = useRef(null);
-  const loaderRef = useRef(null);
   const [mounted, setMounted] = useState<boolean>(false);
   const {
-    pagingParams,
     setPagingParams,
     pagination,
     predicate,
@@ -43,42 +39,28 @@ const CommunityFeed = observer(({ }: Props) => {
 
 
   async function getRecords() {
-    const paramsFromQryString = convertQueryStringToObject(
-      window.location.search
-    );
-
-
-    if (
-      (paramsFromQryString.currentPage && paramsFromQryString.itemsPerPage)
-      && (paramsFromQryString.currentPage !== predicate.get('currentPage')
-        || paramsFromQryString.itemsPerPage !== predicate.get('itemsPerPage')
-        || paramsFromQryString.searchTerm != predicate.get('searchTerm'))) {
-
-      setPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
-      setPredicate('searchTerm', paramsFromQryString.searchTerm);
-    }
-
+    setPagingParams(new PagingParams(1, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE));
+   
     if(!communities.length)
-      loadFeedRecords();
-    
+      await loadCommunities();
+
   }
 
   const fetchMoreItems = async (pageNum: number) => {
-    setPagingParams(new PagingParams(pageNum, 25))
-    await loadFeedRecords();
-  };
-  
-  const loadFeedRecords = useThrottle(async () => {
-
+    setPagingParams(new PagingParams(pageNum, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE))
+    // Not getRecords(): that resets back to page 1 and bails out once the
+    // registry is non-empty, so paging never advanced.
     await loadCommunities();
-  }, 5_000);
+  };
 
   useEffect(() => {
     const isLoggedIn = inTestMode() ? auth?.isLoggedIn() : currentSessionUser?.id;
 
     if(isLoggedIn) {
-      getRecords();
-      setMounted(true);
+      leadingDebounce(async () => {
+        await getRecords()
+        setMounted(true);
+      }, 10000);
     }
 
     return () => {
@@ -86,47 +68,12 @@ const CommunityFeed = observer(({ }: Props) => {
     }
   }, [currentSessionUser?.id, auth]);
 
-  const LoadMoreTrigger = () => {
-    return (
-      <div ref={loaderRef} style={{ height: '20px' }}>
-        {loadingInitial && <div>Loading more communities...</div>}
-      </div>
-    );
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = pagination?.currentPage ?? 1;
-        const itemsPerPage = pagination?.itemsPerPage ?? 25;
-        const totalItems = pagination?.totalItems ?? 0;
-
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = (totalItems > totalItemsOnNextPage);
-        if (firstEntry?.isIntersecting && !loadingInitial && hasMoreItems && mounted) {
-          fetchMoreItems(pagingParams.currentPage + 1);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '10px',
-        threshold: 0.1
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
-  }, []);
+  const renderCommunity = useCallback(
+    (_: number, record: CommunityToDisplay) => (
+      <CommunityItemComponent community={record} fitParent />
+    ),
+    []
+  );
 
   const commonUpsertBoxType = useMemo(() => CommonUpsertBoxTypes.Community, [])
 
@@ -152,30 +99,28 @@ const CommunityFeed = observer(({ }: Props) => {
         )}
 
       <OpenUpsertModalButton
-          testId="createcommunitybutton"      
+          testId="createcommunitybutton"
           onClick={() => modalStore.showModal(
-                          <ListOrCommunityUpsertModal 
-                            loggedInUserId={currentSessionUser?.id!} 
+                          <ListOrCommunityUpsertModal
+                            loggedInUserId={currentSessionUser?.id!}
                             type={commonUpsertBoxType}
                           />
           )}
       >
         Create Community
       </OpenUpsertModalButton>
-        <ContentContainerWithRef
-          classNames='flex flex-wrap min-h-100 md:justify-start'
-          innerRef={containerRef}
-        >
-          <>
-            {communities && communities.length 
-              ? communities.map((record: CommunityToDisplay, recordKey) => <CommunityItemComponent
-                                                                                key={record.communityId ?? recordKey}
-                                                                                community={record}
-                                                                            />)
-                : <NoRecordsTitle>{noRecordsTitle}</NoRecordsTitle>}
-              <LoadMoreTrigger />
-          </>
-        </ContentContainerWithRef>
+      {mounted && (
+        <VirtualizedCardFeed<CommunityToDisplay>
+          items={communities}
+          pagination={pagination}
+          loading={loadingInitial}
+          onEndReached={fetchMoreItems}
+          itemContent={renderCommunity}
+          computeItemKey={(index, record) => record.communityId ?? index}
+          emptyText={noRecordsTitle}
+          itemClassNames="w-full pb-2 lg:w-[49%] 3xl:w-[30%]"
+        />
+      )}
     </div>
   );
 });

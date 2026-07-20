@@ -38,7 +38,7 @@ function ExploreItemComponent({
                 className="w-full absolute bottom-0 left-0 p-4"
                 onClick={e => stopPropagationOnClick(e, navigateToExploreTopics)}
             >
-                <h6 data-testid='exploretext' className="text-white text-sm font-bold sm:text-lg md:text-md drop-shadow-lg line-clamp-2 hover:underline">
+                <h6 data-testid='exploretext' className="text-white text-sm font-bold sm:text-lg md:text-base drop-shadow-lg line-clamp-2 hover:underline">
                     {exploreItem.title}
                 </h6>
             </div>

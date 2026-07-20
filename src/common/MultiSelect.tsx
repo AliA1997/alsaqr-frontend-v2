@@ -49,7 +49,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
   return (
     <div className="space-y-2 relative">
       {label && (
-        <label htmlFor={props.name} className="block text-md font-medium text-gray-700 dark:text-gray-100">
+        <label htmlFor={props.name} className="block text-base font-medium text-gray-700 dark:text-gray-100">
           {label}
         </label>
       )}
@@ -66,7 +66,7 @@ export function MultiSelect({ label, placeholder, options, ...props }: MultiSele
               type="button"
               onDoubleClick={() => removeOption(selectedValue)}
               key={selectedValue}
-              className="flex items-center px-2 bg-[#55a8c2] text-gray-50 rounded-full text-md"
+              className="flex items-center px-2 bg-[#55a8c2] text-gray-50 rounded-full text-base"
             >
               {selectedOption.label}
               <XIcon 

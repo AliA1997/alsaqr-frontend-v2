@@ -40,7 +40,7 @@ function Widgets() {
 
   return (
     <div
-      className="col-span-3 min-w-[100px] max-w-[300px] hidden lg:inline-flex"
+      className="col-span-3 min-w-[100px] max-w-[300px]"
       id="widgets"
     >
       <div className="overflow-y-auto sticky top-0 max-h-screen scrollbar-hide">
@@ -81,7 +81,7 @@ function Widgets() {
                   rel="noopener noreferrer"
                   className="block px-3 py-3 hover:bg-dim-500 transition"
                 >
-                  <h6 className="text-sm lg:text-md font-bold text-gray-700 dark:text-gray-200 hover:text-[#55a8c2]">
+                  <h6 className="text-sm lg:text-base font-bold text-gray-700 dark:text-gray-200 hover:text-[#55a8c2]">
                     {item.title}
                   </h6>
                 </a>
@@ -94,7 +94,7 @@ function Widgets() {
         </div>
 
         <div className="flow-root m-6">
-          <div className="flex gap-6 text-sm">
+          <div className="flex justify-end gap-6 text-sm">
             <a href="/privacy-policy" className="dark:hover:text-white hover:opacity-70 text-[#55a8c2]">
                 Privacy
             </a>

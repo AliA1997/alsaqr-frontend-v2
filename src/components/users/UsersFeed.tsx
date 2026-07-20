@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   UserItemToDisplay,
 } from "@typings";
@@ -9,11 +9,11 @@ import { ModalLoader } from "@common/CustomLoader";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@stores/index";
 import { PageTitle } from "@common/Titles";
-import { ContentContainerWithRef } from "@common/Containers";
 import { PagingParams } from "@models/common";
 import UserItemComponent from "./UserItem";
-import { SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
+import { DEFAULT_VIRTUALIZED_ITEMS_PERPAGE, SEARCH_TERM_KEY_FOR_PREDICATE } from "@utils/constants";
 import SearchBar from "@common/SearchBar";
+import { VirtualizedFeed } from "@components/shared/VirtualizedFeed";
 
 interface Props {
   title?: string;
@@ -33,38 +33,20 @@ function FeedContainer({ children }: React.PropsWithChildren<any>) {
 
 
 const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAddedOrFollowedByIds, onAddOrFollow }: Props) => {
-  // const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
   const { searchStore } = useStore();
   const {
     searchUsersLoadingInitial,
-    searchedUsersPagingParams,
     setSearchedUsersPagingParams,
     searchedUsersPredicate,
     setSearchedUsersPredicate,
     searchedUsersPagination,
     loadSearchedUsers
   } = searchStore;
-  const containerRef = useRef(null);
-  const loaderRef = useRef(null);
 
   const feedLoadingInitial = useMemo(() => {
     return searchUsersLoadingInitial;
   }, [searchUsersLoadingInitial]);
-
-  const setUserFeedPagingParams = useMemo(() => {
-    return setSearchedUsersPagingParams
-  }, [searchedUsersPagingParams.currentPage]);
-  const setUserFeedPredicate = useMemo(() => {
-    return setSearchedUsersPredicate;
-  }, []);
-  
-  const userFeedPagingParams = useMemo(() => {
-    return searchedUsersPagingParams;
-  }, [searchedUsersPagingParams.currentPage]);
-  const userFeedPagination = useMemo(() => {
-    return searchedUsersPagination;
-  }, [searchedUsersPagingParams.currentPage]);
 
   const userFilterPredicate: Map<string, any> = useMemo(() => {
     return searchedUsersPredicate;
@@ -86,11 +68,14 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
         && (paramsFromQryString.currentPage !== userFilterPredicate.get('currentPage')
           || paramsFromQryString.itemsPerPage !== userFilterPredicate.get('itemsPerPage')
           || paramsFromQryString.searchTerm != userFilterPredicate.get('searchTerm'))) {
-  
-        setUserFeedPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
-        setUserFeedPredicate('searchTerm', paramsFromQryString.searchTerm);
+
+        setSearchedUsersPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
+        setSearchedUsersPredicate('searchTerm', paramsFromQryString.searchTerm);
+      } else {
+        // Virtualized feeds load a large first page; paging kicks in at end of list.
+        setSearchedUsersPagingParams(new PagingParams(1, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE));
       }
-        
+
       await loadUsers();
     } finally {
       setLoading(false);
@@ -98,7 +83,7 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
   }
 
   const fetchMoreItems = async (pageNum: number) => {
-    setUserFeedPagingParams(new PagingParams(pageNum, 25))
+    setSearchedUsersPagingParams(new PagingParams(pageNum, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE))
     await loadUsers();
   };
 
@@ -114,54 +99,27 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
     return searchStore.searchedUsers;
   }, [searchStore.searchedUsers]);
 
+  const renderUser = useCallback(
+    (_: number, userRec: UserItemToDisplay) => (
+      <UserItemComponent
+        loggedInUserId={loggedInUserId}
+        filterKey={filterKey}
+        userItemToDisplay={userRec}
+        usersAlreadyFollowedOrAddedIds={usersAlreadyAddedOrFollowedByIds}
+        onAddOrFollow={onAddOrFollow}
+        canAddOrFollow={true}
+        onModal={true}
+      />
+    ),
+    [loggedInUserId, filterKey, usersAlreadyAddedOrFollowedByIds, onAddOrFollow]
+  );
 
-  const LoadMoreTrigger = () => {
-    return (
-      <div ref={loaderRef} style={{ height: '20px' }}>
-        {feedLoadingInitial && <div>Loading more users...</div>}
-      </div>
-    );
-  };
-
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = userFeedPagination?.currentPage ?? 1;
-        const itemsPerPage = userFeedPagination?.itemsPerPage ?? 25;
-        const totalItems = userFeedPagination?.totalItems ?? 0;
-
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = (totalItems > totalItemsOnNextPage);
-        if (firstEntry?.isIntersecting && !feedLoadingInitial && hasMoreItems) {
-          fetchMoreItems(userFeedPagingParams.currentPage + 1);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '10px',
-        threshold: 0.1
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
-  }, []);
+  const isCompact = filterKey === FilterKeys.SearchUsers || filterKey === FilterKeys.Register;
 
   return (
-    <div 
+    <div
       className={`
-        col-span-7 scrollbar-hide border-x ${filterKey === FilterKeys.SearchUsers || filterKey === FilterKeys.Register ? 'z-[100] max-h-[60vh]' : 'max-h-screen'} 
+        col-span-7 scrollbar-hide border-x ${isCompact ? 'z-[100] max-h-[60vh]' : 'max-h-screen'}
         lg:col-span-5 dark:border-gray-800
       `}
     >
@@ -178,33 +136,22 @@ const UsersFeed = observer(({ title, loggedInUserId, filterKey, usersAlreadyAdde
         )}
       </div>
 
-        <ContentContainerWithRef 
-          classNames={`
-            text-center overflow-y-auto scrollbar-hide
-            ${filterKey === FilterKeys.SearchUsers || filterKey === FilterKeys.Register ? 'min-h-[30vh] max-h-[40vh]' : 'min-h-[100vh] max-h-[100vh]'}  
-          `}
-          innerRef={containerRef} 
-        >
-            {loading && (!loadedUsers || !loadedUsers.length) ? (
-              <ModalLoader />
-            ) : (
-              <>
-                {(loadedUsers ?? []).map((userRec: UserItemToDisplay, userKey) => (
-                  <UserItemComponent
-                    key={userRec.id ?? userKey}
-                    loggedInUserId={loggedInUserId}
-                    filterKey={filterKey}
-                    userItemToDisplay={userRec}
-                    usersAlreadyFollowedOrAddedIds={usersAlreadyAddedOrFollowedByIds}
-                    onAddOrFollow={onAddOrFollow}
-                    canAddOrFollow={true}
-                    onModal={true}
-                  />
-                ))}
-                <LoadMoreTrigger />
-              </>
-            )}
-        </ContentContainerWithRef>
+      <div className="text-center">
+        {loading && (!loadedUsers || !loadedUsers.length) ? (
+          <ModalLoader />
+        ) : (
+          <VirtualizedFeed<UserItemToDisplay>
+            items={loadedUsers ?? []}
+            pagination={searchedUsersPagination}
+            loading={feedLoadingInitial}
+            onEndReached={fetchMoreItems}
+            itemContent={renderUser}
+            computeItemKey={(index, userRec) => userRec.id ?? index}
+            emptyText="No Users to show"
+            height={isCompact ? '40vh' : '100vh'}
+          />
+        )}
+      </div>
     </div>
   );
 });

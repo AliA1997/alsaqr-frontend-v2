@@ -1,13 +1,26 @@
 import axios from "axios";
-import { axiosRequests, axiosResponseBody } from "./agent";
+import { axiosResponseBody } from "./agent";
 import { UserRegisterFormDto } from "typings";
 import { FollowUserFormDto, UnFollowUserFormDto, UpdateUserFormDto } from "@models/users";
 
 export const userApiClient = {
-    sessionSignin: (oauthData: any) => 
-        axiosRequests.post(`/api/auth/signin`, { values: oauthData }).then(axiosResponseBody),
-    sessionCheck: (email: string) => 
-        axios.post(`/api/Session/check `, { values: { email } }, { headers: {
+    sessionSignin: (oauthData: any) =>
+        axios.post(`/api/auth/signin`, { values: oauthData }, { headers: {
+            "Content-Type": "application/json"
+        }}).then(axiosResponseBody),
+    sessionCheck: (email: string, web3_address?: string) =>
+        axios.post(`/api/Session/check `, { values: { email, web3_address } }, { headers: {
+            "Content-Type": "application/json"
+        }}).then(axiosResponseBody),
+
+    // Web3 wallet auth mirrors the oauth flow: signin upserts the wallet user,
+    // check returns the session user keyed by wallet address instead of email.
+    web3SessionSignin: (web3Address: string) =>
+        axios.post(`/api/auth/signin`, { values: { web3_address: web3Address, provider: "web3" } }, { headers: {
+            "Content-Type": "application/json"
+        }}).then(axiosResponseBody),
+    web3SessionCheck: (web3Address: string) =>
+        axios.post(`/api/Session/check `, { values: { web3_address: web3Address, email: "" } }, { headers: {
             "Content-Type": "application/json"
         }}).then(axiosResponseBody),
     

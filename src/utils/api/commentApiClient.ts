@@ -4,7 +4,7 @@ import { CommentForm } from "typings";
 
 export const commentApiClient = {
     addComment: (values: CommentForm) =>
-        axiosRequests.post(`/api/Comments`, { values }).then(axiosResponseBody),
+        axiosRequests.post(`/api/Comments`, { values }),
     getCommentsForPost: (params: URLSearchParams | undefined, postId: string) =>
         axios.get(`/api/Posts/${postId}/comments`, { params }).then(axiosResponseBody),
 };

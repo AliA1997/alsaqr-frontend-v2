@@ -4,6 +4,9 @@
   padding: 0rem;
   text-align: center;
 }
+#widgets {
+  display: none;
+}
 
 @media(min-width: 768px) {
   #root {
@@ -18,6 +21,10 @@
     width: 100%;
     max-width: calc(100vw - 2%);
     padding: 1.5rem;
+  }
+
+  #widgets {
+    display: inline-flex;
   }
 }
 

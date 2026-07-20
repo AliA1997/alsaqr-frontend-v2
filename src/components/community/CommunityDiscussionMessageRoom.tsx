@@ -10,10 +10,13 @@ import { motion } from 'framer-motion';
 import { Pagination } from '@models/common';
 import { CommunityDiscussionAdminInfo, CommunityDiscussionMessageDto, CommunityDiscussionMessageToDisplay, CommunityDiscussionToDisplay } from '@models/community';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { hasMoreFeedItems } from '@components/shared/VirtualizedFeed';
 import TimeAgo from "react-timeago";
 import { ButtonLoader, SkeletonLoader } from '@common/CustomLoader';
 import toast from 'react-hot-toast';
 import CommunityDiscussionAdminView from './CommunityDiscussionAdminView';
+// import { RelationshipType } from '@enums';
 import { useNavigate } from 'react-router';
 import { DangerAlert } from '@common/Alerts';
 import { checkNsfwInImage, initializeClient } from '@utils/infrastructure/gradio';
@@ -72,9 +75,7 @@ const CommunityDiscussionMessageRoom = ({
   const [processNsfwCheck, setProcessNsfwCheck] = useState(false);
   const [hasError, setHasError] = useState(false);
   const messageInputRef = useRef<HTMLInputElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef(null);
-  const loaderRef = useRef(null);
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
 
   // Attaching an image kicks off an async NSFW check (see effect below).
   const handleSetImage = (val: string) => {
@@ -89,7 +90,8 @@ const CommunityDiscussionMessageRoom = ({
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages?.length)
+      virtuosoRef.current?.scrollToIndex({ index: messages.length - 1, behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -149,41 +151,12 @@ const CommunityDiscussionMessageRoom = ({
     [communityId, communityDiscussionId]
   );
 
-  // Infinite scroll: load the next page when the trigger element scrolls
-  // into view (mirrors the IntersectionObserver pattern used in Feed).
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = pagination?.currentPage ?? 1;
-        const itemsPerPage = pagination?.itemsPerPage ?? MESSAGES_PER_PAGE;
-        const totalItems = pagination?.totalItems ?? 0;
+  // Infinite scroll: react-virtuoso fires endReached at the end of the
+  // loaded list; load the next page while more messages exist.
+  const handleEndReached = useCallback(() => {
+    if (loadingMessages || !hasMoreFeedItems(pagination)) return;
 
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = totalItems >= totalItemsOnNextPage;
-
-        if (firstEntry?.isIntersecting && !loadingMessages && hasMoreItems) {
-          fetchMoreMessages(nextPage);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '10px',
-        threshold: 0.1,
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
+    void fetchMoreMessages((pagination?.currentPage ?? 1) + 1);
   }, [pagination, loadingMessages, fetchMoreMessages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -231,6 +204,21 @@ const CommunityDiscussionMessageRoom = ({
     return Array.from(new Set([...jUsers, ...iUsers]).values())
   }, [commmityDiscussionInfo])
 
+  // // Only discussion members can join discussion spaces (backend enforces it;
+  // // the UI just reflects membership).
+  // const isDiscussionMember = useMemo(() => {
+  //   if (!commmityDiscussionInfo || !loggedInUser?.id) return false;
+  //   if (commmityDiscussionInfo.creatorId === loggedInUser.id) return true;
+  //   if ((commmityDiscussionInfo.joinedUsers ?? []).some(u => u.userId === loggedInUser.id)) return true;
+  //   if ((commmityDiscussionInfo.moderatorUsers ?? []).some(u => u.userId === loggedInUser.id)) return true;
+
+  //   return [
+  //     RelationshipType.Member,
+  //     RelationshipType.Moderator,
+  //     RelationshipType.Founder,
+  //   ].includes(commmityDiscussionInfo.relationshipType as RelationshipType);
+  // }, [commmityDiscussionInfo, loggedInUser?.id])
+
 
   if(!mounted) 
     return <SkeletonLoader count={3} />;
@@ -253,7 +241,7 @@ const CommunityDiscussionMessageRoom = ({
                 key={user.userId!}
                 src={user.avatar ?? ''}
                 alt={user.username ?? ''}
-                classNames="w-10 h-10 rounded-full border-2 border-white dark:border-none"
+                classNames="w-6 md:w-10 h-6 md:h-10 rounded-full border-2 border-white dark:border-none"
               />
             ))}
         </div>
@@ -266,62 +254,72 @@ const CommunityDiscussionMessageRoom = ({
       {adminCommunityDiscussionInfo?.isFounder && (
         <CommunityDiscussionAdminView
           communityDiscussionAdminInfo={adminCommunityDiscussionInfo}
-          refreshCommunityDiscussionAdminInfo={refreshCommunityDiscussionInfo} 
+          refreshCommunityDiscussionAdminInfo={refreshCommunityDiscussionInfo}
         />
       )}
+      {/* Ephemeral audio space for this discussion. Scoped to this discussion's
+          own space — the community-wide list belongs on the community page. */}
+      {/* <div className="px-4">
+        <SpacePanel
+          kind="community-discussion"
+          communityId={communityId}
+          communityDiscussionId={communityDiscussionId}
+          isMember={isDiscussionMember}
+        />
+      </div> */}
       {/* Messages */}
-      <div ref={containerRef} className="flex-[0.5] overflow-y-auto p-4 space-y-3">
+      <div className="h-[50vh] p-4">
         {loadingMessages && (!messages || !messages.length) ? (
           <SkeletonLoader count={8} />
-        ) : (
-          <>
-            {messages && messages.length
-              ? messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.userId === loggedInUser.id ? 'justify-end' : 'justify-start'}`}
-                  data-testid="communitydiscussionmessagecard"
-                >
-                  {/* {!(message.userId === loggedInUser.id) && (
-                    <OptimizedImage
-                      src={message.avat}
-                      alt={message.username}
-                      classNames="w-8 h-8 rounded-full mr-2 mt-1"
-                    />
-                  )} */}
-                  <div className={`max-w-xs md:max-w-md lg:max-w-lg ${(message.userId === loggedInUser.id) ? 'flex flex-col items-end' : ''}`}>
-                    {!(message.userId === loggedInUser.id) && (
-                      <span className="text-xs font-medium text-gray-700 mb-1">
-                        {/* {message.username} */}
-                      </span>
+        ) : messages && messages.length ? (
+          <Virtuoso
+            ref={virtuosoRef}
+            style={{ height: '100%' }}
+            className="scrollbar-hide"
+            data={messages}
+            computeItemKey={(index, message) => message.id ?? index}
+            endReached={handleEndReached}
+            increaseViewportBy={200}
+            itemContent={(_, message) => (
+              <div
+                className={`flex pb-3 ${message.userId === loggedInUser.id ? 'justify-end' : 'justify-start'}`}
+                data-testid="communitydiscussionmessagecard"
+              >
+                <div className={`max-w-xs md:max-w-md lg:max-w-lg ${(message.userId === loggedInUser.id) ? 'flex flex-col items-end' : ''}`}>
+                  {!(message.userId === loggedInUser.id) && (
+                    <span className="text-xs font-medium text-gray-700 mb-1">
+                      {/* {message.username} */}
+                    </span>
+                  )}
+                  <div
+                    className={`p-3 rounded-lg ${(message.userId === loggedInUser.id) ? 'bg-blue-500 text-white' : 'bg-[#55a8c2] text-white'}`}
+                  >
+                    <p>{message.messageText}</p>
+                    {message.image && (
+                      <img
+                        src={message.image}
+                        alt="img/tweet"
+                        className="m-5 ml-0 max-h-60 rounded-lg object-cover shadow-sm"
+                      />
                     )}
-                    <div
-                      className={`p-3 rounded-lg ${(message.userId === loggedInUser.id) ? 'bg-blue-500 text-white' : 'bg-[#55a8c2] text-white'}`}
-                    >
-                      <p>{message.messageText}</p>
-                      {message.image && (
-                        <img
-                          src={message.image}
-                          alt="img/tweet"
-                          className="m-5 ml-0 max-h-60 rounded-lg object-cover shadow-sm"
-                        />
-                      )}
-                    </div>
-                    <TimeAgo
-                      className="text-sm text-gray-500"
-                      date={convertDateToDisplay(message.createdAt)}
-                    />
                   </div>
+                  <TimeAgo
+                    className="text-sm text-gray-500"
+                    date={convertDateToDisplay(message.createdAt)}
+                  />
                 </div>
-              ))
-              : <NoRecordsTitle>No Discussion Messages to Display</NoRecordsTitle>}
-            {messages && messages.length ? (
-              <div ref={loaderRef} className="dark:text-gray-500 italic" style={{ height: '20px' }}>
-                {loadingMessages ? <SkeletonLoader count={1} /> : null}
               </div>
-            ) : null}
-            <div ref={messagesEndRef} />
-          </>
+            )}
+            components={{
+              Footer: () => loadingMessages ? (
+                <div className="dark:text-gray-500 italic">
+                  <SkeletonLoader count={1} />
+                </div>
+              ) : null,
+            }}
+          />
+        ) : (
+          <NoRecordsTitle>No Discussion Messages to Display</NoRecordsTitle>
         )}
       </div>
 

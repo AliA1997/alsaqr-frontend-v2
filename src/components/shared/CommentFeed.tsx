@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   PostToDisplay,
 } from "@typings"
@@ -9,9 +9,9 @@ import { useStore } from "@stores/index";
 import { PagingParams } from "@models/common";
 import { leadingDebounce } from "@utils/api/agent";
 import CommentComponent from "@components/posts/Comment";
-import { ContentContainerWithRef } from "@common/Containers";
 import { ModalLoader } from "@common/CustomLoader";
-import { NoRecordsTitle } from "@common/Titles";
+import { DEFAULT_VIRTUALIZED_ITEMS_PERPAGE } from "@utils/constants";
+import { VirtualizedFeed } from "./VirtualizedFeed";
 
 interface Props {
   postId: string;
@@ -30,13 +30,10 @@ function CommentFeedContainer({ children }: React.PropsWithChildren<any>) {
 const CommentFeed = observer(({
   postId
 }: Props) => {
-  
+
   const [mounted, setMounted] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { commentFeedStore } = useStore();
-  const [_, setIsLoading] = useState(false);
-  const containerRef = useRef(null);
-  const loaderRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -61,11 +58,6 @@ const CommentFeed = observer(({
     return commentFeedStore.setPredicate;
   }, []);
 
-  const feedPagingParams = useMemo(() => {
-    return commentFeedStore.pagingParams;
-  }, [
-    commentFeedStore.pagingParams.currentPage
-  ]);
   const feedPagination = useMemo(() => {
     return commentFeedStore.pagination;
   }, [
@@ -98,6 +90,9 @@ const CommentFeed = observer(({
 
           setFeedPagingParams(new PagingParams(paramsFromQryString.currentPage, paramsFromQryString.itemsPerPage));
           setFeedPredicate('searchTerm', paramsFromQryString.searchTerm);
+        } else {
+          // Virtualized feeds load a large first page; paging kicks in at end of list.
+          setFeedPagingParams(new PagingParams(1, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE));
         }
 
         await loadComments();
@@ -108,8 +103,7 @@ const CommentFeed = observer(({
   }
 
   const fetchMoreItems = async (pageNum: number) => {
-    setIsLoading(true);
-    setFeedPagingParams(new PagingParams(pageNum, 10))
+    setFeedPagingParams(new PagingParams(pageNum, +DEFAULT_VIRTUALIZED_ITEMS_PERPAGE))
     await loadComments();
   };
 
@@ -122,77 +116,31 @@ const CommentFeed = observer(({
     () => commentFeedStore.comments,
     [commentFeedStore.comments]);
 
-
-  const LoadMoreTrigger = () => {
-    return (
-      <div ref={loaderRef} style={{ height: '20px' }}>
-        {feedLoadingInitial && <div>Loading more comments...</div>}
-      </div>
-    );
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-        const currentPage = feedPagination?.currentPage ?? 1;
-        const itemsPerPage = feedPagination?.itemsPerPage ?? 10;
-        const totalItems = feedPagination?.totalItems ?? 0;
-
-        const nextPage = currentPage + 1;
-        const totalItemsOnNextPage = nextPage * itemsPerPage;
-        const hasMoreItems = (totalItems > totalItemsOnNextPage);
-
-        if (firstEntry?.isIntersecting && !feedLoadingInitial && hasMoreItems) {
-          fetchMoreItems(feedPagingParams.currentPage + 1);
-        }
-      },
-      {
-        root: containerRef.current,
-        rootMargin: '100px',
-        threshold: 0.2
-      }
-    );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
-
-    return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
-    };
-  }, [fetchMoreItems]);
+  const renderComment = useCallback(
+    (_: number, commentRec: PostToDisplay) => (
+      <CommentComponent
+        commentToDisplay={commentRec}
+        onlyDisplay={false}
+      />
+    ),
+    []
+  );
 
   if(!loading && mounted)
     return (
       <div className="col-span-7 scrollbar-hide border-x max-h-screen overflow-scroll lg:col-span-5 dark:border-gray-800">
-        <ContentContainerWithRef
-          classNames={`
-            text-center overflow-y-auto scrollbar-hide
-            min-h-[20vh] max-h-[40vh]
-          `}
-          innerRef={containerRef}
-        >
-          {loading ? (
-            <ModalLoader />
-          ) : (
-            <>
-              {loadedComments && loadedComments.length
-                ? loadedComments.map((commentRec) => (
-                  <CommentComponent
-                    key={commentRec.postId}
-                    commentToDisplay={commentRec}
-                    onlyDisplay={false}
-                  />
-                ))
-                : <NoRecordsTitle>Be the first comment</NoRecordsTitle>}
-              <LoadMoreTrigger />
-            </>
-          )}
-        </ContentContainerWithRef>
+        <div className="text-center">
+          <VirtualizedFeed<PostToDisplay>
+            items={loadedComments}
+            pagination={feedPagination}
+            loading={feedLoadingInitial}
+            onEndReached={fetchMoreItems}
+            itemContent={renderComment}
+            computeItemKey={(index, comment) => comment.postId ?? index}
+            emptyText="Be the first comment"
+            height="40vh"
+          />
+        </div>
       </div>
     );
 

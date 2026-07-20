@@ -56,6 +56,13 @@ export function getEmailUsername(email: string): string {
   return username;
 }
 
+export function displayUsername(username: string): string {
+  if(username.length > 11)
+    return username.substring(0, 8) + "...";
+
+  return username;
+}
+
 export const defaultSearchParams = {
   page: 1,
   limit: 20,

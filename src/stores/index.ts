@@ -15,6 +15,7 @@ import MessageStore from './messageStore';
 import SettingsStore from './settingsStore';
 import CommentFeedStore from './commentFeedStore';
 import YumnaFeedStore from './yumnaFeedStore';
+import SpaceStore from './spaceStore';
 
 interface Store {
     authStore: AuthStore;
@@ -31,6 +32,7 @@ interface Store {
     notificationStore: NotificationStore;
     searchStore: SearchStore;
     settingsStore: SettingsStore;
+    spaceStore: SpaceStore;
     userStore: UserStore;
     yumnaFeedStore: YumnaFeedStore;
 }
@@ -51,6 +53,7 @@ export const store: Store = {
     notificationStore: new NotificationStore(),
     searchStore: new SearchStore(),
     settingsStore: new SettingsStore(),
+    spaceStore: new SpaceStore(),
     userStore: new UserStore(),
     yumnaFeedStore: new YumnaFeedStore()
 };

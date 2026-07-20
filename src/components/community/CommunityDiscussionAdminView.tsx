@@ -8,7 +8,7 @@ import type { CommunityDiscussionAdminInfo } from "@models/community";
 import { FilterKeys } from "@enums";
 import { InfoCardContainer } from "@common/Containers";
 import { ConfirmModal } from "@common/Modal";
-import { TagOrLabel } from "@common/Titles";
+import { AdminViewPanelSubTitle, AdminViewPanelTitle, TagOrLabel } from "@common/Titles";
 import { CommonLink } from "@common/Links";
 
 type Props = {
@@ -27,10 +27,10 @@ function CommunityDiscussionAdminView({
     if (communityDiscussionAdminInfo)
         return (
             <>
-                <div className='flex justify-between items-center p-5'>
-                     <h1 className='text-4xl'>
+                <div className='flex-col lg:flex justify-between items-center p-5'>
+                     <AdminViewPanelTitle>
                         {`A Discussion Starter Welcome `}
-                    </h1>
+                    </AdminViewPanelTitle>
                     <div className='flex space-x-2'>
                         <CommonLink
                             onClick={() =>
@@ -76,9 +76,9 @@ function CommunityDiscussionAdminView({
                 </div>
                 <div className='relative flex'>
                     <InfoCardContainer classNames="hover:shadow-none">
-                        <h1 className='text-3xl'>
+                        <AdminViewPanelTitle>
                             {communityDiscussionAdminInfo.title}
-                        </h1>
+                        </AdminViewPanelTitle>
                     </InfoCardContainer>
                     <TagOrLabel
                         color={(communityDiscussionAdminInfo.isPrivate ?? false) ? 'danger' : 'info'}
@@ -91,22 +91,22 @@ function CommunityDiscussionAdminView({
                 <div className="flex">
                     <InfoCardContainer classNames="hover:shadow-none">
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Invited Users:</p>
-                        <h1 className='w-full text-center text-3xl'>
+                        <AdminViewPanelSubTitle>
                             {communityDiscussionAdminInfo.invitedCount}
-                        </h1>
+                        </AdminViewPanelSubTitle>
                     </InfoCardContainer>
                     <InfoCardContainer classNames="hover:shadow-none">
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Joined Users:</p>
-                        <h1 className='w-full text-center text-3xl'>
+                        <AdminViewPanelSubTitle>
                             {communityDiscussionAdminInfo.joinedCount}
-                        </h1>
+                        </AdminViewPanelSubTitle>
                     </InfoCardContainer>
                     {(communityDiscussionAdminInfo.isPrivate ?? false) && (
                         <InfoCardContainer classNames="hover:shadow-none">
                             <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Pending Invites:</p>
-                            <h1 className='w-full text-center text-3xl'>
+                            <AdminViewPanelSubTitle>
                                 {communityDiscussionAdminInfo.inviteRequestedUsers?.length ?? 0}
-                            </h1>
+                            </AdminViewPanelSubTitle>
                             <button
                                 type='button'
                                 onClick={async (e) => {
@@ -137,9 +137,9 @@ function CommunityDiscussionAdminView({
                     )}
                     <InfoCardContainer classNames="hover:shadow-none">
                         <p className='absolute left-0 top-0 w-full text-center text-sm text-gray-700 dark:text-gray-100'>Created on: </p>
-                        <h1 className='w-full text-center mt-2'>
+                        <AdminViewPanelSubTitle>
                             {new Date(convertDateToDisplay(communityDiscussionAdminInfo.createdAt)).toLocaleString('default', { dateStyle: 'short' })}
-                        </h1>
+                        </AdminViewPanelSubTitle>
                     </InfoCardContainer>
                 </div>
             </>

@@ -188,7 +188,7 @@ function PostBox({ filterKey }: Props) {
               }}
               placeholder={inputPlaceholder}
               className={`
-                h-18 lg:h-24 w-full text-sm text-md lg:text-xl outline-none placeholder:text-sm md:placeholder:text-md lg:placeholder:text-xl 
+                h-18 lg:h-24 w-full text-sm text-base lg:text-xl outline-none placeholder:text-sm md:placeholder:text-base lg:placeholder:text-xl 
                 dark:text-gray-50 dark:bg-[#000000] resize-none p-2 lg:p-5  
               `}
             />
