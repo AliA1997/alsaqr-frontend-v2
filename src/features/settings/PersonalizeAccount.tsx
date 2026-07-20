@@ -2,7 +2,7 @@ import { MultiSelect } from "@common/MultiSelect";
 import { RadioCard } from "@common/RadioBoxes";
 import { Select } from "@common/Select";
 import { useStore } from "@stores/index";
-import { FAVORITE_QURAN_RECITER_OPTIONS, FREQUENT_MASJID_OPTIONS, HOBBIES_OPTIONS, ISLAMIC_SCHOLARS_OPTIONS, ISLAMIC_STUDY_TOPICS_OPTIONS, MARITAL_STATUS_OPTIONS, PREFERRED_MADHAB_OPTIONS, RELIGION_OPTIONS } from "@utils/constants";
+import { HOBBIES_OPTIONS, MARITAL_STATUS_OPTIONS, RELIGION_OPTIONS } from "@utils/constants";
 import { Formik, FormikErrors } from "formik";
 import { observer } from "mobx-react-lite";
 import { PersonalizeAccountForm } from "@models/settings";
@@ -54,11 +54,6 @@ const PersonalizeAccount = observer(() => {
                         maritalStatus: currentSessionUser?.maritalStatus ?? "single",
                         religion: currentSessionUser?.religion ?? "Prefer Not To Disclose",
                         hobbies: currentSessionUser?.hobbies ?? [],
-                        preferredMadhab: currentSessionUser?.preferredMadhab ??  "Prefer Not To Disclose",
-                        frequentMasjid: currentSessionUser?.frequentMasjid ?? false,
-                        favoriteQuranReciters: currentSessionUser?.favoriteQuranReciters ?? [],
-                        favoriteIslamicScholars: currentSessionUser?.favoriteIslamicScholars ?? [],
-                        islamicStudyTopics: currentSessionUser?.islamicStudyTopics ?? []
                     } as PersonalizeAccountForm}
                     validate={values => {
                         const errors: FormikErrors<any> = {};
@@ -66,8 +61,6 @@ const PersonalizeAccount = observer(() => {
                             errors.religion = 'Religion is required';
                         } else if (!values.hobbies) {
                             errors.hobbies = 'Hobbies is required';
-                        } else if (!values.preferredMadhab) {
-                            values.preferredMadhab = 'Prefer Not To Disclose';
                         }
 
                         return errors;
@@ -78,7 +71,6 @@ const PersonalizeAccount = observer(() => {
                 
                 >
                     {({
-                        values,
                         errors,
                         handleSubmit,
                     }) => (
@@ -117,47 +109,6 @@ const PersonalizeAccount = observer(() => {
                                 </div>
                             </div>
 
-                            {values.religion === "Muslim" && (
-                                <>        
-                                    <Select
-                                        name="preferredMadhab"
-                                        label="Preferred Madhab"
-                                        placeholder="Select your preferred madhab"
-                                        options={PREFERRED_MADHAB_OPTIONS}
-                                        className="mb-1 h-8 text-base"
-                                    />
-                              
-                                    <Select
-                                        name="frequentMasjid"
-                                        label="How often you go the masjid or mosque?"
-                                        placeholder="Select how often you go"
-                                        options={FREQUENT_MASJID_OPTIONS}
-                                        className="mb-1 h-8 text-base"
-                                    />
-                              
-
-                                    <MultiSelect 
-                                        name="favoriteQuranReciters"
-                                        label={"Favorite Quran Reciters"}
-                                        placeholder="Select Favorite Quran Reciters"
-                                        options={FAVORITE_QURAN_RECITER_OPTIONS}
-                                    />
-
-                                    <MultiSelect 
-                                        name="favoriteIslamicScholars"
-                                        label={"Favorite Islamic Scholars"}
-                                        placeholder="Select Favorite Islamic Scholars"
-                                        options={ISLAMIC_SCHOLARS_OPTIONS}
-                                    />     
-
-                                    <MultiSelect 
-                                        name="islamicStudyTopics"
-                                        label={"Favorite Islamic Study Topics"}
-                                        placeholder="Select Favorite Islamic Study Topics"
-                                        options={ISLAMIC_STUDY_TOPICS_OPTIONS}
-                                    />        
-                                </>
-                            )}
                             <button
                                 type='submit'
                                 disabled={Object.values(errors).some(v => !!v) || loadingUpsert}

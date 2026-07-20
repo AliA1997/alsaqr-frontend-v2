@@ -14,9 +14,4 @@ export interface PersonalizeAccountForm {
     maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed';
     religion: string;
     hobbies?: string[];
-    preferredMadhab?: 'Hanafi' | "Shafi'i" | 'Maliki' | 'Hanbali' | "Salafi" | "Prefer Not To Disclose";
-    frequentMasjid?: string;
-    favoriteQuranReciters?: string[];
-    favoriteIslamicScholars?: string[];
-    islamicStudyTopics?: string[];
 }

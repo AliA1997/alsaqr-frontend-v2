@@ -211,11 +211,7 @@ const UserHeader = ({
                             lastName: profileInfo.lastName,
                             dateOfBirth: profileInfo.dateOfBirth,
                             countryOfOrigin: '',
-                            preferredMadhab: '',
                             hobbies: [],
-                            favoriteQuranReciters: [],
-                            favoriteIslamicScholars: [],
-                            islamicStudyTopics: [],
                             followingCount: profileInfo.followingCount,
                             followerCount: profileInfo.followerCount,
                             totalItems: 1
