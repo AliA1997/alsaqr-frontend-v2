@@ -1,41 +1,84 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { CreateListOrCommunityForm, CreateListOrCommunityFormDto, ListToDisplay } from "@typings";
-import { Pagination, PagingParams } from "@models/common";
+import { PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 import { ListItemToDisplay } from "@models/list";
 import { DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM } from "@utils/constants";
 import { store } from ".";
+import FeedState from "./base/feedState";
 
 export default class ListFeedStore {
+
+    // Two independent feeds in one store -- the reason FeedState is composed in
+    // rather than inherited from.
+    feed = new FeedState<ListToDisplay>((list) => list.listId, { itemsPerPage: 25 });
+    savedListItemsFeed = new FeedState<ListItemToDisplay>(
+        (listItem) => listItem.listItemId,
+        { itemsPerPage: 10, clearStrategy: "always" }
+    );
+
+    loadingUpsert = false;
+    selectedList: ListToDisplay | undefined = undefined;
+    listInfoForSavedListItems: any | undefined = undefined;
+    listCreationForm: CreateListOrCommunityForm = DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM;
+    currentStepInListCreation: number | undefined = undefined;
 
     constructor() {
         makeAutoObservable(this);
     }
 
-
-    loadingInitial = false;
-    loadingListItems = false;
-    predicate = new Map();
-    savedListItemsPredicate = new Map();
-    setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if (value) {
-            this.predicate.set(predicate, value);
-        } else {
-            this.predicate.delete(predicate);
-        }
+    // -- lists feed surface --
+    get lists() {
+        return this.feed.items;
     }
-    pagingParams: PagingParams = new PagingParams(1, 25);
-    pagination: Pagination | undefined = undefined;
-    savedListItemsPagingParams: PagingParams = new PagingParams(1, 10);
-    savedListItemsPagination: Pagination | undefined = undefined;
+    get loadingInitial() {
+        return this.feed.loadingInitial;
+    }
+    get pagingParams() {
+        return this.feed.pagingParams;
+    }
+    get pagination() {
+        return this.feed.pagination;
+    }
+    get predicate() {
+        return this.feed.predicate;
+    }
 
-    listsRegistry: Map<string, ListToDisplay> = new Map<string, ListToDisplay>();
-    selectedList: ListToDisplay | undefined = undefined;
-    listInfoForSavedListItems: any | undefined = undefined;
-    savedListItemsRegistry: Map<string, ListItemToDisplay> = new Map<string, ListItemToDisplay>();
-    loadingUpsert = false;
-    listCreationForm: CreateListOrCommunityForm = DEFAULT_CREATED_LIST_OR_COMMUNITY_FORM;
-    currentStepInListCreation: number | undefined = undefined;
+    setPagingParams = (pagingParams: PagingParams) => this.feed.setPagingParams(pagingParams);
+    setPagination = this.feed.setPagination;
+    setPredicate = this.feed.setPredicate;
+    setLoadingInitial = this.feed.setLoadingInitial;
+    setList = (listId: string, list: ListToDisplay) => this.feed.setItemByKey(listId, list);
+    setSearchQry = (val: string) => this.feed.setPredicate("searchQry", val);
+    resetPredicate = () => this.feed.predicate.clear();
+    resetPagingParams = () => this.feed.setPage(1, 25);
+    /** Named resetListsState historically -- kept as an alias, prefer resetFeedState. */
+    resetFeedState = this.feed.reset;
+    resetListsState = this.feed.reset;
+
+    // -- saved list items feed surface --
+    get savedListItems() {
+        return this.savedListItemsFeed.items;
+    }
+    get loadingListItems() {
+        return this.savedListItemsFeed.loadingInitial;
+    }
+    get savedListItemsPagingParams() {
+        return this.savedListItemsFeed.pagingParams;
+    }
+    get savedListItemsPagination() {
+        return this.savedListItemsFeed.pagination;
+    }
+    get savedListItemsPredicate() {
+        return this.savedListItemsFeed.predicate;
+    }
+
+    setSavedListItemsPagingParams = (pagingParams: PagingParams) =>
+        this.savedListItemsFeed.setPagingParams(pagingParams);
+    setSavedListItemsPagination = this.savedListItemsFeed.setPagination;
+    setLoadingListItems = this.savedListItemsFeed.setLoadingInitial;
+    setSavedListItem = (listItemId: string, listItem: ListItemToDisplay) =>
+        this.savedListItemsFeed.setItemByKey(listItemId, listItem);
 
     setListInfoForSavedListItems = (val: any | undefined) => {
         this.listInfoForSavedListItems = val;
@@ -46,25 +89,6 @@ export default class ListFeedStore {
     setLoadingUpsert = (value: boolean) => {
         this.loadingUpsert = value;
     }
-    setLoadingInitial = (value: boolean) => {
-        this.loadingInitial = value;
-    }
-    setLoadingListItems = (value: boolean) => {
-        this.loadingListItems = value;
-    }
-    setPagingParams = (pagingParams: PagingParams) => {
-        this.pagingParams = pagingParams;
-    }
-    setPagination = (pagination: Pagination) => {
-        this.pagination = pagination;
-    }
-    setSavedListItemsPagingParams = (pagingParams: PagingParams) => {
-        this.savedListItemsPagingParams = pagingParams;
-    }
-    setSavedListItemsPagination = (pagination: Pagination) => {
-        this.savedListItemsPagination = pagination;
-    }
-    setSearchQry = (val: string) => this.predicate.set('searchQry', val);
     setCurrentStepInListCreation = (currentStep: number) => {
         this.currentStepInListCreation = currentStep;
     }
@@ -72,45 +96,15 @@ export default class ListFeedStore {
         this.listCreationForm = val;
     }
 
-    setList = (listId: string, list: ListToDisplay) => {
-        this.listsRegistry.set(listId, list);
-    }
-    setSavedListItem = (listItemId: string, listItem: ListItemToDisplay) => {
-        this.savedListItemsRegistry.set(listItemId, listItem);
-    }
+    loadLists = async (refresh?: boolean) =>
+        this.feed.load((params) => agent.listApiClient.getLists(params), { refresh });
 
-    resetPredicate = () => {
-        this.predicate.clear();
-    }
-    resetPagingParams = () => {
-        this.pagingParams = new PagingParams(1, 25);
-    }
-
-    resetListsState = () => {
-        this.pagingParams = new PagingParams(1, 25);
-        this.predicate.clear();
-        this.listsRegistry.clear();
-    }
-
-    get axiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.pagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.pagingParams.itemsPerPage.toString());
-        this.predicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-    get savedListItemsAxiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.savedListItemsPagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.savedListItemsPagingParams.itemsPerPage.toString());
-        this.savedListItemsPredicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
+    loadSavedListItems = async (listId: string) =>
+        this.savedListItemsFeed.load((params) =>
+            agent.listApiClient.getSavedListItems(params, listId)
+        );
 
     addList = async (newList: CreateListOrCommunityForm) => {
-
         this.setLoadingUpsert(true);
         try {
             const newListDto: CreateListOrCommunityFormDto = {
@@ -129,57 +123,28 @@ export default class ListFeedStore {
 
             store.modalStore.closeModal();
 
-            await this.loadLists();
+            await this.loadLists(true);
         } finally {
-            this.setLoadingUpsert(false);
+            runInAction(() => this.setLoadingUpsert(false));
         }
-
     }
 
     savePostToList = async (postId: string, listId: string) => {
-
         this.setLoadingUpsert(true);
         try {
             await agent.listApiClient.saveItemToList(postId, "post", listId)
-
         } finally {
-            this.setLoadingUpsert(false);
+            runInAction(() => this.setLoadingUpsert(false));
         }
-
     }
-    saveUserToList = async (userToSaveId: string, listId: string) => {
 
+    saveUserToList = async (userToSaveId: string, listId: string) => {
         this.setLoadingUpsert(true);
         try {
             await agent.listApiClient.saveItemToList(userToSaveId, "user", listId)
-
         } finally {
-            this.setLoadingUpsert(false);
+            runInAction(() => this.setLoadingUpsert(false));
         }
-
-    }
-
-    loadLists = async () => {
-        this.setLoadingInitial(true);
-        runInAction(() => {
-            this.listsRegistry.clear();
-        });
-
-        try {
-            const { items, pagination } = await agent.listApiClient.getLists(this.axiosParams);
-            runInAction(() => {
-                items.forEach((list: ListToDisplay) => {
-                    this.setList(list.listId, list)
-                });
-            });
-
-            this.setPagination(pagination);
-        } catch (error) {
-            console.log("ERROR:", error);
-        } finally {
-            this.setLoadingInitial(false);
-        }
-
     }
 
     deleteList = async (listId: string) => {
@@ -187,33 +152,10 @@ export default class ListFeedStore {
         try {
             await agent.listApiClient.deleteList(listId);
 
-            await this.loadLists();
+            await this.loadLists(true);
         } finally {
-            this.setLoadingUpsert(false);
+            runInAction(() => this.setLoadingUpsert(false));
         }
-    }
-
-    loadSavedListItems = async (listId: string) => {
-        this.setLoadingListItems(true);
-        runInAction(() => {
-            this.savedListItemsRegistry.clear();
-        });
-
-        try {
-
-            const { items, pagination } = await agent.listApiClient.getSavedListItems(this.savedListItemsAxiosParams, listId);
-            runInAction(() => {
-                items.forEach((listItem: ListItemToDisplay) => {
-                    this.setSavedListItem(listItem.listItemId, listItem)
-                });
-            });
-            this.setSavedListItemsPagination(pagination);
-        } catch(error){
-            console.log("Get List Items Error:", error);
-        } finally {
-            this.setLoadingListItems(false);
-        }
-
     }
 
     deleteSavedListItem = async (listId: string, listItemId: string) => {
@@ -221,16 +163,9 @@ export default class ListFeedStore {
         try {
             await agent.listApiClient.deleteSavedListItem(listId, listItemId);
 
+            runInAction(() => this.savedListItemsFeed.removeItem(listItemId));
         } finally {
-            this.setLoadingUpsert(false);
+            runInAction(() => this.setLoadingUpsert(false));
         }
-    }
-
-    get lists() {
-        return Array.from(this.listsRegistry.values());
-    }
-
-    get savedListItems() {
-        return Array.from(this.savedListItemsRegistry.values());
     }
 }

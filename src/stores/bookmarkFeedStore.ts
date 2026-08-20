@@ -1,112 +1,65 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { PostToDisplay } from "@typings";
-import { Pagination, PagingParams } from "@models/common";
+import { PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 import { BookmarkParams } from "@models/posts";
+import FeedState from "./base/feedState";
 
 export default class BookmarkFeedStore {
 
-    constructor() {
-        makeAutoObservable(this);
-
-        reaction(
-            () => this.predicate.keys(),
-            () => {
-                // this.predicate.clear();
-                // this.loadPosts();
-            }
-        );
-    }
-
-
-    loadingInitial = false;
-    predicate = new Map();
-    setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
-            this.predicate.set(predicate, value);
-        } else {
-            this.predicate.delete(predicate);
-        }
-    }
-    pagingParams: PagingParams = new PagingParams(1, 10);
-    pagination: Pagination | undefined = undefined;
-
-    bookmarkedPostsRegistry: Map<string, PostToDisplay> = new Map<string, PostToDisplay>();
-    commentsRegistry: Map<string, Comment> = new Map<string, Comment>();
+    feed = new FeedState<PostToDisplay>((pst) => pst.postId, { itemsPerPage: 10 });
 
     loadedBookmarkedPost: PostToDisplay | undefined = undefined;
 
-    setPagingParams = (pagingParams: PagingParams) => {
-        this.pagingParams = pagingParams;
-    }
-    setPagination = (value: Pagination | undefined) => {
-        this.pagination = value;
+    constructor() {
+        makeAutoObservable(this);
     }
 
-    setBookmarkedPost = (postId: string, post: PostToDisplay) => {
-        this.bookmarkedPostsRegistry.set(postId, post);
+    // -- feed surface, delegated so consumers keep reading bookmarkFeedStore.x --
+    get bookmarkedPosts() {
+        return this.feed.items;
+    }
+    get loadingInitial() {
+        return this.feed.loadingInitial;
+    }
+    get pagingParams() {
+        return this.feed.pagingParams;
+    }
+    get pagination() {
+        return this.feed.pagination;
+    }
+    get predicate() {
+        return this.feed.predicate;
     }
 
-    setLoadingInitial = (value: boolean) => {
-        this.loadingInitial = value;
-    }
+    setPagingParams = (pagingParams: PagingParams) => this.feed.setPagingParams(pagingParams);
+    setPagination = this.feed.setPagination;
+    setPredicate = this.feed.setPredicate;
+    setLoadingInitial = this.feed.setLoadingInitial;
+    setBookmarkedPost = (postId: string, post: PostToDisplay) =>
+        this.feed.setItemByKey(postId, post);
+    resetBookmarksFeedState = this.feed.reset;
+
     setLoadedBookmarkedPost = (value: PostToDisplay) => {
         this.loadedBookmarkedPost = value;
     }
 
-
-    resetBookmarksFeedState = () => {
-        this.predicate.clear();
-        this.bookmarkedPostsRegistry.clear();
-    }
-
-    get axiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.pagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.pagingParams.itemsPerPage.toString());
-        this.predicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-
-    loadBookmarkedPosts = async (sessionUserId: string) => {
-
-        this.setLoadingInitial(true);
-
-        try {
-            if(this.pagingParams.currentPage === 1)
-                this.bookmarkedPostsRegistry.clear();
-        
-            const { items, pagination } = await agent.postApiClient.getBookmarkedPosts(this.axiosParams, sessionUserId) ?? [];
-
-            runInAction(() => {
-                items.forEach((pst: PostToDisplay) => {
-                    this.setBookmarkedPost(pst.postId, pst);
-                });
-            });
-
-            this.setPagination(pagination);
-        } finally {
-            this.setLoadingInitial(false);
-        }
-
-    }
+    loadBookmarkedPosts = async (sessionUserId: string) =>
+        this.feed.load((params) =>
+            agent.postApiClient.getBookmarkedPosts(params, sessionUserId)
+        );
 
     bookmarkPost = async (bookmarkParams: BookmarkParams) => {
-
-        this.setLoadingInitial(true);
+        this.feed.setLoadingInitial(true);
         try {
             await agent.mutatePostApiClient.bookmarkPost(bookmarkParams) ?? {};
-
         } finally {
-            this.setLoadingInitial(false);
+            runInAction(() => this.feed.setLoadingInitial(false));
         }
-
     }
 
     loadPost = async (postId: string) => {
-
-        this.setLoadingInitial(true);
+        this.feed.setLoadingInitial(true);
         try {
             const post = await agent.postApiClient.getPost(postId) ?? {};
 
@@ -114,12 +67,7 @@ export default class BookmarkFeedStore {
                 this.setLoadedBookmarkedPost(post);
             });
         } finally {
-            this.setLoadingInitial(false);
+            runInAction(() => this.feed.setLoadingInitial(false));
         }
-
-    }
-
-    get bookmarkedPosts() {
-        return Array.from(this.bookmarkedPostsRegistry.values());
     }
 }

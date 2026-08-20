@@ -44,7 +44,9 @@ function setMessageHistory(messageHistory: MessageHistoryToDisplay[], messageHis
     messageHistory.forEach((messageItem: MessageHistoryToDisplay) => {
         store.messageStore.setDirectMessageHistory(messageItem);
     });
-    store.messageStore.setPagination(messageHistoryPagination);
+    // History pagination belongs to the thread-list feed, not the open thread's
+    // messages. These used to share one field, so this wrote to the wrong one.
+    store.messageStore.setHistoryPagination(messageHistoryPagination);
 }
 
 

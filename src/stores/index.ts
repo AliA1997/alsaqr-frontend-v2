@@ -1,4 +1,5 @@
 import { useContext, createContext } from 'react';
+import { reaction } from 'mobx';
 import CommonStore from './commonStore';
 import ModalStore from './modalStore';
 import AuthStore from './authStore';
@@ -16,6 +17,7 @@ import SettingsStore from './settingsStore';
 import CommentFeedStore from './commentFeedStore';
 import YumnaFeedStore from './yumnaFeedStore';
 import SpaceStore from './spaceStore';
+import FeedState from './base/feedState';
 
 interface Store {
     authStore: AuthStore;
@@ -62,4 +64,20 @@ export const StoreContext = createContext(store);
 
 export function useStore() {
     return useContext(StoreContext);
+}
+
+// Test bridge. Playwright drives FeedState directly through this rather than
+// inferring its behaviour from rendered feeds, so the store-layer specs need
+// neither a logged-in session nor a live backend.
+//
+// Gated on import.meta.env.DEV (a real boolean Vite replaces at build time), not
+// on inTestMode() -- that helper compares an env string to the boolean `true`,
+// which is never equal, so it always returns false.
+//
+// The window guard also keeps this out of worker contexts, which have `self`
+// but no `window`.
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+    // `reaction` rides along because a bare `import('mobx')` from the page
+    // context does not resolve against Vite's pre-bundled deps.
+    (window as any).__alsaqrTest = { store, FeedState, reaction };
 }

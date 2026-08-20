@@ -1,286 +1,136 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable } from "mobx";
 import type { ExploreToDisplay, PostToDisplay } from "@typings";
 import { ExploreTabs } from '@enums';
-import { Pagination, PagingParams } from "@models/common";
+import { PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
+import FeedState from "./base/feedState";
+
+const NEWS_ITEMS_PERPAGE = 40;
+
+/** News items have no id; the title is the natural key, as before. */
+const newsFeed = () =>
+    new FeedState<ExploreToDisplay>((newsItem) => newsItem.title, {
+        itemsPerPage: NEWS_ITEMS_PERPAGE,
+    });
 
 export default class ExploreStore {
 
+    // One feed per source. Previously all six loaders cleared exploreNewsRegistry
+    // rather than their own registry, so loading any source wiped the Popular
+    // feed while its own results accumulated forever.
+    exploreNewsFeed = newsFeed();
+    ajNewsFeed = newsFeed();
+    argaamNewsFeed = newsFeed();
+    bleacherReportNewsFeed = newsFeed();
+    cryptoCoinNewsFeed = newsFeed();
+    hackerNewsFeed = newsFeed();
+    sabqNewsFeed = newsFeed();
+
+    postsFeed = new FeedState<PostToDisplay>((post) => post.postId, { itemsPerPage: 25 });
+
+    topicToExplore: string = '';
+
     constructor() {
         makeAutoObservable(this);
+    }
 
-        reaction(
-            () => this.predicate.keys(),
-            () => {}
+    // -- explore posts feed surface --
+    get explorePosts() {
+        return this.postsFeed.items;
+    }
+    get pagingParams() {
+        return this.postsFeed.pagingParams;
+    }
+    get pagination() {
+        return this.postsFeed.pagination;
+    }
+    get predicate() {
+        return this.postsFeed.predicate;
+    }
+
+    setPagingParams = (pagingParams: PagingParams) => this.postsFeed.setPagingParams(pagingParams);
+    setPagination = this.postsFeed.setPagination;
+    setPredicate = this.postsFeed.setPredicate;
+    setSearchQry = (val: string) => this.postsFeed.setPredicate("searchQry", val);
+    setExplorePost = (postId: string, post: PostToDisplay) =>
+        this.postsFeed.setItemByKey(postId, post);
+    resetExploreState = this.postsFeed.reset;
+
+    // -- news feeds --
+    /** True while any news source is loading, matching the old shared flag. */
+    get loadingInitial() {
+        return (
+            this.exploreNewsFeed.loadingInitial ||
+            this.ajNewsFeed.loadingInitial ||
+            this.argaamNewsFeed.loadingInitial ||
+            this.bleacherReportNewsFeed.loadingInitial ||
+            this.cryptoCoinNewsFeed.loadingInitial ||
+            this.hackerNewsFeed.loadingInitial ||
+            this.sabqNewsFeed.loadingInitial
         );
     }
-
-    loadingInitial = false;
-    pagination: Pagination | undefined;
-    newsPagination: Pagination | undefined;
-    setLoadingInitial = (value: boolean) => {
-        this.loadingInitial = value;
+    get newsPagingParams() {
+        return this.exploreNewsFeed.pagingParams;
     }
-    setPagination = (value: Pagination | undefined) => {
-        this.pagination = value;
-    }
-    setNewsPagination = (value: Pagination | undefined) => {
-        this.newsPagination = value;
-    }
-    predicate = new Map();
-    setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if (predicate)
-            this.predicate.set(predicate, value);
-        else
-            this.predicate.delete(predicate);
-    }
-    topicToExplore: string = '';
-    pagingParams: PagingParams = new PagingParams(1, 25);
-    newsPagingParams: PagingParams = new PagingParams(1, 40);
-
-    exploreNewsRegistry: Map<string, ExploreToDisplay> = new Map<string, ExploreToDisplay>();
-    ajNewsRegistry: Map<string, ExploreToDisplay> = new Map<string, ExploreToDisplay>();
-    argaamNewsRegistry: Map<string, ExploreToDisplay> = new Map<string, ExploreToDisplay>();
-    bleacherReportNewsRegistry: Map<string, ExploreToDisplay> = new Map<string, ExploreToDisplay>();
-    cryptoCoinNewsRegistry: Map<string, ExploreToDisplay> = new Map<string, ExploreToDisplay>();
-    hackerNewsRegistry: Map<string, ExploreToDisplay> = new Map<string, ExploreToDisplay>();
-    sabqNewsRegistry: Map<string, ExploreToDisplay> = new Map<string, ExploreToDisplay>();
-
-    explorePostsRegistry: Map<string, PostToDisplay> = new Map<string, PostToDisplay>();
-
-    setPagingParams = (pagingParams: PagingParams) => {
-        this.pagingParams = pagingParams;
-    }
-    setNewsPagingParams = (pagingParams: PagingParams) => {
-        this.newsPagingParams = pagingParams;
-    }
-    setSearchQry = (val: string) => this.predicate.set('searchQry', val);
-
-    setExploreNewsItem = (newsItem: ExploreToDisplay) => {
-        this.exploreNewsRegistry.set(newsItem.title, newsItem);
-    }
-    setAjNewsItem = (newsItem: ExploreToDisplay) => this.ajNewsRegistry.set(newsItem.title, newsItem);
-    setArgaamNewsItem = (newsItem: ExploreToDisplay) => this.argaamNewsRegistry.set(newsItem.title, newsItem);
-    setBleacherReportNewsItem = (newsItem: ExploreToDisplay) => this.bleacherReportNewsRegistry.set(newsItem.title, newsItem);
-    setCryptoCoinNewsItem = (newsItem: ExploreToDisplay) => this.cryptoCoinNewsRegistry.set(newsItem.title, newsItem);
-    setHackerNewsItem = (newsItem: ExploreToDisplay) => this.hackerNewsRegistry.set(newsItem.title, newsItem);
-    setSabqNewsItem = (newsItem: ExploreToDisplay) => this.sabqNewsRegistry.set(newsItem.title, newsItem);
-    
-    setExplorePost = (postId: string, post: PostToDisplay) => {
-        this.explorePostsRegistry.set(postId, post);
+    get newsPagination() {
+        return this.exploreNewsFeed.pagination;
     }
 
-    resetExploreState = () => {
-        this.predicate.clear();
-        this.explorePostsRegistry.clear();
-    }
+    setLoadingInitial = this.exploreNewsFeed.setLoadingInitial;
+    setNewsPagingParams = (pagingParams: PagingParams) =>
+        this.exploreNewsFeed.setPagingParams(pagingParams);
+    setNewsPagination = this.exploreNewsFeed.setPagination;
 
-    get axiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.pagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.pagingParams.itemsPerPage.toString());
-        this.predicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-
-    get newsAxiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.newsPagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.newsPagingParams.itemsPerPage.toString());
-        this.predicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-
-    loadExploreNews = async () => {
-
-        this.setLoadingInitial(true);
-
-        try {
-            if(this.newsPagingParams.currentPage === 1)
-                this.exploreNewsRegistry.clear();
-        
-            const { items, pagination } = await agent.exploreApiClient.getExplore(this.newsAxiosParams);
-            
-            runInAction(() => {
-                items.forEach((exploreNewItem: ExploreToDisplay) => {
-                    this.setExploreNewsItem(exploreNewItem);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-            // alert(this.postsRegistry.size)
-        }
-
-    }
-
-    loadAjNews = async () => {
-        this.setLoadingInitial(true);
-        try {
-            if(this.newsPagingParams.currentPage === 1)
-                this.exploreNewsRegistry.clear();
-        
-            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.AlJazeeraEnglish, this.newsAxiosParams);
-            
-            runInAction(() => {
-                items.forEach((exploreNewItem: ExploreToDisplay) => {
-                    this.setAjNewsItem(exploreNewItem);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-    }
-
-    
-    loadArgaamNews = async () => {
-        this.setLoadingInitial(true);
-        try {
-            if(this.newsPagingParams.currentPage === 1)
-                this.exploreNewsRegistry.clear();
-        
-            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.Argaam, this.newsAxiosParams);
-            
-            runInAction(() => {
-                items.forEach((exploreNewItem: ExploreToDisplay) => {
-                    this.setArgaamNewsItem(exploreNewItem);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-    }
-    
-    loadBleacherReportNews = async () => {
-        this.setLoadingInitial(true);
-        try {
-            if(this.newsPagingParams.currentPage === 1)
-                this.exploreNewsRegistry.clear();
-        
-            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.BleacherReport, this.newsAxiosParams);
-            
-            runInAction(() => {
-                items.forEach((exploreNewItem: ExploreToDisplay) => {
-                    this.setBleacherReportNewsItem(exploreNewItem);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-    }
-    
-    loadCryptoCoinNews = async () => {
-        this.setLoadingInitial(true);
-        try {
-            if(this.newsPagingParams.currentPage === 1)
-                this.exploreNewsRegistry.clear();
-        
-            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.CryptoCoinsNews, this.newsAxiosParams);
-            
-            runInAction(() => {
-                items.forEach((exploreNewItem: ExploreToDisplay) => {
-                    this.setCryptoCoinNewsItem(exploreNewItem);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-    }
-    
-    loadHackerNews = async () => {
-        this.setLoadingInitial(true);
-        try {
-            if(this.newsPagingParams.currentPage === 1)
-                this.exploreNewsRegistry.clear();
-        
-            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.HackerNews, this.newsAxiosParams);
-            
-            runInAction(() => {
-                items.forEach((exploreNewItem: ExploreToDisplay) => {
-                    this.setHackerNewsItem(exploreNewItem);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-    }
-    
-    loadSabqNews = async () => {
-        this.setLoadingInitial(true);
-        try {
-            if(this.newsPagingParams.currentPage === 1)
-                this.exploreNewsRegistry.clear();
-        
-            const { items, pagination } = await agent.exploreApiClient.getExploreFromSource(ExploreTabs.SABQ, this.newsAxiosParams);
-            
-            runInAction(() => {
-                items.forEach((exploreNewItem: ExploreToDisplay) => {
-                    this.setSabqNewsItem(exploreNewItem);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-        }
-    }
-
-    get explorePosts() {
-        return Array.from(this.explorePostsRegistry.values());
-    }
+    setExploreNewsItem = (newsItem: ExploreToDisplay) => this.exploreNewsFeed.setItem(newsItem);
+    setAjNewsItem = (newsItem: ExploreToDisplay) => this.ajNewsFeed.setItem(newsItem);
+    setArgaamNewsItem = (newsItem: ExploreToDisplay) => this.argaamNewsFeed.setItem(newsItem);
+    setBleacherReportNewsItem = (newsItem: ExploreToDisplay) =>
+        this.bleacherReportNewsFeed.setItem(newsItem);
+    setCryptoCoinNewsItem = (newsItem: ExploreToDisplay) => this.cryptoCoinNewsFeed.setItem(newsItem);
+    setHackerNewsItem = (newsItem: ExploreToDisplay) => this.hackerNewsFeed.setItem(newsItem);
+    setSabqNewsItem = (newsItem: ExploreToDisplay) => this.sabqNewsFeed.setItem(newsItem);
 
     get exploreNews() {
-        return Array.from(this.exploreNewsRegistry.values());
+        return this.exploreNewsFeed.items;
+    }
+    get ajNews() {
+        return this.ajNewsFeed.items;
+    }
+    get argaamNews() {
+        return this.argaamNewsFeed.items;
+    }
+    get bleacherReportNews() {
+        return this.bleacherReportNewsFeed.items;
+    }
+    get cryptoCoinNews() {
+        return this.cryptoCoinNewsFeed.items;
+    }
+    get hackerNews() {
+        return this.hackerNewsFeed.items;
+    }
+    get sabqNews() {
+        return this.sabqNewsFeed.items;
     }
 
     get widgetExploreNews() {
-        return Array.from(this.exploreNewsRegistry.values() ?? []).map(eN =>({
+        return this.exploreNewsFeed.items.map((eN) => ({
             title: eN.title,
-            link: eN.url
-        }))
+            link: eN.url,
+        }));
     }
 
-    get ajNews() {
-        return Array.from(this.ajNewsRegistry.values());
-    }
+    loadExploreNews = async () =>
+        this.exploreNewsFeed.load((params) => agent.exploreApiClient.getExplore(params));
 
-    get argaamNews() {
-        return Array.from(this.argaamNewsRegistry.values());
-    }
+    loadAjNews = async () => this.loadSource(this.ajNewsFeed, ExploreTabs.AlJazeeraEnglish);
+    loadArgaamNews = async () => this.loadSource(this.argaamNewsFeed, ExploreTabs.Argaam);
+    loadBleacherReportNews = async () =>
+        this.loadSource(this.bleacherReportNewsFeed, ExploreTabs.BleacherReport);
+    loadCryptoCoinNews = async () =>
+        this.loadSource(this.cryptoCoinNewsFeed, ExploreTabs.CryptoCoinsNews);
+    loadHackerNews = async () => this.loadSource(this.hackerNewsFeed, ExploreTabs.HackerNews);
+    loadSabqNews = async () => this.loadSource(this.sabqNewsFeed, ExploreTabs.SABQ);
 
-    get bleacherReportNews() {
-        return Array.from(this.bleacherReportNewsRegistry.values());
-    }
-
-    get cryptoCoinNews() {
-        return Array.from(this.cryptoCoinNewsRegistry.values());
-    }
-
-    get hackerNews() {
-        return Array.from(this.hackerNewsRegistry.values());
-    }
-
-    get sabqNews() {
-        return Array.from(this.sabqNewsRegistry.values());
-    }
+    private loadSource = (feed: FeedState<ExploreToDisplay>, source: ExploreTabs) =>
+        feed.load((params) => agent.exploreApiClient.getExploreFromSource(source, params));
 }

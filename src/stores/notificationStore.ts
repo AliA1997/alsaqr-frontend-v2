@@ -1,87 +1,46 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { NotificationToDisplay } from "@typings";
-import { Pagination, PagingParams } from "@models/common";
+import { PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
+import FeedState from "./base/feedState";
 
 export default class NotificationStore {
 
+    feed = new FeedState<NotificationToDisplay>((not) => not.notificationId, {
+        itemsPerPage: 10,
+        staticParams: { all: "true" },
+    });
+
     constructor() {
         makeAutoObservable(this);
-
-        reaction(
-            () => this.predicate.keys(),
-            () => {}
-        );
     }
 
-
-    loadingInitial = false;
-    predicate = new Map();
-    setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
-            this.predicate.set(predicate, value);
-        } else {
-            this.predicate.delete(predicate);
-        }
-    }
-    pagingParams: PagingParams = new PagingParams(1, 10);
-    pagination: Pagination | undefined = undefined;
-
-    notificationsRegistry: Map<string, NotificationToDisplay> = new Map<string, NotificationToDisplay>();
-
-
-    setPagingParams = (pagingParams: PagingParams) => {
-        this.pagingParams = pagingParams;
-    }
-    setPagination = (value: Pagination | undefined) => {
-        this.pagination = value;
-    }
-    setSearchQry = (val: string) => this.predicate.set('searchQry', val);
-
-
-    setNotification = (notificationId: string, notification: NotificationToDisplay) => {
-        this.notificationsRegistry.set(notificationId, notification);
-    }
-    setLoadingInitial = (value: boolean) => {
-        this.loadingInitial = value;
-    }
-
-    resetFeedState = () => {
-        this.predicate.clear();
-        this.notificationsRegistry.clear();
-    }
-
-    get axiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.pagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.pagingParams.itemsPerPage.toString());
-        params.append('all', 'true');
-        this.predicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-
-    loadNotifications = async (userId: string) => {
-
-        this.setLoadingInitial(true);
-        try {
-            const { items, pagination } = await agent.notificationApiClient.getNotifications(userId, this.axiosParams) ?? [];
-
-            runInAction(() => {
-                items.forEach((not: NotificationToDisplay) => {
-                    this.setNotification(not.notificationId, not);
-                });
-
-            });
-
-            this.setPagination(pagination);
-        } finally {
-            this.setLoadingInitial(false);
-        }
-
-    }
-
+    // -- feed surface, delegated so consumers keep reading notificationStore.x --
     get notifications() {
-        return Array.from(this.notificationsRegistry.values());
+        return this.feed.items;
     }
+    get loadingInitial() {
+        return this.feed.loadingInitial;
+    }
+    get pagingParams() {
+        return this.feed.pagingParams;
+    }
+    get pagination() {
+        return this.feed.pagination;
+    }
+    get predicate() {
+        return this.feed.predicate;
+    }
+
+    setPagingParams = (pagingParams: PagingParams) => this.feed.setPagingParams(pagingParams);
+    setPagination = this.feed.setPagination;
+    setPredicate = this.feed.setPredicate;
+    setLoadingInitial = this.feed.setLoadingInitial;
+    setNotification = (notificationId: string, notification: NotificationToDisplay) =>
+        this.feed.setItemByKey(notificationId, notification);
+    setSearchQry = (val: string) => this.feed.setPredicate("searchQry", val);
+    resetFeedState = this.feed.reset;
+
+    loadNotifications = async (userId: string) =>
+        this.feed.load((params) => agent.notificationApiClient.getNotifications(userId, params));
 }

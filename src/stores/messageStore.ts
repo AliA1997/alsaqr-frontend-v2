@@ -1,137 +1,105 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { MessageFormDto, MessageHistoryToDisplay, MessageToDisplay, ProfileUser } from "@typings";
-import { Pagination, PagingParams } from "@models/common";
+import { PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
+import FeedState from "./base/feedState";
 
 export default class MessageStore {
+
+    // Two feeds: the open thread's messages, and the thread list. They used to
+    // share one `pagination` field, so loading the thread list overwrote the
+    // message pagination.
+    feed = new FeedState<MessageToDisplay>((message) => message.messageId, {
+        itemsPerPage: 10,
+        clearStrategy: "always",
+    });
+    historyFeed = new FeedState<MessageHistoryToDisplay>((thread) => thread.receiverId, {
+        itemsPerPage: 25,
+        clearStrategy: "always",
+    });
+
+    loadingUpsert = false;
+    currentProfileToMessage: ProfileUser | undefined = undefined;
+    selectedDirectMessageHistoryItem: MessageHistoryToDisplay | undefined;
+
     constructor() {
         makeAutoObservable(this);
     }
-    loadingInitial = false;
-    loadingUpsert = false;
-    loadingHistory = false;
-    predicate = new Map();
-    setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
-            this.predicate.set(predicate, value);
-        } else {
-            this.predicate.delete(predicate);
-        }
-    }
-    pagingParams: PagingParams = new PagingParams(1, 10);
-    historyPagingParams: PagingParams = new PagingParams(1, 25);
-    pagination: Pagination | undefined = undefined;
-    historyPagination: Pagination | undefined = undefined;
-    currentProfileToMessage: ProfileUser | undefined = undefined;
-    directMessageRegistry: Map<string, MessageToDisplay> = new Map<string, MessageToDisplay>();
 
-    directMessageHistoryRegistry: Map<string, MessageHistoryToDisplay> = new Map<string, MessageHistoryToDisplay>();
-    selectedDirectMessageHistoryItem: MessageHistoryToDisplay | undefined;
+    // -- direct messages feed surface --
+    get directMessages() {
+        return this.feed.items;
+    }
+    get loadingInitial() {
+        return this.feed.loadingInitial;
+    }
+    get pagingParams() {
+        return this.feed.pagingParams;
+    }
+    get pagination() {
+        return this.feed.pagination;
+    }
+    get predicate() {
+        return this.feed.predicate;
+    }
 
-    setPagingParams = (pagingParams: PagingParams) => {
-        this.pagingParams = pagingParams;
+    setPagingParams = (pagingParams: PagingParams) => this.feed.setPagingParams(pagingParams);
+    setPagination = this.feed.setPagination;
+    setPredicate = this.feed.setPredicate;
+    setLoadingInitial = this.feed.setLoadingInitial;
+    setDirectMessage = (message: MessageToDisplay) => this.feed.setItem(message);
+    resetFeedState = () => this.feed.predicate.clear();
+
+    // -- message history (thread list) feed surface --
+    get directMessageHistory() {
+        return this.historyFeed.items;
     }
-    setPagination = (value: Pagination | undefined) => {
-        this.pagination = value;
+    get loadingHistory() {
+        return this.historyFeed.loadingInitial;
     }
-    setHistoryPagingParams = (pagingParams: PagingParams) => {
-        this.historyPagingParams = pagingParams;
+    get historyPagingParams() {
+        return this.historyFeed.pagingParams;
     }
-    setHistoryPagination = (value: Pagination | undefined) => {
-        this.historyPagination = value;
+    get historyPagination() {
+        return this.historyFeed.pagination;
     }
-    setLoadingInitial = (value: boolean) => {
-        this.loadingInitial = value;
+
+    setHistoryPagingParams = (pagingParams: PagingParams) =>
+        this.historyFeed.setPagingParams(pagingParams);
+    setHistoryPagination = this.historyFeed.setPagination;
+    setLoadingHistory = this.historyFeed.setLoadingInitial;
+    setDirectMessageHistory = (messageHistory: MessageHistoryToDisplay) =>
+        this.historyFeed.setItem(messageHistory);
+
+    setSelectedDirectMessageHistoryItem = (val: MessageHistoryToDisplay | undefined) => {
+        this.feed.clearItems();
+        this.selectedDirectMessageHistoryItem = val;
+    }
+    setCurrentProfileToMessage = (val: ProfileUser | undefined) => {
+        this.currentProfileToMessage = val;
     }
     setLoadingUpsert = (val: boolean) => {
         this.loadingUpsert = val;
     }
-    setLoadingHistory = (val: boolean) => {
-        this.loadingHistory = val;
-    }
-    setDirectMessage = (message: MessageToDisplay) => {
-        this.directMessageRegistry.set(message.messageId, message);
-    }
-
-    setDirectMessageHistory = (messageHistory: MessageHistoryToDisplay) => {
-        this.directMessageHistoryRegistry.set(messageHistory.receiverId, messageHistory);
-    }
-    setSelectedDirectMessageHistoryItem = (val: MessageHistoryToDisplay | undefined) => {
-        this.directMessageRegistry.clear();
-        this.selectedDirectMessageHistoryItem = val;
-    }
-
-    resetFeedState = () => {
-        this.predicate.clear();
-    }
-
-    setCurrentProfileToMessage = (val: ProfileUser | undefined) => {
-        this.currentProfileToMessage = val;
-    }
-    get axiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.pagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.pagingParams.itemsPerPage.toString());
-        this.predicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
 
     loadDirectMessages = async (senderId: string, receiverId: string) => {
-        this.setLoadingInitial(true);
-        this.directMessageRegistry.clear();
-        try {
-            this.predicate.set('senderId', senderId);
-            this.predicate.set('receiverId', receiverId);
+        this.feed.setPredicate('senderId', senderId);
+        this.feed.setPredicate('receiverId', receiverId);
 
-            const { items, pagination } = await agent.messageApiClient.loadDirectMessages(this.axiosParams);
-
-            runInAction(() => {
-                items.map((messageItem: MessageToDisplay) => this.setDirectMessage(messageItem));
-            })
-
-            this.setPagination(pagination);
-        } finally {
-            this.setLoadingInitial(false);
-        }
-
+        return this.feed.load((params) => agent.messageApiClient.loadDirectMessages(params));
     }
 
-    loadDirectMessageHistory = async () => {
-
-        this.setLoadingHistory(true);
-    
-        this.directMessageHistoryRegistry.clear();
-        try {
-
-            const { items, pagination } = await agent.messageApiClient.loadDirectMessageThreads(this.axiosParams);
-
-            runInAction(() => {
-                items.map((messageItem: MessageHistoryToDisplay) => this.setDirectMessageHistory(messageItem));
-            })
-
-            this.setPagination(pagination);
-        } finally {
-            this.setLoadingHistory(false);
-        }
-
-    }
+    loadDirectMessageHistory = async () =>
+        this.historyFeed.load((params) =>
+            agent.messageApiClient.loadDirectMessageThreads(params)
+        );
 
     sendDirectMessage = async (messageForm: MessageFormDto) => {
         this.setLoadingUpsert(true);
         try {
             await agent.messageApiClient.sendDirectMessage(messageForm);
-
         } finally {
-            this.setLoadingUpsert(false);
+            runInAction(() => this.setLoadingUpsert(false));
         }
-    }
-
-    get directMessages() {
-        return Array.from(this.directMessageRegistry.values());
-    }
-
-    get directMessageHistory() {
-        return Array.from(this.directMessageHistoryRegistry.values());
     }
 }

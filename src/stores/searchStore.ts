@@ -1,140 +1,75 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { PostToDisplay,UserItemToDisplay } from "@typings";
-import { Pagination, PagingParams } from "@models/common";
+import { makeAutoObservable } from "mobx";
+import { PostToDisplay, UserItemToDisplay } from "@typings";
+import { PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
+import FeedState from "./base/feedState";
 
 export default class SearchStore {
 
-    constructor() {
-        makeAutoObservable(this);
-
-        reaction(
-            () => this.searchedUsersPredicate.keys(),
-            () => {
-                // this.predicate.clear();
-                // this.loadPosts();
-            }
-        );
-    }
-
-
-    searchUsersLoadingInitial = false;
-    searchPostsLoadingInitial = false;
+    usersFeed = new FeedState<UserItemToDisplay>((user) => user.id, { itemsPerPage: 25 });
+    postsFeed = new FeedState<PostToDisplay>((post) => post.postId, { itemsPerPage: 25 });
 
     loadingPost = false;
-    searchedUsersPredicate = new Map();
-    searchedPostsPredicate = new Map();
-    searchedCommunitiesPredicate = new Map();
-    searchedCommunityDiscussionsPredicate = new Map();
-    setSearchedUsersPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
-            this.searchedUsersPredicate.set(predicate, value);
-        } else {
-            this.searchedUsersPredicate.delete(predicate);
-        }
-    }
-    searchedUsersPagingParams: PagingParams = new PagingParams(1, 25);
-    searchedUsersPagination: Pagination | undefined = undefined;
-    searchedPostsPagingParams: PagingParams = new PagingParams(1, 25);
-    searchedPostsPagination: Pagination | undefined = undefined;
 
-    searchUsersRegistry: Map<string, UserItemToDisplay> = new Map<string, UserItemToDisplay>();
-    searchPostsRegistry: Map<string, PostToDisplay> = new Map<string, PostToDisplay>();
-
-    setSearchedUsersPagingParams = (pagingParams: PagingParams) => {
-        this.searchedUsersPagingParams = pagingParams;
-    }
-    setSearchedUsersPagination = (value: Pagination | undefined) => {
-        this.searchedUsersPagination = value;
-    }
-    setSearchedPostsPagingParams = (pagingParams: PagingParams) => {
-        this.searchedPostsPagingParams = pagingParams;
-    }
-    setSearchedPostsPagination = (value: Pagination | undefined) => {
-        this.searchedPostsPagination = value;
+    constructor() {
+        makeAutoObservable(this);
     }
 
-
-    setSearchedUser = (userId: string, user: UserItemToDisplay) => {
-        this.searchUsersRegistry.set(userId, user);
-    }
-    setSearchedPost = (postId: string, post: PostToDisplay) => {
-        this.searchPostsRegistry.set(postId, post);
-    }
-
-    setSearchUsersLoadingInitial = (value: boolean) => {
-        this.searchUsersLoadingInitial = value;
-    }
-    setSearchPostsLoadingInitial = (value: boolean) => {
-        this.searchPostsLoadingInitial = value;
-    }
-   
-    get searchUsersAxiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.searchedUsersPagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.searchedUsersPagingParams.itemsPerPage.toString());
-        this.searchedUsersPredicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-    get searchPostsAxiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.searchedPostsPagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.searchedPostsPagingParams.itemsPerPage.toString());
-        this.searchedPostsPredicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-
-    loadSearchedUsers = async () => {
-
-        this.setSearchUsersLoadingInitial(true);
-
-        try {
-            if(this.searchedUsersPagingParams.currentPage === 1)
-                this.searchUsersRegistry.clear();
-            
-            const { items, pagination } = await agent.userApiClient.getUsersToAdd(this.searchUsersAxiosParams) ?? [];
-
-            runInAction(() => {
-                items.forEach((userItem: UserItemToDisplay) => {
-                    this.setSearchedUser(userItem.id, userItem);
-                });
-            });
-
-            this.setSearchedUsersPagination(pagination);
-        } finally {
-            this.setSearchUsersLoadingInitial(false);
-        }
-
-    }
-    loadSearchedPosts = async () => {
-
-        this.setSearchPostsLoadingInitial(true);
-
-        try {
-            if(this.searchedPostsPagingParams.currentPage === 1)
-                this.searchUsersRegistry.clear();
-            
-            const { items, pagination } = await agent.postApiClient.getPostsToAdd(this.searchPostsAxiosParams) ?? [];
-
-            runInAction(() => {
-                items.forEach((postItem: PostToDisplay) => {
-                    this.setSearchedPost(postItem.postId, postItem);
-                });
-            });
-
-            this.setSearchedPostsPagination(pagination);
-        } finally {
-            this.setSearchPostsLoadingInitial(false);
-        }
-
-    }
-
+    // -- searched users feed surface --
     get searchedUsers() {
-        return Array.from(this.searchUsersRegistry.values());
+        return this.usersFeed.items;
     }
+    get searchUsersLoadingInitial() {
+        return this.usersFeed.loadingInitial;
+    }
+    get searchedUsersPredicate() {
+        return this.usersFeed.predicate;
+    }
+    get searchedUsersPagingParams() {
+        return this.usersFeed.pagingParams;
+    }
+    get searchedUsersPagination() {
+        return this.usersFeed.pagination;
+    }
+
+    setSearchedUsersPredicate = this.usersFeed.setPredicate;
+    setSearchedUsersPagingParams = (pagingParams: PagingParams) =>
+        this.usersFeed.setPagingParams(pagingParams);
+    setSearchedUsersPagination = this.usersFeed.setPagination;
+    setSearchUsersLoadingInitial = this.usersFeed.setLoadingInitial;
+    setSearchedUser = (userId: string, user: UserItemToDisplay) =>
+        this.usersFeed.setItemByKey(userId, user);
+
+    // -- searched posts feed surface --
     get searchedPosts() {
-        return Array.from(this.searchPostsRegistry.values());
+        return this.postsFeed.items;
     }
+    get searchPostsLoadingInitial() {
+        return this.postsFeed.loadingInitial;
+    }
+    get searchedPostsPredicate() {
+        return this.postsFeed.predicate;
+    }
+    get searchedPostsPagingParams() {
+        return this.postsFeed.pagingParams;
+    }
+    get searchedPostsPagination() {
+        return this.postsFeed.pagination;
+    }
+
+    setSearchedPostsPredicate = this.postsFeed.setPredicate;
+    setSearchedPostsPagingParams = (pagingParams: PagingParams) =>
+        this.postsFeed.setPagingParams(pagingParams);
+    setSearchedPostsPagination = this.postsFeed.setPagination;
+    setSearchPostsLoadingInitial = this.postsFeed.setLoadingInitial;
+    setSearchedPost = (postId: string, post: PostToDisplay) =>
+        this.postsFeed.setItemByKey(postId, post);
+
+    loadSearchedUsers = async () =>
+        this.usersFeed.load((params) => agent.userApiClient.getUsersToAdd(params));
+
+    // Was clearing searchUsersRegistry here -- a copy-paste slip that wiped the
+    // user results whenever post results loaded. Each feed now owns its own.
+    loadSearchedPosts = async () =>
+        this.postsFeed.load((params) => agent.postApiClient.getPostsToAdd(params));
 }

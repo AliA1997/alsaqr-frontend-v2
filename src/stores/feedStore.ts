@@ -1,58 +1,51 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { CreatePostForm, PostToDisplay } from "@typings";
-import { Pagination, PagingParams } from "@models/common";
+import { PagingParams } from "@models/common";
 import agent from "@utils/api/agent";
 import { BookmarkParams, LikedPostParams, RePostParams } from "@models/posts";
 import { DEFAULT_MEDIUM_ITEMS_PERPAGE } from "@utils/constants";
+import FeedState from "./base/feedState";
 
 export default class FeedStore {
 
-    constructor() {
-        makeAutoObservable(this);
-        
-        reaction(
-            () => this.predicate.keys(),
-            () => {}
-        );
-    }
+    feed = new FeedState<PostToDisplay>((pst) => pst.postId, {
+        itemsPerPage: +DEFAULT_MEDIUM_ITEMS_PERPAGE,
+    });
 
-
-    loadingInitial = false;
     loadingUpsert = false;
     loadingPost = false;
     loadingComments = false;
-    predicate = new Map();
-    setPredicate = (predicate: string, value: string | number | Date | undefined) => {
-        if(value) {
-            this.predicate.set(predicate, value);
-        } else {
-            this.predicate.delete(predicate);
-        }
-    }
-    pagingParams: PagingParams = new PagingParams(1, +DEFAULT_MEDIUM_ITEMS_PERPAGE);
-    pagination: Pagination | undefined = undefined;
-
-    postsRegistry: Map<string, PostToDisplay> = new Map<string, PostToDisplay>();
-    commentsRegistry: Map<string, Comment> = new Map<string, Comment>();
-
     loadedPost: PostToDisplay | undefined = undefined;
 
-    setPagingParams = (pagingParams: PagingParams) => {
-        this.pagingParams = pagingParams;
-    }
-    setPagination = (value: Pagination | undefined) => {
-        this.pagination = value;
-    }
-    setSearchQry = (val: string) => this.predicate.set('searchQry', val);
-
-
-    setPost = (postId: string, post: PostToDisplay) => {
-        this.postsRegistry.set(postId, post);
+    constructor() {
+        makeAutoObservable(this);
     }
 
-    setLoadingInitial = (value: boolean) => {
-        this.loadingInitial = value;
+    // -- feed surface, delegated so consumers keep reading feedStore.x --
+    get posts() {
+        return this.feed.items;
     }
+    get loadingInitial() {
+        return this.feed.loadingInitial;
+    }
+    get pagingParams() {
+        return this.feed.pagingParams;
+    }
+    get pagination() {
+        return this.feed.pagination;
+    }
+    get predicate() {
+        return this.feed.predicate;
+    }
+
+    setPagingParams = (pagingParams: PagingParams) => this.feed.setPagingParams(pagingParams);
+    setPagination = this.feed.setPagination;
+    setPredicate = this.feed.setPredicate;
+    setLoadingInitial = this.feed.setLoadingInitial;
+    setPost = (postId: string, post: PostToDisplay) => this.feed.setItemByKey(postId, post);
+    setSearchQry = (val: string) => this.feed.setPredicate("searchQry", val);
+    resetFeedState = this.feed.reset;
+
     setLoadingUpsert = (value: boolean) => {
         this.loadingUpsert = value;
     }
@@ -66,124 +59,63 @@ export default class FeedStore {
         this.loadedPost = value;
     }
 
-
-    resetFeedState = () => {
-        this.predicate.clear();
-        this.postsRegistry.clear();
-    }
-
-    get axiosParams() {
-        const params = new URLSearchParams();
-        params.append("currentPage", this.pagingParams.currentPage.toString());
-        params.append("itemsPerPage", this.pagingParams.itemsPerPage.toString());
-        this.predicate.forEach((value, key) => params.append(key, value));
-
-        return params;
-    }
-
-    loadPosts = async () => {
-
-        this.setLoadingInitial(true);
-
-        try {
-            if(this.pagingParams.currentPage === 1)
-                this.postsRegistry.clear();
-        
-            const { items, pagination } = await agent.postApiClient.getPosts(this.axiosParams) ?? [];
-            
-            runInAction(() => {
-                items.forEach((pst: PostToDisplay) => {
-                    this.setPost(pst.postId, pst);
-                });
-                
-                this.setPagination(pagination);
-            });
-
-        } finally {
-            this.setLoadingInitial(false);
-            // alert(this.postsRegistry.size)
-        }
-
-    }
+    loadPosts = async () => this.feed.load((params) => agent.postApiClient.getPosts(params));
 
     addPost = async (newPost: CreatePostForm) => {
-
-        this.setLoadingInitial(true);
+        this.feed.setLoadingInitial(true);
         try {
             await agent.postApiClient.addPost(newPost) ?? {};
-
         } finally {
-            this.setLoadingInitial(false);
+            runInAction(() => this.feed.setLoadingInitial(false));
         }
-
     }
 
     rePost = async (rePostParams: RePostParams) => {
-
-        this.setLoadingInitial(true);
+        this.feed.setLoadingInitial(true);
         try {
             await agent.mutatePostApiClient.rePost(rePostParams) ?? {};
-
         } finally {
-            this.setLoadingInitial(false);
+            runInAction(() => this.feed.setLoadingInitial(false));
         }
-
     }
-    likedPost = async (likedPostParams: LikedPostParams) => {
 
-        this.setLoadingInitial(true);
+    likedPost = async (likedPostParams: LikedPostParams) => {
+        this.feed.setLoadingInitial(true);
         try {
             await agent.mutatePostApiClient.likePost(likedPostParams) ?? {};
-
         } finally {
-            this.setLoadingInitial(false);
+            runInAction(() => this.feed.setLoadingInitial(false));
         }
-
     }
-    bookmarkPost = async (bookmarkParams: BookmarkParams) => {
 
-        this.setLoadingInitial(true);
+    bookmarkPost = async (bookmarkParams: BookmarkParams) => {
+        this.feed.setLoadingInitial(true);
         try {
             await agent.mutatePostApiClient.bookmarkPost(bookmarkParams) ?? {};
-
         } finally {
-            this.setLoadingInitial(false);
+            runInAction(() => this.feed.setLoadingInitial(false));
         }
-
     }
-    deleteYourPost = async (postId: string) => {
 
+    deleteYourPost = async (postId: string) => {
         this.setLoadingUpsert(true);
         try {
             await agent.mutatePostApiClient.deleteYourPost(postId) ?? {};
-
         } finally {
-            this.setLoadingUpsert(false);
+            runInAction(() => this.setLoadingUpsert(false));
         }
-
     }
 
     loadPost = async (postId: string) => {
-
         this.setLoadingPost(true);
         try {
-            const {post} = await agent.postApiClient.getPost(postId) ?? {};
+            const { post } = await agent.postApiClient.getPost(postId) ?? {};
 
             runInAction(() => {
                 this.setLoadedPost(post);
             });
         } finally {
-            this.setLoadingPost(false);
+            runInAction(() => this.setLoadingPost(false));
         }
-
-    }
-
-    get comments() {
-        return Array.from(this.commentsRegistry.values());
-    }
-
-
-    get posts() {
-        return Array.from(this.postsRegistry.values());
     }
 }
