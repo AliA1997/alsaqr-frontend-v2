@@ -1,5 +1,5 @@
 import { FALLBACK_IMAGE_URL, FALLBACK_NEWS_IMAGE_URL, FALLBACK_POST_IMAGE_URL } from '@utils/constants';
-import { MouseEventHandler, useState } from 'react';
+import { MouseEventHandler, useEffect, useState } from 'react';
 
 type CommonImageProps = {
     src: string;
@@ -36,6 +36,13 @@ export function OptimizedImage({
 }: CommonImageProps & { loadedHeight?: number, loadedWidth?: number }) {
     const [imageUrl, setImageUrl] = useState<string>(src)
 
+    // `imageUrl` is seeded from `src` and then owned by the error handler, so a
+    // changed `src` on a mounted instance would otherwise keep the old image.
+    useEffect(() => {
+        if (imageUrl != src)
+            setImageUrl(src);
+    }, [src])
+
     return (
         <img
             className={classNames ? classNames : "h-10 w-10 rounded-full object-cover"}
@@ -60,7 +67,12 @@ export function OptimizedNewsImage({
     classNames
 }: CommonImageProps) {
     const [imageUrl, setImageUrl] = useState<string>(src)
-    
+
+    useEffect(() => {
+        if (imageUrl != src)
+            setImageUrl(src);
+    }, [src])
+
     return (
         <img
             className={classNames ? classNames : "h-full w-full object-cover"}
@@ -86,6 +98,11 @@ export function OptimizedPostImage({
     classNames
 }: CommonImageProps) {
     const [imageUrl, setImageUrl] = useState<string>(src)
+
+    useEffect(() => {
+        if (imageUrl != src)
+            setImageUrl(src);
+    }, [src])
 
     return (
         <img

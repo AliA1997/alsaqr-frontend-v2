@@ -66,7 +66,7 @@
 ### Technical Planning
 - When loading data use store when you need the data to be set.
 - In cases when a distinct page needs to be loaded such as a post page, profile info, community page, community discussion page, etc, use the api client data access object from the api client files.
-- **The profile-collection views (communities, discussions, groups, events, products) are paginated feeds, so they use the STORE pattern, not useState.** Each collection gets a dedicated MobX feed store modeled on `alsaqr-meetup`'s `MyGroupsFeedStore` / `MyEventsFeedStore`: a `predicate` Map for filters/search, `pagingParams` + `pagination`, a `Map<number, XxxRecord>` registry, an `axiosParams` getter, and a `loadXxx` action that calls the matching `agent.xxxApiClient` method inside `runInAction`.
+- **The profile-collection views (communities, discussions, groups, events, products) are paginated feeds, so they use the STORE pattern, not useState.** Each collection gets a dedicated MobX feed store that **composes `FeedState`** (`src/stores/base/feedState.ts`) for the predicate Map, `pagingParams` + `pagination`, the keyed registry, `axiosParams`, the loading flag, and error handling — plus a `loadXxx` action that calls the matching `agent.xxxApiClient` method through `feed.load`. Do not re-implement those members per store; that duplication is what `FeedState` replaced.
 - Each feed store reads from an axios api client method that already exists in the source projects:
     - groups → `agent.groupsApiClient.getMyGroups(params)` → `/api/Groups/my`
     - events → `agent.eventsApiClient.getMyEvents(params)` → `/api/Events/my`
@@ -187,58 +187,49 @@ const agent = {
 export default agent;
 ```
 
-**Feed store** (`stores/myGroupsFeedStore.ts`) — modeled on the real `MyGroupsFeedStore`. Events/products stores are structurally identical; swap the record type and the `agent.xxxApiClient` call.
+**Feed store** (`stores/myGroupsFeedStore.ts`) — **compose `FeedState`, do not hand-roll the mechanics.** `src/stores/base/feedState.ts` owns the predicate map, paging params, pagination, the keyed registry, `axiosParams`, the loading flag, and error routing to `commonStore.setServerError`. Every paginated feed store in the app composes it; a store that re-implements any of that is a bug, not a style choice.
+
+`FeedState` is held as a **field**, never extended — `makeAutoObservable` refuses to run on a class with a superclass or a subclass, and composition lets one store own several feeds (see `listFeedStore`'s lists + saved items, `messageStore`'s messages + threads).
+
+Expose the feed through delegating getters so consumers keep reading `store.myGroups`, `store.loadingInitial`, etc. rather than reaching into `store.feed`.
+
 ```typescript
-import { makeAutoObservable, runInAction } from "mobx";
-import { Pagination, PagingParams } from "@models/common";
+import { makeAutoObservable } from "mobx";
+import { PagingParams } from "@models/common";
 import { GroupRecord } from "@models/group";
-import agent from "@utils/common";
+import agent from "@utils/api/agent";
+import FeedState from "./base/feedState";
 import { store } from ".";
 
 export default class MyGroupsFeedStore {
-  loadingInitial = false;
-  predicate = new Map();
-  pagingParams: PagingParams = new PagingParams(1, 25);
-  pagination: Pagination | undefined = undefined;
-  myGroupRegistry: Map<number, GroupRecord> = new Map<number, GroupRecord>();
+  feed = new FeedState<GroupRecord, number>((group) => group.id, { itemsPerPage: 25 });
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  setLoadingInitial = (value: boolean) => { this.loadingInitial = value; };
-  setPagination = (value: Pagination | undefined) => { this.pagination = value; };
-  setMyGroup = (groupId: number, group: GroupRecord) => { this.myGroupRegistry.set(groupId, group); };
-  resetFeedState = () => { this.predicate.clear(); this.myGroupRegistry.clear(); };
+  get myGroups() { return this.feed.items; }
+  get loadingInitial() { return this.feed.loadingInitial; }
+  get pagination() { return this.feed.pagination; }
+  get pagingParams() { return this.feed.pagingParams; }
+  get predicate() { return this.feed.predicate; }
 
-  get myGroups() {
-    return Array.from(this.myGroupRegistry.values());
-  }
+  setPagingParams = (pagingParams: PagingParams) => this.feed.setPagingParams(pagingParams);
+  setPredicate = this.feed.setPredicate;
+  setMyGroup = (groupId: number, group: GroupRecord) => this.feed.setItemByKey(groupId, group);
+  resetFeedState = this.feed.reset;
 
-  get axiosParams() {
-    const params = new URLSearchParams();
-    params.append("currentPage", this.pagingParams.currentPage.toString());
-    params.append("itemsPerPage", this.pagingParams.itemsPerPage.toString());
-    params.append("latitude", store.commonStore.userIpInfo?.latitude?.toString() ?? "27.7671");
-    params.append("longitude", store.commonStore.userIpInfo?.longitude?.toString() ?? "82.6384");
-    this.predicate.forEach((value, key) => params.append(key, value));
-    return params;
-  }
+  loadMyGroups = async (refresh?: boolean) => {
+    // Feed-specific params go on the predicate; FeedState folds them into axiosParams.
+    this.feed.setPredicate("latitude", store.commonStore.userIpInfo?.latitude ?? "27.7671");
+    this.feed.setPredicate("longitude", store.commonStore.userIpInfo?.longitude ?? "82.6384");
 
-  loadMyGroups = async () => {
-    this.setLoadingInitial(true);
-    try {
-      const { items, pagination } = await agent.groupsApiClient.getMyGroups(this.axiosParams);
-      runInAction(() => {
-        items.forEach((group: GroupRecord) => this.setMyGroup(group.id, group));
-        this.setPagination(pagination);
-      });
-    } finally {
-      this.setLoadingInitial(false);
-    }
+    return this.feed.load((params) => agent.groupsApiClient.getMyGroups(params), { refresh });
   };
 }
 ```
+
+`FeedState` options: `itemsPerPage`, `staticParams` (appended to every request, e.g. notifications' `all=true`), and `clearStrategy` — `"firstPage"` (default; clear on page 1, append after, what a virtualized feed wants), `"always"` (single-page feeds), or `"never"`. `load` never rejects: a failure lands on `feed.error` and `commonStore.error` instead of becoming an unhandled rejection that renders as a silently empty feed.
 
 **Store registration** (`stores/index.ts`) — add to both the `Store` interface and the `store` object.
 ```typescript

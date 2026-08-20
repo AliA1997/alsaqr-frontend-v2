@@ -22,7 +22,7 @@ export function PageTitleNoPadding({ children, classNames } : React.PropsWithChi
 
 export function NoRecordsTitle({ children }: React.PropsWithChildren<any>) {
     return (
-        <h3 className="pt-5 dark:text-gray-50">{children}</h3>
+        <h3 className="w-full pt-5 dark:text-gray-50">{children}</h3>
     );
 }
 
