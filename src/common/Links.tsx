@@ -9,6 +9,18 @@ export interface CommonLinkProps {
   activeInd?: boolean;
   classNames?: string;
   testId?: string;
+  // Accessibility contract (see CLAUDE.md section 16). CommonLink renders a div
+  // rather than a <button> so it can sit inside flex/grid rows without the
+  // browser's button styling, which means it has to carry role, tabIndex and a
+  // keyboard handler itself. Callers building a composite widget (Tabs) pass
+  // their own role/ids; everything else gets button semantics by default.
+  role?: string;
+  id?: string;
+  ariaSelected?: boolean;
+  ariaControls?: string;
+  ariaLabel?: string;
+  tabIndex?: number;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
 export interface UserProfileLinkProps {
@@ -16,10 +28,34 @@ export interface UserProfileLinkProps {
 }
 
 export function CommonLink(props: React.PropsWithChildren<CommonLinkProps>) {
+  // Enter/Space activate the link the same way a click does. A caller-supplied
+  // onKeyDown runs first and can preventDefault to claim the key (Tabs uses
+  // this for arrow-key navigation).
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (props.onKeyDown) props.onKeyDown(e);
+    if (e.defaultPrevented) return;
+
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      e.stopPropagation();
+      props.onClick();
+    }
+  };
+
   return (
     <div
       onClick={(e) => stopPropagationOnClick(e, props.onClick)}
+      onKeyDown={handleKeyDown}
+      role={props.role ?? "button"}
+      tabIndex={props.tabIndex ?? 0}
+      id={props.id}
+      aria-selected={props.ariaSelected}
+      aria-controls={props.ariaControls}
+      aria-label={props.ariaLabel}
       className={`
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#55a8c2]
+        focus-visible:ring-offset-1 dark:focus-visible:ring-offset-[#0e1517]
+        
         ${
           props.animatedLink
             ? `group flex md:max-w-fit w-100 md:w-unset 

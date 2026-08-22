@@ -42,8 +42,10 @@ export const userApiClient = {
         axios.get(`/api/Profile/${username}/groups`, { params }).then(axiosResponseBody),
     getUserProfileEvents: (username: string, params: URLSearchParams) =>
         axios.get(`/api/Profile/${username}/events`, { params }).then(axiosResponseBody),
-    getUserProfileProducts: (username: string, params: URLSearchParams) =>
+    getUserProfileSellingProducts: (username: string, params: URLSearchParams) =>
         axios.get(`/api/Profile/${username}/products`, { params }).then(axiosResponseBody),
+    getUserProfileBuyingProducts: (username: string, params: URLSearchParams) =>
+        axios.get(`/api/Profile/${username}/products/buying`, { params }).then(axiosResponseBody),
     
     completeRegistration: (userId: string, values: UserRegisterFormDto) =>
         axios.post(`/api/Users/${userId}`, { values }).then(axiosResponseBody),

@@ -6,8 +6,10 @@ import {
 } from './reusableFunctions';
 
 // Coverage for the ported profile-collection tabs:
-// Communities, Community Discussions, Meetup Groups, Meetup Events, Zook Selling Products.
+// Communities, Community Discussions, Meetup Groups, Meetup Events,
+// Zook Selling Products, Zook Buying Products.
 // Each tab is asserted to render, then to show either a populated card or its empty-state title.
+// The last spec covers the ARIA tabs contract (CLAUDE.md section 16).
 
 test.beforeEach(async ({ page }) => {
     test.slow();
@@ -41,6 +43,7 @@ test('test profile collection tabs render', async ({ page }) => {
     await checkIfElementIsDisplayed(page, 'groupstab');
     await checkIfElementIsDisplayed(page, 'eventstab');
     await checkIfElementIsDisplayed(page, 'sellingproductstab');
+    await checkIfElementIsDisplayed(page, 'buyingproductstab');
 });
 
 test('test profile communities tab', async ({ page }) => {
@@ -91,4 +94,35 @@ test('test profile zook selling products tab', async ({ page }) => {
         'productcard',
         'You are not selling anything yet'
     );
+});
+
+test('test profile zook buying products tab', async ({ page }) => {
+    await navigateToProfilePage(page);
+    await assertTabPopulatedOrEmpty(
+        page,
+        'buyingproductstab',
+        'productcard',
+        'You are not buying anything yet'
+    );
+});
+
+test('test profile tabs expose the aria tabs contract', async ({ page }) => {
+    await navigateToProfilePage(page);
+    await page.waitForLoadState('domcontentloaded');
+
+    // The tab bar is a tablist, and each tab points at the panel it controls.
+    await expect(page.getByRole('tablist').first()).toBeVisible();
+
+    const groupsTab = await checkIfElementIsDisplayed(page, 'groupstab');
+    await expect(groupsTab).toHaveAttribute('role', 'tab');
+    await expect(groupsTab).toHaveAttribute('aria-controls', /^panel-/);
+
+    await groupsTab.click();
+    await expect(groupsTab).toHaveAttribute('aria-selected', 'true');
+
+    // Arrow keys move selection to the next tab and take focus with them.
+    await groupsTab.press('ArrowRight');
+    const eventsTab = page.getByTestId('eventstab');
+    await expect(eventsTab).toHaveAttribute('aria-selected', 'true');
+    await expect(eventsTab).toBeFocused();
 });

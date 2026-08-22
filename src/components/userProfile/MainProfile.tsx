@@ -24,16 +24,10 @@ import CommunityDiscussionItemComponent from "../community/CommunityDiscussionIt
 import UserGroupsFeed from "./UserGroupsFeed";
 import UserEventsFeed from "./UserEventsFeed";
 import UserSellingProductsFeed from "./UserSellingProductsFeed";
+import UserBuyingProductsFeed from "./UserBuyingProductsFeed";
 import UserHeader from "./UserHeader";
 import agent from "@utils/api/agent";
-import { MEDIA_TAB } from "@utils/constants";
-
-// Tab keys for the ported profile-collection views.
-const COMMUNITIES_TAB = "communities";
-const DISCUSSIONS_TAB = "discussions";
-const GROUPS_TAB = "groups";
-const EVENTS_TAB = "events";
-const PRODUCTS_SELLING_TAB = "products-selling";
+import { ProfileTab } from "@models/enums";
 
 // The list endpoints return their rows under `items` (native ALSaqr) or `data`
 // (paginated wrapper) depending on the source project; normalize both.
@@ -56,6 +50,7 @@ const MainProfile = () => {
   const [userGroups, setUserGroups] = useState<GroupRecord[]>([]);
   const [userEvents, setUserEvents] = useState<EventRecord[]>([]);
   const [sellingProducts, setSellingProducts] = useState<ProductRecord[]>([]);
+  const [buyingProducts, setBuyingProducts] = useState<ProductRecord[]>([]);
 
   const { userStore } = useStore();
   const {
@@ -156,12 +151,27 @@ const MainProfile = () => {
   // 5) Zook products the user is selling (alsaqr-zook).
   async function loadSellingProducts() {
     setLoadingPosts(true);
-    await agent.userApiClient.getUserProfileProducts(username, axiosParams)
+    await agent.userApiClient.getUserProfileSellingProducts(username, axiosParams)
       .then(res => {
         setSellingProducts(extractItems<ProductRecord>(res));
       })
       .catch(err => {
         console.log('Get Selling Products error:', err);
+      })
+      .finally(() => {
+        setLoadingPosts(false);
+      });
+  }
+
+  // 6) Zook products the user is buying (alsaqr-zook).
+  async function loadBuyingProducts() {
+    setLoadingPosts(true);
+    await agent.userApiClient.getUserProfileBuyingProducts(username, axiosParams)
+      .then(res => {
+        setBuyingProducts(extractItems<ProductRecord>(res));
+      })
+      .catch(err => {
+        console.log('Get Buying Products error:', err);
       })
       .finally(() => {
         setLoadingPosts(false);
@@ -236,26 +246,34 @@ const MainProfile = () => {
     []
   );
 
+  const buyingProductsRenderer = useCallback(
+    (products: ProductRecord[]) => <UserBuyingProductsFeed products={products} />,
+    []
+  );
+
   const loadOnTabSwitch = useCallback(
     async (tab: string) => {
       switch (tab) {
-        case MEDIA_TAB:
+        case ProfileTab.Media:
           await loadProfileMediaPosts();
           break;
-        case COMMUNITIES_TAB:
+        case ProfileTab.Communities:
           await loadProfileCommunities();
           break;
-        case DISCUSSIONS_TAB:
+        case ProfileTab.Discussions:
           await loadProfileDiscussions();
           break;
-        case GROUPS_TAB:
+        case ProfileTab.Groups:
           await loadUserGroups();
           break;
-        case EVENTS_TAB:
+        case ProfileTab.Events:
           await loadUserEvents();
           break;
-        case PRODUCTS_SELLING_TAB:
+        case ProfileTab.ProductsSelling:
           await loadSellingProducts();
+          break;
+        case ProfileTab.ProductsBuying:
+          await loadBuyingProducts();
           break;
         default:
           break;
@@ -281,7 +299,7 @@ const MainProfile = () => {
               <Tabs
                 tabs={[
                   {
-                    tabKey: "recent",
+                    tabKey: ProfileTab.Recent,
                     title: "Recent",
                     testId: 'recenttab',
                     content: profilePosts?.userPosts ?? [],
@@ -289,7 +307,7 @@ const MainProfile = () => {
                     noRecordsContent: 'No posts'
                   },
                   {
-                    tabKey: "reposts",
+                    tabKey: ProfileTab.Reposts,
                     title: "Reposts",
                     testId: 'repoststab',
                     content: profilePosts?.repostedPosts ?? [],
@@ -297,7 +315,7 @@ const MainProfile = () => {
                     noRecordsContent: 'No reposts found'
                   },
                   {
-                    tabKey: "bookmarks",
+                    tabKey: ProfileTab.Bookmarks,
                     title: "Bookmarks",
                     testId: 'bookmarkstab',
                     content: profilePosts?.bookmarkedPosts ?? [],
@@ -305,7 +323,7 @@ const MainProfile = () => {
                     noRecordsContent: `No bookmarks found`
                   },
                   {
-                    tabKey: "replied-posts",
+                    tabKey: ProfileTab.Replies,
                     title: "Replies",
                     testId: 'repliestab',
                     content: profilePosts?.repliedPosts ?? [],
@@ -313,7 +331,7 @@ const MainProfile = () => {
                     noRecordsContent: `No replied posts found`
                   },
                   {
-                    tabKey: "liked-posts",
+                    tabKey: ProfileTab.Likes,
                     title: "Liked Posts",
                     testId: 'likestab',
                     content: profilePosts?.likedPosts ?? [],
@@ -321,7 +339,7 @@ const MainProfile = () => {
                     noRecordsContent: `No liked posts found`
                   },
                   {
-                    tabKey: "media",
+                    tabKey: ProfileTab.Media,
                     title: "Media",
                     testId: 'mediatab',
                     content: profileMediaPosts.length ? [profileMediaPosts] : [],
@@ -329,7 +347,7 @@ const MainProfile = () => {
                     noRecordsContent: `No media found`
                   },
                   {
-                    tabKey: COMMUNITIES_TAB,
+                    tabKey: ProfileTab.Communities,
                     title: "Communities",
                     testId: 'communitiestab',
                     content: profileCommunities,
@@ -337,7 +355,7 @@ const MainProfile = () => {
                     noRecordsContent: `Not part of any communities`
                   },
                   {
-                    tabKey: DISCUSSIONS_TAB,
+                    tabKey: ProfileTab.Discussions,
                     title: "Community Discussions",
                     testId: 'discussionstab',
                     content: profileDiscussions,
@@ -345,7 +363,7 @@ const MainProfile = () => {
                     noRecordsContent: `Not part of any community discussions`
                   },
                   {
-                    tabKey: GROUPS_TAB,
+                    tabKey: ProfileTab.Groups,
                     title: "Meetup Groups",
                     testId: 'groupstab',
                     content: userGroups.length ? [userGroups] : [],
@@ -353,7 +371,7 @@ const MainProfile = () => {
                     noRecordsContent: `Not a member of any group yet`
                   },
                   {
-                    tabKey: EVENTS_TAB,
+                    tabKey: ProfileTab.Events,
                     title: "Meetup Events",
                     testId: 'eventstab',
                     content: userEvents.length ? [userEvents] : [],
@@ -361,12 +379,20 @@ const MainProfile = () => {
                     noRecordsContent: `No events attended yet`
                   },
                   {
-                    tabKey: PRODUCTS_SELLING_TAB,
+                    tabKey: ProfileTab.ProductsSelling,
                     title: "Selling Products",
                     testId: 'sellingproductstab',
                     content: sellingProducts.length ? [sellingProducts] : [],
                     renderer: sellingProductsRenderer,
                     noRecordsContent: `You are not selling anything yet`
+                  },
+                  {
+                    tabKey: ProfileTab.ProductsBuying,
+                    title: "Buying Products",
+                    testId: 'buyingproductstab',
+                    content: buyingProducts.length ? [buyingProducts] : [],
+                    renderer: buyingProductsRenderer,
+                    noRecordsContent: `You are not buying anything yet`
                   },
                 ]}
                 loading={loadingPosts}

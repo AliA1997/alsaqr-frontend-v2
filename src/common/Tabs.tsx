@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import {  SkeletonLoader } from "./CustomLoader";
 import { OptimizedImage } from "./Image";
 import { ContentContainerWithRef } from "./Containers";
@@ -19,11 +19,18 @@ type TabsProps = {
   loading: boolean;
   loadOnTabSwitch?: (tab: string) => Promise<void>;
   containerClassNames?: string;
+  ariaLabel?: string;
 };
 
-function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerClassNames }: TabsProps) {
+function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerClassNames, ariaLabel }: TabsProps) {
   const containerRef = useRef(null);
   const [activeTab, setActiveTab] = useState<string>(tabs[0].tabKey);
+
+  // Scopes the tab/panel element ids to this instance so the aria-controls and
+  // aria-labelledby pairs stay unique when two tab sets are mounted at once.
+  const instanceId = useId();
+  const tabId = useCallback((tabKey: string) => `tab-${instanceId}-${tabKey}`, [instanceId]);
+  const panelId = useCallback((tabKey: string) => `panel-${instanceId}-${tabKey}`, [instanceId]);
   const tabLinks = useMemo(
     () =>
       tabs.map((t) => ({
@@ -50,6 +57,28 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
     if(loadOnTabSwitch)
       loadOnTabSwitch(tab);
   }, []);
+
+  // Arrow/Home/End move between tabs and follow focus, per the ARIA tabs
+  // pattern. Anything else falls through to CommonLink's Enter/Space handler.
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>, currentIndex: number) => {
+      const lastIndex = tabs.length - 1;
+      let nextIndex: number | null = null;
+
+      if (e.key === "ArrowRight") nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
+      else if (e.key === "ArrowLeft") nextIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
+      else if (e.key === "Home") nextIndex = 0;
+      else if (e.key === "End") nextIndex = lastIndex;
+
+      if (nextIndex === null) return;
+
+      e.preventDefault();
+      const nextTab = tabs[nextIndex];
+      handleTabSwitch(nextTab.tabKey);
+      document.getElementById(tabId(nextTab.tabKey))?.focus();
+    },
+    [tabs, handleTabSwitch, tabId]
+  );
 
   // Horizontal drag-to-scroll for the tab bar.
   const tabBarRef = useRef<HTMLDivElement | null>(null);
@@ -98,6 +127,8 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
     >
       <div
         ref={tabBarRef}
+        role="tablist"
+        aria-label={ariaLabel ?? "Tabs"}
         onMouseDown={onTabBarMouseDown}
         onMouseMove={onTabBarMouseMove}
         onMouseUp={endTabBarDrag}
@@ -121,6 +152,12 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
               activeInd={activeTab === tl.tabKey}
               animatedLink={false}
               testId={tl.testId ?? "tab"}
+              role="tab"
+              id={tabId(tl.tabKey)}
+              ariaControls={panelId(tl.tabKey)}
+              ariaSelected={activeTab === tl.tabKey}
+              tabIndex={activeTab === tl.tabKey ? 0 : -1}
+              onKeyDown={(e) => handleTabKeyDown(e, tlIdx)}
               classNames={`shrink-0 whitespace-nowrap text-sm ${activeTab === tl.tabKey ? "font-semibold" : ""}`}
             >
               {tl.image ? (
@@ -151,7 +188,10 @@ function Tabs({ tabs, showNumberOfRecords, loading, loadOnTabSwitch, containerCl
         ) => (
           <div
             key={`${tC.tabKey}-${tCIdx}`}
-            id={`${tC.tabKey}`}
+            id={panelId(tC.tabKey)}
+            role="tabpanel"
+            aria-labelledby={tabId(tC.tabKey)}
+            tabIndex={0}
             className={`tab-content p-4 ${activeTab === tC.tabKey ? "" : "hidden" }  ${containerClassNames ? containerClassNames : ''}`}
           >
 

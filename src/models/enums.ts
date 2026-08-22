@@ -48,6 +48,22 @@ export enum ExploreTabs {
 }
 
 
+export enum ProfileTab {
+  Recent = 'recent',
+  Reposts = 'reposts',
+  Bookmarks = 'bookmarks',
+  Replies = 'replied-posts',
+  Likes = 'liked-posts',
+  Media = 'media',
+  // Ported profile collections.
+  Communities = 'communities',
+  Discussions = 'discussions',
+  Groups = 'groups',                    // alsaqr-meetup
+  Events = 'events',                    // alsaqr-meetup
+  ProductsSelling = 'products-selling', // alsaqr-zook
+  ProductsBuying = 'products-buying',   // alsaqr-zook
+}
+
 export enum NotificationTabs {
   All = "All",
   Verified = "Verified",
