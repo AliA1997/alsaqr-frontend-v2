@@ -11,7 +11,7 @@
 - Mobx +6.13.6 / mobx-react-lite / mobx-persist-store
 - Formik 2.4.6 + Yup 1.6.1
 - Tailwind CSS 4.1.14
-- Gradio Javascript client +2.0.0
+- Gradio Javascript client +2.3.1
 - Supabase Client +2.58.0
 - React Router +7.2.1 (`react-router-dom`, `createBrowserRouter`)
 - Axios (api client layer — see §5)
@@ -76,8 +76,11 @@ inside a feature. Anything used by more than one feature moves to the shared fol
 `common/`, `components/shared/`, `hooks/`, or `utils/`. Otherwise the boundaries blur fast.
 
 Path aliases are configured in `tsconfig.app.json` / `vite.config.ts`: `@features`, `@components`,
-`@common`, `@layout`, `@hooks`, `@models`, `@stores`, `@utils`, `@typings`. Use them — no deep
-relative chains like `../../../stores`.
+`@common`, `@hooks`, `@models`, `@enums`, `@stores`, `@utils`, `@webWorkers`, `@animatedIcons`,
+`@typings`. There is no `@layout` alias — `src/layout/` is always imported by relative path. `@enums`
+points straight at `models/enums.ts` rather than resolving through `@models`, because worker bundles
+get `resolve.alias` but not the `tsconfigPaths()` plugin (see §8). Use the aliases — no deep relative
+chains like `../../../stores`.
 
 ## 3. Shared state vs local state
 
@@ -365,201 +368,39 @@ date formatter or a truncation rule should not exist in three files.
 > `/products/buying`. If the backend settles on a symmetric `/products/selling` pair, change both
 > here and in `userApiClient` together.
 
-- The app-wide (non-profile-scoped) ported feeds keep their source-project clients:
-  `groupsApiClient.getMyGroups` → `/api/Groups/my`, `eventsApiClient.getMyEvents` → `/api/Events/my`,
-  `productApiClient.getSellingProducts` / `getBuyingProducts` →
-  `/api/UserProducts/selling` and `/api/UserProducts/buying`.
+- `groupsApiClient.getMyGroups`, `eventsApiClient.getMyEvents`, and
+  `productApiClient.getSellingProducts` / `getBuyingProducts` exist but nothing in this app calls
+  them yet. The sidebar's Marketplace/Meetups rows (`SidebarTabs.Zook` / `.Meetup` in
+  `layout/Sidebar.tsx`) navigate away to the separately deployed `alsaqr-zook` / `alsaqr-meetup`
+  apps (`VITE_PUBLIC_ZOOK_URL` / `VITE_PUBLIC_MEETUP_URL`) instead of rendering a feed here. The only
+  ported data this app actually renders is the profile-scoped tabs above, via `userApiClient`. Don't
+  assume an in-app "my groups"/"my events" screen exists — there isn't one.
 
 ## Task Breakdown
 
 - Most of the project is complete. Do not scaffold new features from scratch; follow the user prompt
   for maintenance, fixes, or enhancements only, respecting the conventions above.
-- Adding a profile-collection tab means: (1) the `XxxRecord` model in `models/`, (2) the api client
-  method on the matching `xxxApiClient`, registered in `agent`, (3) a `ProfileTab` enum value,
-  (4) a `UserXxxFeed` component in `components/userProfile/`, (5) the tab entry in `MainProfile`,
-  (6) Playwright coverage.
-
-## Implementation — reference patterns
-
-**Models** — copied verbatim from the source projects (`models/group.ts`, `models/event.ts`,
-`models/product.ts`).
-
-```typescript
-// models/group.ts  (from alsaqr-meetup)
-export interface GroupRecord {
-  id: number;
-  slug: string;
-  name: string;
-  description: string;
-  images: any[];
-  cityId: number;
-  city: string;
-  country: string;
-  topics: any[];
-  attendees: any[];
-  longitude: number;
-  latitude: number;
-  distanceKm: number;
-}
-
-// models/event.ts  (from alsaqr-meetup)
-export interface EventRecord {
-  id: number;
-  slug: string;
-  name: string;
-  description: string;
-  images: any[];
-  groupId: number;
-  groupName: string;
-  citiesHosted: any[];
-  distanceKm: number;
-}
-
-// models/product.ts  (from alsaqr-zook)
-export interface ProductRecord {
-  id: number;
-  userId: string;
-  title: string;
-  description: string;
-  price: number;
-  images: string[];
-  slug: string;
-  attributes: { [key: string]: any };
-  tags: string[];
-  productCategoryId: number;
-  category: string;
-  latitude: number;
-  longitude: number;
-}
-```
-
-**Enum** (`models/enums.ts`) — tab keys are enum values, never inline strings (§14).
-
-```typescript
-export enum ProfileTab {
-  Recent = 'recent',
-  Reposts = 'reposts',
-  Bookmarks = 'bookmarks',
-  Replies = 'replied-posts',
-  Likes = 'liked-posts',
-  Media = 'media',
-  // ported collections
-  Communities = 'communities',
-  Discussions = 'discussions',
-  Groups = 'groups',                    // alsaqr-meetup
-  Events = 'events',                    // alsaqr-meetup
-  ProductsSelling = 'products-selling', // alsaqr-zook
-  ProductsBuying = 'products-buying',   // alsaqr-zook
-}
-```
-
-**API client** — axios object literal in `src/utils/api/`, registered in the `agent` aggregator.
-
-```typescript
-// utils/api/groupsApiClient.ts  (from alsaqr-meetup)
-import axios from "axios";
-import { axiosResponseBody } from "./agent";
-
-export const groupsApiClient = {
-    getMyGroups: (params: URLSearchParams | undefined) =>
-        axios.get(`/api/Groups/my`, { params }).then(axiosResponseBody),
-};
-
-// utils/api/agent.ts — every client is aggregated here
-const agent = {
-  // ...existing clients
-  groupsApiClient,
-  eventsApiClient,
-  productApiClient,
-};
-export default agent;
-```
-
-**Feed store** (paginated feeds only) — compose `FeedState`, do not hand-roll the mechanics.
-
-```typescript
-import { makeAutoObservable } from "mobx";
-import { PagingParams } from "@models/common";
-import { GroupRecord } from "@models/group";
-import agent from "@utils/api/agent";
-import FeedState from "./base/feedState";
-import { store } from ".";
-
-export default class MyGroupsFeedStore {
-  feed = new FeedState<GroupRecord, number>((group) => group.id, { itemsPerPage: 25 });
-
-  constructor() {
-    makeAutoObservable(this);
-  }
-
-  get myGroups() { return this.feed.items; }
-  get loadingInitial() { return this.feed.loadingInitial; }
-  get pagination() { return this.feed.pagination; }
-  get pagingParams() { return this.feed.pagingParams; }
-  get predicate() { return this.feed.predicate; }
-
-  setPagingParams = (pagingParams: PagingParams) => this.feed.setPagingParams(pagingParams);
-  setPredicate = this.feed.setPredicate;
-  setMyGroup = (groupId: number, group: GroupRecord) => this.feed.setItemByKey(groupId, group);
-  resetFeedState = this.feed.reset;
-
-  loadMyGroups = async (refresh?: boolean) => {
-    // Feed-specific params go on the predicate; FeedState folds them into axiosParams.
-    this.feed.setPredicate("latitude", store.commonStore.userIpInfo?.latitude ?? "27.7671");
-    this.feed.setPredicate("longitude", store.commonStore.userIpInfo?.longitude ?? "82.6384");
-
-    return this.feed.load((params) => agent.groupsApiClient.getMyGroups(params), { refresh });
-  };
-}
-```
-
-Register it in [src/stores/index.ts](src/stores/index.ts) — both the `Store` interface and the
-`store` object.
-
-**Profile collection component** (`components/userProfile/UserGroupsFeed.tsx`) — a presentational
-feed that takes its rows as a prop, uses the shared container and empty-state, and carries a
-`testId`.
-
-```tsx
-import { useRef } from "react";
-import type { GroupRecord } from "@models/group";
-import { ContentContainerWithRef } from "@common/Containers";
-import { NoRecordsTitle } from "@common/Titles";
-import GroupCard from "@components/group/GroupCard";
-
-interface Props {
-  groups: GroupRecord[];
-}
-
-// Displays the meetup groups the user is a member of.
-function UserGroupsFeed({ groups }: Props) {
-  const containerRef = useRef(null);
-
-  return (
-    <ContentContainerWithRef
-      classNames="text-left grid w-full max-w-7xl grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"
-      innerRef={containerRef}
-      testId="usergroupsfeed"
-    >
-      {groups && groups.length ? (
-        groups.map((group) => <GroupCard key={group.id} group={group} showDistance />)
-      ) : (
-        <NoRecordsTitle>Not a member of any group yet.</NoRecordsTitle>
-      )}
-    </ContentContainerWithRef>
-  );
-}
-
-export default UserGroupsFeed;
-```
-
-**Wiring into the profile** — `MainProfile` owns the rows in `useState`, passes them to the shared
-`Tabs` component keyed by `ProfileTab`, and fetches the tab's data in `loadOnTabSwitch`. The Events
-and Products tabs are the same shape. Keep one shared loading/empty treatment to stay DRY (§5).
+- Adding a profile-collection tab (the pattern behind Communities, Discussions, Groups, Events,
+  Products — all six live in [MainProfile.tsx](src/components/userProfile/MainProfile.tsx) today)
+  means: (1) an `XxxRecord` model in `models/`, copied verbatim from the source project — see
+  `models/group.ts`, `models/event.ts`, `models/product.ts` for the shape; (2) an api client method
+  on the matching `xxxApiClient`, registered in `agent` — see `utils/api/groupsApiClient.ts`;
+  (3) a `ProfileTab` enum value in `models/enums.ts`; (4) for a domain with no existing item
+  component, a presentational `UserXxxFeed` in `components/userProfile/` following
+  `UserGroupsFeed.tsx` (rows as a prop, `ContentContainerWithRef` + `NoRecordsTitle`, a `testId`) —
+  a domain that already has one (communities, discussions) reuses it directly instead, the way
+  `MainProfile` does for those two tabs; (5) the tab entry plus a `loadOnTabSwitch` case in
+  `MainProfile`; (6) Playwright coverage in `tests/userProfileCollections.spec.ts`.
+- These tabs stay local-`useState` per §3, never `FeedState` — a future one growing infinite scroll
+  is a separate migration, not part of this recipe.
 
 ## Validation
 
-- Validated via the Playwright suite (~90% coverage) in [tests/](tests/). Run it before merging.
+- Validated via the Playwright suite (~90% coverage, tracked by hand — there is no coverage tool
+  wired into the repo) in [tests/](tests/). Run it before merging.
 - Profile tabs (communities, discussions, groups, events, products-selling, products-buying) each
   have coverage: tab renders, populated state, empty state. Do not merge below the coverage bar.
 - Run `pnpm build` (`tsc -b && vite build`) and `pnpm lint` before merging. Use **pnpm**, not npm.
+  `pnpm lint` currently has a large pre-existing backlog (mostly `@typescript-eslint/no-explicit-any`
+  in the ported meetup/zook files and in `tests/`) — clean up lint in files your change already
+  touches, but the backlog itself is not implicitly in scope for unrelated work.
